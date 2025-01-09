@@ -75,8 +75,8 @@ public class Superstructure extends SubsystemBase {
   private final ClimberSubsystem climber =
       Config.Subsystems.CLIMBER_ENABLED
           ? (MODE == GlobalConstants.RobotMode.REAL
-              ? new ClimberSubsystem(new ClimberIOReal())
-              : new ClimberSubsystem(new ClimberIOSim()))
+              ? new ClimberSubsystem("Climber", new ClimberIOReal())
+              : new ClimberSubsystem("Climber Sim", new ClimberIOSim()))
           : null;
 
   private final LEDSubsystem leds =
@@ -97,7 +97,7 @@ public class Superstructure extends SubsystemBase {
     if (flywheel != null) {
       registerCommand(
           "Run Flywheel",
-          startEnd(() -> flywheel.runVelocity(flywheelSpeedInput::get), flywheel::setIdle)
+          startEnd(() -> flywheel.setVelocityOverride(flywheelSpeedInput::get), flywheel::setIdle)
               .withTimeout(5.0));
     }
   }

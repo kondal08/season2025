@@ -1,58 +1,38 @@
 package frc.robot.subsystems.climber;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import static edu.wpi.first.units.Units.Meters;
 
-public class ClimberSubsystem extends SubsystemBase {
-  public enum ClimberMode {
-    ZERO(0.0), // Climber is off
-    MAXHEIGHT(1.0); // Maximum Height
-    final double height;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
+import edu.wpi.first.units.measure.Distance;
+import frc.robot.generic.elevators.GenericPositionElevatorSystem;
+import java.util.function.DoubleSupplier;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
-    ClimberMode(double height) {
-      this.height = height;
+@Setter
+@Getter
+public class ClimberSubsystem extends GenericPositionElevatorSystem<ClimberSubsystem.ClimberGoal> {
+  @RequiredArgsConstructor
+  @Getter
+  public enum ClimberGoal implements GenericPositionElevatorSystem.ExtensionGoal {
+    IDLING(() -> 0.0), // Climber is off
+    DEEP_CLIMB(() -> 0.5), // Deep climb level
+    SHALLOW_CLIMB(() -> 10); // Deep climb level
+
+    private final DoubleSupplier heightSupplier;
+
+    @Override
+    public Distance getHeightSupplier() {
+      return Meters.of(heightSupplier.getAsDouble());
     }
   }
 
-  private final ClimberIO io;
-  private final ClimberIOInputsAutoLogged inputs = new ClimberIOInputsAutoLogged();
+  private ClimberGoal goal = ClimberGoal.IDLING;
+  private Debouncer currentDebouncer = new Debouncer(0.25, DebounceType.kFalling);
 
-  public ClimberSubsystem(ClimberIO io) {
-    this.io = io;
-    io.configurePID(
-        ClimberConstants.kP,
-        ClimberConstants.kI,
-        ClimberConstants.kD); // TODO: change to correct PID Values
-  }
-
-  @Override
-  public void periodic() {
-    io.updateInputs(inputs);
-    // Add logging if necessary
-  }
-
-  /** Set climber to a specified mode using the enum */
-  private void setClimberMode(ClimberMode mode) {
-    // Set intake velocity based on the selected mode
-    io.setPosition(mode.height);
-  }
-
-  /** Set the position of the climber to Zero */
-  public void stop() {
-    setClimberMode(ClimberMode.ZERO);
-  }
-
-  /** Set the position of the climber to its max height */
-  public void MaxHeight() {
-    setClimberMode(ClimberMode.MAXHEIGHT);
-  }
-
-  /** resets encoders */
-  public void resetEncoder() {
-    io.resetEncoder();
-  }
-
-  /** sets the motors to mirror one another */
-  public void setHoming(boolean homingBool) {
-    io.setHoming(homingBool);
+  public ClimberSubsystem(String name, ClimberIO io) {
+    super(name, io);
   }
 }

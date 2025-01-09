@@ -9,7 +9,7 @@ import org.littletonrobotics.junction.Logger;
 
 public abstract class GenericPositionElevatorSystem<
     G extends GenericPositionElevatorSystem.ExtensionGoal> {
-  interface ExtensionGoal {
+  public interface ExtensionGoal {
     Distance getHeightSupplier();
   }
 
@@ -46,7 +46,7 @@ public abstract class GenericPositionElevatorSystem<
       lastGoal = getGoal();
     }
 
-    io.runVelocity(getGoal().getHeightSupplier().magnitude());
+    io.runPosition(getGoal().getHeightSupplier().magnitude());
     Logger.recordOutput("Rollers/" + name + "Goal", getGoal().toString());
   }
 }
