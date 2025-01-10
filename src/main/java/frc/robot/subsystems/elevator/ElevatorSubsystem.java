@@ -13,7 +13,8 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class ElevatorSubsystem extends GenericPositionElevatorSystem<ElevatorSubsystem.ElevatorGoal> {
+public class ElevatorSubsystem
+    extends GenericPositionElevatorSystem<ElevatorSubsystem.ElevatorGoal> {
   @RequiredArgsConstructor
   @Getter
   public enum ElevatorGoal implements GenericPositionElevatorSystem.ExtensionGoal {

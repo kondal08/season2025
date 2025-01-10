@@ -31,7 +31,6 @@ import frc.robot.subsystems.leds.LEDSubsystem;
 import frc.robot.subsystems.pivot.PivotIOReal;
 import frc.robot.subsystems.pivot.PivotIOSim;
 import frc.robot.subsystems.pivot.PivotSubsystem;
-import frc.robot.subsystems.pivot.PivotVisualizer;
 import frc.robot.util.AllianceFlipUtil;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -45,11 +44,12 @@ public class Superstructure extends SubsystemBase {
   private Supplier<Pose2d> drivePoseSupplier;
 
   private final PivotSubsystem pivot =
-          Config.Subsystems.ELEVATOR_ENABLED
-                  ? (MODE == GlobalConstants.RobotMode.REAL
-                  ? new PivotSubsystem("Pivot", new PivotIOReal(40,40,false,false,0))
-                  : new PivotSubsystem("Pivot Sim", new PivotIOSim(new DCMotor(1,1,1,1,1,1),0,0)))
-                  : null;
+      Config.Subsystems.ELEVATOR_ENABLED
+          ? (MODE == GlobalConstants.RobotMode.REAL
+              ? new PivotSubsystem("Pivot", new PivotIOReal(40, 40, false, false, 0))
+              : new PivotSubsystem(
+                  "Pivot Sim", new PivotIOSim(new DCMotor(1, 1, 1, 1, 1, 1), 0, 0)))
+          : null;
 
   private final FlywheelSubsystem flywheel =
       Config.Subsystems.SHOOTER_ENABLED
@@ -60,21 +60,25 @@ public class Superstructure extends SubsystemBase {
   private final FeederSubsystem feeder =
       Config.Subsystems.FEEDER_ENABLED
           ? (MODE == GlobalConstants.RobotMode.REAL
-              ? new FeederSubsystem("Feeder", new FeederIOReal(41,40,false,false,0))
-              : new FeederSubsystem("Feeder Sim", new FeederIOSim(new DCMotor(1,1,1,1,1,1),0,0)))
+              ? new FeederSubsystem("Feeder", new FeederIOReal(41, 40, false, false, 0))
+              : new FeederSubsystem(
+                  "Feeder Sim", new FeederIOSim(new DCMotor(1, 1, 1, 1, 1, 1), 0, 0)))
           : null;
 
-  private final ClimberSubsystem climber = Config.Subsystems.ELEVATOR_ENABLED
+  private final ClimberSubsystem climber =
+      Config.Subsystems.ELEVATOR_ENABLED
           ? (MODE == GlobalConstants.RobotMode.REAL
-          ? new ClimberSubsystem("Climber", new ClimberIOReal(42,40,false,false,0))
-          : new ClimberSubsystem("Climber Sim", new ClimberIOSim(new DCMotor(1,1,1,1,1,1),0,0)))
+              ? new ClimberSubsystem("Climber", new ClimberIOReal(42, 40, false, false, 0))
+              : new ClimberSubsystem(
+                  "Climber Sim", new ClimberIOSim(new DCMotor(1, 1, 1, 1, 1, 1), 0, 0)))
           : null;
 
   private final ElevatorSubsystem elevator =
       Config.Subsystems.ELEVATOR_ENABLED
           ? (MODE == GlobalConstants.RobotMode.REAL
-              ? new ElevatorSubsystem("Climber", new ElevatorIOReal(43,40,false,false,0))
-              : new ElevatorSubsystem("Climber Sim", new ElevatorIOSim(new DCMotor(1,1,1,1,1,1),0,0)))
+              ? new ElevatorSubsystem("Climber", new ElevatorIOReal(43, 40, false, false, 0))
+              : new ElevatorSubsystem(
+                  "Climber Sim", new ElevatorIOSim(new DCMotor(1, 1, 1, 1, 1, 1), 0, 0)))
           : null;
 
   private final LEDSubsystem leds =
@@ -114,7 +118,7 @@ public class Superstructure extends SubsystemBase {
     switch (currentState) {
       case IDLING -> {
         if (feeder != null) feeder.setGoal(FeederSubsystem.FeederGoal.IDLING);
-       // if (flywheel != null)
+        // if (flywheel != null)
         if (pivot != null) pivot.setGoal(PivotSubsystem.PivotGoal.IDLING);
         if (climber != null) climber.setGoal(ClimberSubsystem.ClimberGoal.IDLING);
         if (elevator != null) elevator.setGoal(ElevatorSubsystem.ElevatorGoal.IDLING);

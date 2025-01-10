@@ -1,16 +1,15 @@
 package frc.robot.subsystems.pivot;
 
+import static edu.wpi.first.units.Units.Meters;
+
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.units.measure.Distance;
 import frc.robot.generic.elevators.GenericPositionElevatorSystem;
+import java.util.function.DoubleSupplier;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-
-import java.util.function.DoubleSupplier;
-
-import static edu.wpi.first.units.Units.Meters;
 
 @Setter
 @Getter
