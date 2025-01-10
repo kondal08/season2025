@@ -1,13 +1,11 @@
 package frc.robot.generic.elevators;
 
-import edu.wpi.first.units.measure.Distance;
-import frc.robot.generic.rollers.GenericRollerSystemIO;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface GenericElevatorSystemIO {
 
   @AutoLog
-  public abstract class GenericElevatorSystemIOInputs {
+  public static class GenericElevatorSystemIOInputs {
     public boolean connected = true;
     public double positionRads = 0.0;
     public double velocityRadsPerSec = 0.0;
@@ -17,9 +15,9 @@ public interface GenericElevatorSystemIO {
     public double tempCelsius = 0.0;
   }
 
-  default void updateInputs(GenericRollerSystemIO.GenericRollerSystemIOInputs inputs) {}
+  default void updateInputs(GenericElevatorSystemIOInputs inputs) {}
   /** Run elevator system to a height */
-  default void runPosition(Distance height) {}
+  default void runPosition(double height) {}
   /** Stop elevator system */
   default void stop() {}
 }

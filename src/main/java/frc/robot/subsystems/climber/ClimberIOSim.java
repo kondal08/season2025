@@ -2,48 +2,11 @@
 
 package frc.robot.subsystems.climber;
 
-public class ClimberIOSim implements ClimberIO {
-  @Override
-  public void updateInputs(ClimberIOInputs inputs) {}
+import edu.wpi.first.math.system.plant.DCMotor;
+import frc.robot.generic.rollers.GenericRollerSystemIOSim;
 
-  @Override
-  public void setPosition(double climberPositionRad) {}
-
-  @Override
-  public void setVoltage(double volts) {}
-
-  @Override
-  public void setLeftVoltage(double volts) {}
-
-  @Override
-  public void setRightVoltage(double volts) {}
-
-  @Override
-  public void setHoming(boolean homingBool) {}
-
-  @Override
-  public void resetEncoder(double position) {}
-
-  @Override
-  public void resetEncoder() {
-    ClimberIO.super.resetEncoder();
+public class ClimberIOSim extends GenericRollerSystemIOSim implements ClimberIO {
+  public ClimberIOSim(DCMotor motorModel, double reduction, double moi) {
+    super(motorModel, reduction, moi);
   }
-
-  @Override
-  public boolean isCurrentLimited() {
-    return ClimberIO.super.isCurrentLimited();
-  }
-
-  @Override
-  public boolean isLeftCurrentLimited() {
-    return ClimberIO.super.isLeftCurrentLimited();
-  }
-
-  @Override
-  public boolean isRightCurrentLimited() {
-    return ClimberIO.super.isRightCurrentLimited();
-  }
-
-  @Override
-  public void configurePID(double kP, double kI, double kD) {}
 }

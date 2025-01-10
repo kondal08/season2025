@@ -1,4 +1,4 @@
-package frc.robot.subsystems.climber;
+package frc.robot.subsystems.elevator;
 
 import static edu.wpi.first.units.Units.Meters;
 
@@ -13,10 +13,11 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class ClimberSubsystem extends GenericPositionElevatorSystem<ClimberSubsystem.ClimberGoal> {
+public class ElevatorSubsystem
+    extends GenericPositionElevatorSystem<ElevatorSubsystem.ElevatorGoal> {
   @RequiredArgsConstructor
   @Getter
-  public enum ClimberGoal implements ExtensionGoal {
+  public enum ElevatorGoal implements GenericPositionElevatorSystem.ExtensionGoal {
     IDLING(() -> 0.0), // Climber is off
     DEEP_CLIMB(() -> 0.5), // Deep climb level
     SHALLOW_CLIMB(() -> 10); // Deep climb level
@@ -29,10 +30,10 @@ public class ClimberSubsystem extends GenericPositionElevatorSystem<ClimberSubsy
     }
   }
 
-  private ClimberGoal goal = ClimberGoal.IDLING;
+  private ElevatorGoal goal = ElevatorGoal.IDLING;
   private Debouncer currentDebouncer = new Debouncer(0.25, DebounceType.kFalling);
 
-  public ClimberSubsystem(String name, ClimberIO io) {
+  public ElevatorSubsystem(String name, ElevatorIO io) {
     super(name, io);
   }
 }

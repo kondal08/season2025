@@ -1,14 +1,10 @@
 package frc.robot.subsystems.feeder;
 
-public class FeederIOSim implements FeederIO {
-  @Override
-  public void updateInputs(FeederIOInputs inputs) {}
+import edu.wpi.first.math.system.plant.DCMotor;
+import frc.robot.generic.rollers.GenericRollerSystemIOSim;
 
-  @Override
-  public void setVoltage(double volts) {}
-
-  @Override
-  public boolean hasNote() {
-    return false;
+public class FeederIOSim extends GenericRollerSystemIOSim implements FeederIO {
+  public FeederIOSim(DCMotor motorModel, double reduction, double moi) {
+    super(motorModel, reduction, moi);
   }
 }

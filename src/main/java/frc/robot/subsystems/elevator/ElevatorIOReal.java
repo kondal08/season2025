@@ -1,9 +1,9 @@
-package frc.robot.subsystems.climber;
+package frc.robot.subsystems.elevator;
 
 import frc.robot.generic.rollers.GenericRollerSystemIOSparkMax;
 
-public class ClimberIOReal extends GenericRollerSystemIOSparkMax implements ClimberIO {
-  public ClimberIOReal(
+public class ElevatorIOReal extends GenericRollerSystemIOSparkMax implements ElevatorIO {
+  public ElevatorIOReal(
       int id, int currentLimitAmps, boolean invert, boolean brake, double reduction) {
     super(id, currentLimitAmps, invert, brake, reduction);
   }
