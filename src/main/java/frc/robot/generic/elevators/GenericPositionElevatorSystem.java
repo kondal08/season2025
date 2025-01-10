@@ -16,7 +16,7 @@ public abstract class GenericPositionElevatorSystem<
   public abstract G getGoal();
 
   private final String name;
-  private final GenericElevatorSystemIO io;
+  public final GenericElevatorSystemIO io;
   protected final GenericElevatorSystemIOInputsAutoLogged inputs =
       new GenericElevatorSystemIOInputsAutoLogged();
   private final Alert disconnected;
