@@ -13,6 +13,7 @@
 
 package frc.robot;
 
+import static frc.robot.Config.Subsystems.DRIVETRAIN_ENABLED;
 import static frc.robot.GlobalConstants.MODE;
 import static frc.robot.subsystems.swerve.SwerveConstants.*;
 
@@ -52,62 +53,62 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    switch (MODE) {
-      case REAL:
-        // Real robot, instantiate hardware IO implementations
-        drive =
-            new SwerveSubsystem(
-                new GyroIOPigeon2(),
-                new ModuleIOSpark(FRONT_LEFT),
-                new ModuleIOSpark(FRONT_RIGHT),
-                new ModuleIOSpark(BACK_LEFT),
-                new ModuleIOSpark(BACK_RIGHT));
-        break;
+    if (DRIVETRAIN_ENABLED) {
+      switch (MODE) {
+        case REAL:
+          // Real robot, instantiate hardware IO implementations
+          drive =
+              new SwerveSubsystem(
+                  new GyroIOPigeon2(),
+                  new ModuleIOSpark(FRONT_LEFT),
+                  new ModuleIOSpark(FRONT_RIGHT),
+                  new ModuleIOSpark(BACK_LEFT),
+                  new ModuleIOSpark(BACK_RIGHT));
+          break;
 
-      case SIM:
-        // Sim robot, instantiate physics sim IO implementations
-        drive =
-            new SwerveSubsystem(
-                new GyroIO() {},
-                new ModuleIOSim(),
-                new ModuleIOSim(),
-                new ModuleIOSim(),
-                new ModuleIOSim());
-        break;
+        case SIM:
+          // Sim robot, instantiate physics sim IO implementations
+          drive =
+              new SwerveSubsystem(
+                  new GyroIO() {},
+                  new ModuleIOSim(),
+                  new ModuleIOSim(),
+                  new ModuleIOSim(),
+                  new ModuleIOSim());
+          break;
 
-      default:
-        // Replayed robot, disable IO implementations
-        drive =
-            new SwerveSubsystem(
-                new GyroIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {});
-        break;
-    }
+        default:
+          // Replayed robot, disable IO implementations
+          drive =
+              new SwerveSubsystem(
+                  new GyroIO() {},
+                  new ModuleIO() {},
+                  new ModuleIO() {},
+                  new ModuleIO() {},
+                  new ModuleIO() {});
+          break;
+      }
+      // Set up auto routines
+      autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
-    // Set up auto routines
-    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-
-    // Set up SysId routines
-    autoChooser.addOption(
-        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-    autoChooser.addOption(
-        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Forward)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Reverse)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-    // Configure the button bindings
-    configureButtonBindings();
+      // Set up SysId routines
+      autoChooser.addOption(
+          "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
+      autoChooser.addOption(
+          "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+      autoChooser.addOption(
+          "Drive SysId (Quasistatic Forward)",
+          drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+      autoChooser.addOption(
+          "Drive SysId (Quasistatic Reverse)",
+          drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+      autoChooser.addOption(
+          "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+      autoChooser.addOption(
+          "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+      // Configure the button bindings
+      configureButtonBindings();
+    } else drive = null;
   }
 
   /**
