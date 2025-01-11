@@ -2,11 +2,6 @@
 
 package frc.robot.subsystems.elevator;
 
-import edu.wpi.first.math.system.plant.DCMotor;
-import frc.robot.generic.rollers.GenericRollerSystemIOSim;
+import frc.robot.generic.elevators.GenericElevatorSystemIOSim;
 
-public class ElevatorIOSim extends GenericRollerSystemIOSim implements ElevatorIO {
-  public ElevatorIOSim(DCMotor motorModel, double reduction, double moi) {
-    super(motorModel, reduction, moi);
-  }
-}
+public class ElevatorIOSim extends GenericElevatorSystemIOSim implements ElevatorIO {}

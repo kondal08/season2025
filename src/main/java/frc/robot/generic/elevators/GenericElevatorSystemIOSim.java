@@ -1,3 +1,3 @@
 package frc.robot.generic.elevators;
 
-public class GenericElevatorSystemIOSim {}
+public class GenericElevatorSystemIOSim implements GenericElevatorSystemIO {}

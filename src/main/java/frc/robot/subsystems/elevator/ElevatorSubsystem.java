@@ -18,9 +18,11 @@ public class ElevatorSubsystem
   @RequiredArgsConstructor
   @Getter
   public enum ElevatorGoal implements GenericPositionElevatorSystem.ExtensionGoal {
-    IDLING(() -> 0.0), // Climber is off
-    DEEP_CLIMB(() -> 0.5), // Deep climb level
-    SHALLOW_CLIMB(() -> 10); // Deep climb level
+    IDLING(() -> 0.0),
+    LEVEL_ONE(() -> 0.1),
+    LEVEL_TWO(() -> 0.2),
+    LEVEL_THREE(() -> 0.3),
+    LEVEL_FOUR(() -> 0.4);
 
     private final DoubleSupplier heightSupplier;
 

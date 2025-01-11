@@ -46,9 +46,8 @@ public class Superstructure extends SubsystemBase {
   private final PivotSubsystem pivot =
       Config.Subsystems.ELEVATOR_ENABLED
           ? (MODE == GlobalConstants.RobotMode.REAL
-              ? new PivotSubsystem("Pivot", new PivotIOReal(40, 40, false, false, 0))
-              : new PivotSubsystem(
-                  "Pivot Sim", new PivotIOSim(new DCMotor(1, 1, 1, 1, 1, 1), 0, 0)))
+              ? new PivotSubsystem("Pivot", new PivotIOReal())
+              : new PivotSubsystem("Pivot Sim", new PivotIOSim()))
           : null;
 
   private final FlywheelSubsystem flywheel =
@@ -68,17 +67,15 @@ public class Superstructure extends SubsystemBase {
   private final ClimberSubsystem climber =
       Config.Subsystems.ELEVATOR_ENABLED
           ? (MODE == GlobalConstants.RobotMode.REAL
-              ? new ClimberSubsystem("Climber", new ClimberIOReal(42, 40, false, false, 0))
-              : new ClimberSubsystem(
-                  "Climber Sim", new ClimberIOSim(new DCMotor(1, 1, 1, 1, 1, 1), 0, 0)))
+              ? new ClimberSubsystem("Climber", new ClimberIOReal())
+              : new ClimberSubsystem("Climber Sim", new ClimberIOSim()))
           : null;
 
   private final ElevatorSubsystem elevator =
       Config.Subsystems.ELEVATOR_ENABLED
           ? (MODE == GlobalConstants.RobotMode.REAL
-              ? new ElevatorSubsystem("Climber", new ElevatorIOReal(43, 40, false, false, 0))
-              : new ElevatorSubsystem(
-                  "Climber Sim", new ElevatorIOSim(new DCMotor(1, 1, 1, 1, 1, 1), 0, 0)))
+              ? new ElevatorSubsystem("Climber", new ElevatorIOReal())
+              : new ElevatorSubsystem("Climber Sim", new ElevatorIOSim()))
           : null;
 
   private final LEDSubsystem leds =
