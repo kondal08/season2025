@@ -18,7 +18,7 @@ public class PivotSubsystem extends GenericPositionArmSystem<PivotSubsystem.Pivo
   @Getter
   public enum PivotGoal implements GenericPositionArmSystem.PivotGoal {
     IDLING(() -> PivotConstants.Hardware.RESTING_ANGLE),
-    LEVEL_ONE(() -> PivotConstants.Hardware.RESTING_ANGLE + 0.1) ,
+    LEVEL_ONE(() -> PivotConstants.Hardware.RESTING_ANGLE + 0.1),
     LEVEL_TWO(() -> PivotConstants.Hardware.RESTING_ANGLE + 0.2),
     LEVEL_THREE(() -> PivotConstants.Hardware.RESTING_ANGLE + 0.3),
     LEVEL_FOUR(() -> PivotConstants.Hardware.MAX_ANGLE_RAD);
