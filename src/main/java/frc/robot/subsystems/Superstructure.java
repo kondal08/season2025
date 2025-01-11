@@ -68,14 +68,14 @@ public class Superstructure extends SubsystemBase {
       Config.Subsystems.ELEVATOR_ENABLED
           ? (MODE == GlobalConstants.RobotMode.REAL
               ? new ClimberSubsystem("Climber", new ClimberIOReal())
-              : new ClimberSubsystem("Climber Sim", new ClimberIOSim()))
+              : new ClimberSubsystem("Climber Sim", new ClimberIOSim(2, 0.0)))
           : null;
 
   private final ElevatorSubsystem elevator =
       Config.Subsystems.ELEVATOR_ENABLED
           ? (MODE == GlobalConstants.RobotMode.REAL
               ? new ElevatorSubsystem("Climber", new ElevatorIOReal())
-              : new ElevatorSubsystem("Climber Sim", new ElevatorIOSim()))
+              : new ElevatorSubsystem("Climber Sim", new ElevatorIOSim(2,0.0)))
           : null;
 
   private final LEDSubsystem leds =
