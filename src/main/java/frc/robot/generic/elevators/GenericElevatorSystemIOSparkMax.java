@@ -1,3 +1,3 @@
 package frc.robot.generic.elevators;
 
-public class GenericElevatorSystemIOSparkMax {}
+public class GenericElevatorSystemIOSparkMax implements GenericElevatorSystemIO {}

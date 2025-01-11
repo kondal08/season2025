@@ -5,7 +5,7 @@ import static edu.wpi.first.units.Units.Meters;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.units.measure.Distance;
-import frc.robot.generic.elevators.GenericPositionElevatorSystem;
+import frc.robot.generic.arm.GenericPositionArmSystem;
 import java.util.function.DoubleSupplier;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -13,13 +13,15 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class PivotSubsystem extends GenericPositionElevatorSystem<PivotSubsystem.PivotGoal> {
+public class PivotSubsystem extends GenericPositionArmSystem<PivotSubsystem.PivotGoal> {
   @RequiredArgsConstructor
   @Getter
-  public enum PivotGoal implements ExtensionGoal {
-    IDLING(() -> 0.0), // Climber is off
-    DEEP_CLIMB(() -> 0.5), // Deep climb level
-    SHALLOW_CLIMB(() -> 10); // Deep climb level
+  public enum PivotGoal implements GenericPositionArmSystem.PivotGoal {
+    IDLING(() -> 0.0),
+    LEVEL_ONE(() -> 0.1),
+    LEVEL_TWO(() -> 0.2),
+    LEVEL_THREE(() -> 0.3),
+    LEVEL_FOUR(() -> 0.4);
 
     private final DoubleSupplier heightSupplier;
 

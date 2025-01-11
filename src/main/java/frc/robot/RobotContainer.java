@@ -19,10 +19,8 @@ import static frc.robot.subsystems.swerve.SwerveConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -56,65 +54,67 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    switch (MODE) {
-      case REAL:
-        // Real robot, instantiate hardware IO implementations
-        drive =
-            new SwerveSubsystem(
-                new GyroIOPigeon2(),
-                new ModuleIOSpark(FRONT_LEFT),
-                new ModuleIOSpark(FRONT_RIGHT),
-                new ModuleIOSpark(BACK_LEFT),
-                new ModuleIOSpark(BACK_RIGHT));
-        break;
+    if (DRIVETRAIN_ENABLED) {
+      switch (MODE) {
+        case REAL:
+          // Real robot, instantiate hardware IO implementations
+          drive =
+              new SwerveSubsystem(
+                  new GyroIOPigeon2(),
+                  new ModuleIOSpark(FRONT_LEFT),
+                  new ModuleIOSpark(FRONT_RIGHT),
+                  new ModuleIOSpark(BACK_LEFT),
+                  new ModuleIOSpark(BACK_RIGHT));
+          break;
 
-      case SIM:
-        // Sim robot, instantiate physics sim IO implementations
-        drive =
-            new SwerveSubsystem(
-                new GyroIO() {},
-                new ModuleIOSim(),
-                new ModuleIOSim(),
-                new ModuleIOSim(),
-                new ModuleIOSim());
-        break;
+        case SIM:
+          // Sim robot, instantiate physics sim IO implementations
+          drive =
+              new SwerveSubsystem(
+                  new GyroIO() {},
+                  new ModuleIOSim(),
+                  new ModuleIOSim(),
+                  new ModuleIOSim(),
+                  new ModuleIOSim());
+          break;
 
-      default:
-        // Replayed robot, disable IO implementations
-        drive =
-            new SwerveSubsystem(
-                new GyroIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {});
-        break;
-    }
+        default:
+          // Replayed robot, disable IO implementations
+          drive =
+              new SwerveSubsystem(
+                  new GyroIO() {},
+                  new ModuleIO() {},
+                  new ModuleIO() {},
+                  new ModuleIO() {},
+                  new ModuleIO() {});
+          break;
+      }
 
-    // Set up auto routines
-    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+      // Set up auto routines
+      autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
-    // Set up SysId routines
-    autoChooser.addOption(
-        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-    autoChooser.addOption(
-        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Forward)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Reverse)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+      // Set up SysId routines
+      autoChooser.addOption(
+          "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
+      autoChooser.addOption(
+          "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+      autoChooser.addOption(
+          "Drive SysId (Quasistatic Forward)",
+          drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+      autoChooser.addOption(
+          "Drive SysId (Quasistatic Reverse)",
+          drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+      autoChooser.addOption(
+          "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+      autoChooser.addOption(
+          "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-    // Configure the button bindings
-    configureButtonBindings();
+      // Configure the button bindings
+      configureButtonBindings();
 
-    // Register the auto commands
-    registerAutoCommands();
+      // Register the auto commands
+      registerAutoCommands();
+    } else drive = null;
   }
 
   /**
@@ -159,29 +159,24 @@ public class RobotContainer {
     // align to coral station with position customization when LB is pressed
     controller
         .leftBumper()
-        .whileTrue(DriveCommands.chasePoseRobotRelativeCommandXOverride(drive, () -> new Pose2d(), () -> controller.getLeftY()));
+        .whileTrue(
+            DriveCommands.chasePoseRobotRelativeCommandXOverride(
+                drive, () -> new Pose2d(), () -> controller.getLeftY()));
   }
 
-  /** 
-   * Write all the auto named commands here
-   */
+  /** Write all the auto named commands here */
+  private void registerAutoCommands() {
+    /** Overriding commands */
 
-   private void registerAutoCommands() {
-        /**
-         * Overriding commands
-         */
+    // overrides the x axis
+    NamedCommands.registerCommand(
+        "OverrideCoralOffset", DriveCommands.overridePathplannerCoralOffset(() -> 2.0));
 
-         // overrides the x axis
-         NamedCommands.registerCommand("OverrideCoralOffset", DriveCommands.overridePathplannerCoralOffset(() -> 2.0));
+    // clears all override commands in the x and y direction
+    NamedCommands.registerCommand("Clear XY Override", DriveCommands.clearXYOverrides());
 
-         // clears all override commands in the x and y direction
-         NamedCommands.registerCommand("Clear XY Override", DriveCommands.clearXYOverrides());
-
-
-         /**
-          * Robot function commands
-          */
-   }
+    /** Robot function commands */
+  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
