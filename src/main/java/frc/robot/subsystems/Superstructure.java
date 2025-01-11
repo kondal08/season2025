@@ -47,7 +47,7 @@ public class Superstructure extends SubsystemBase {
       Config.Subsystems.ELEVATOR_ENABLED
           ? (MODE == GlobalConstants.RobotMode.REAL
               ? new PivotSubsystem("Pivot", new PivotIOReal())
-              : new PivotSubsystem("Pivot Sim", new PivotIOSim()))
+              : new PivotSubsystem("Pivot Sim", new PivotIOSim(2, 0.0)))
           : null;
 
   private final FlywheelSubsystem flywheel =
