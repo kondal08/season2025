@@ -16,7 +16,7 @@ import lombok.Setter;
 public class ClimberSubsystem extends GenericPositionElevatorSystem<ClimberSubsystem.ClimberGoal> {
   @RequiredArgsConstructor
   @Getter
-  public enum ClimberGoal implements ExtensionGoal {
+  public enum ClimberGoal implements GenericPositionElevatorSystem.ExtensionGoal {
     IDLING(() -> 0.0), // Climber is off
     DEEP_CLIMB(() -> 0.5), // Deep climb level
     SHALLOW_CLIMB(() -> 10); // Deep climb level
