@@ -32,7 +32,6 @@ public final class PivotConstants {
 
   public static final class Hardware {
     public static final double MAX_ANGLE_RAD = 1;
-    public static final double MIN_ANGLE_RAD = 0;
     public static final double ABSOLUTE_ENCODER_OFFSET = 0.38;
     public static final double RESTING_ANGLE = 0.45;
   }

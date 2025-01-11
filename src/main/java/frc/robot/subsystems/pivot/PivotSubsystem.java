@@ -17,11 +17,11 @@ public class PivotSubsystem extends GenericPositionArmSystem<PivotSubsystem.Pivo
   @RequiredArgsConstructor
   @Getter
   public enum PivotGoal implements GenericPositionArmSystem.PivotGoal {
-    IDLING(() -> 0.0),
-    LEVEL_ONE(() -> 0.1),
-    LEVEL_TWO(() -> 0.2),
-    LEVEL_THREE(() -> 0.3),
-    LEVEL_FOUR(() -> 0.4);
+    IDLING(() -> PivotConstants.Hardware.RESTING_ANGLE),
+    LEVEL_ONE(() -> PivotConstants.Hardware.RESTING_ANGLE + 0.1) ,
+    LEVEL_TWO(() -> PivotConstants.Hardware.RESTING_ANGLE + 0.2),
+    LEVEL_THREE(() -> PivotConstants.Hardware.RESTING_ANGLE + 0.3),
+    LEVEL_FOUR(() -> PivotConstants.Hardware.MAX_ANGLE_RAD);
 
     private final DoubleSupplier heightSupplier;
 
