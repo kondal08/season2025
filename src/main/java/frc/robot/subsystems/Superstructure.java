@@ -22,9 +22,6 @@ import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.feeder.FeederIOReal;
 import frc.robot.subsystems.feeder.FeederIOSim;
 import frc.robot.subsystems.feeder.FeederSubsystem;
-import frc.robot.subsystems.flywheel.FlywheelIOSim;
-import frc.robot.subsystems.flywheel.FlywheelIOSpark;
-import frc.robot.subsystems.flywheel.FlywheelSubsystem;
 import frc.robot.subsystems.leds.LEDIOPWM;
 import frc.robot.subsystems.leds.LEDIOSim;
 import frc.robot.subsystems.leds.LEDSubsystem;
@@ -48,13 +45,6 @@ public class Superstructure extends SubsystemBase {
           ? (MODE == GlobalConstants.RobotMode.REAL
               ? new PivotSubsystem("Pivot", new PivotIOReal())
               : new PivotSubsystem("Pivot Sim", new PivotIOSim(2, 0.0)))
-          : null;
-
-  private final FlywheelSubsystem flywheel =
-      Config.Subsystems.SHOOTER_ENABLED
-          ? (MODE == GlobalConstants.RobotMode.REAL
-              ? new FlywheelSubsystem(new FlywheelIOSpark())
-              : new FlywheelSubsystem(new FlywheelIOSim()))
           : null;
   private final FeederSubsystem feeder =
       Config.Subsystems.FEEDER_ENABLED
@@ -134,34 +124,7 @@ public class Superstructure extends SubsystemBase {
     else return null;
   }
 
-  public Trigger shooterVelocityGreater() {
-    return new Trigger(() -> flywheel.getVelocityRPM() > 1200);
-  }
-
   public void registerSuperstructureCharacterization(
       Supplier<LoggedDashboardChooser<Command>> autoChooser) {
-    // Set up SysId routines for all subsystems
-    if (flywheel != null) {
-      autoChooser
-          .get()
-          .addOption(
-              "Flywheel SysId (Quasistatic Forward)",
-              flywheel.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-      autoChooser
-          .get()
-          .addOption(
-              "Flywheel SysId (Quasistatic Reverse)",
-              flywheel.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-      autoChooser
-          .get()
-          .addOption(
-              "Flywheel SysId (Dynamic Forward)",
-              flywheel.sysIdDynamic(SysIdRoutine.Direction.kForward));
-      autoChooser
-          .get()
-          .addOption(
-              "Flywheel SysId (Dynamic Reverse)",
-              flywheel.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    }
   }
 }
