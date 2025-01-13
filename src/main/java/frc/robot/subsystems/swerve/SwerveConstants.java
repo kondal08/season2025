@@ -71,7 +71,6 @@ public final class SwerveConstants {
   static final double DRIVE_ENCODER_POSITION_FACTOR = 2 * Math.PI / DRIVE_GEAR_RATIO;
   /** Wheel radians per second */
   static final double DRIVE_ENCODER_VELOCITY_FACTOR = (2 * Math.PI) / 60.0 / DRIVE_GEAR_RATIO;
-
   // Rotator motor configuration
   /** Amps */
   static final int ROTATOR_MOTOR_CURRENT_LIMIT_AMPS = 20;

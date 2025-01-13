@@ -13,7 +13,7 @@ import lombok.Setter;
 public class FeederSubsystem extends GenericVoltageRollerSystem<FeederSubsystem.FeederGoal> {
   @RequiredArgsConstructor
   @Getter
-  public enum FeederGoal implements VoltageGoal {
+  public enum FeederGoal implements GenericVoltageRollerSystem.VoltageGoal {
     IDLING(() -> 0.0), // Intake is off
     FORWARD(() -> 12.0), // Maximum forward voltage
     REVERSE(() -> -12.0); // Maximum reverse voltage
