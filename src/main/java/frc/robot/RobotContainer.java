@@ -18,7 +18,6 @@ import static frc.robot.GlobalConstants.MODE;
 import static frc.robot.subsystems.swerve.SwerveConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -29,7 +28,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.swerve.GyroIO;
-import frc.robot.subsystems.swerve.GyroIOPigeon2;
+import frc.robot.subsystems.swerve.GyroIONavX;
 import frc.robot.subsystems.swerve.ModuleIO;
 import frc.robot.subsystems.swerve.ModuleIOSim;
 import frc.robot.subsystems.swerve.ModuleIOSpark;
@@ -60,7 +59,7 @@ public class RobotContainer {
           // Real robot, instantiate hardware IO implementations
           drive =
               new SwerveSubsystem(
-                  new GyroIOPigeon2(),
+                  new GyroIONavX(),
                   new ModuleIOSpark(FRONT_LEFT),
                   new ModuleIOSpark(FRONT_RIGHT),
                   new ModuleIOSpark(BACK_LEFT),
@@ -113,7 +112,6 @@ public class RobotContainer {
       configureButtonBindings();
 
       // Register the auto commands
-      registerAutoCommands();
     } else drive = null;
   }
 
@@ -128,9 +126,9 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
+            () -> controller.getLeftY(),
+            () -> controller.getLeftX(),
+            () -> controller.getRightX()));
 
     // Lock to 0° when A button is held
     controller
@@ -161,21 +159,7 @@ public class RobotContainer {
         .leftBumper()
         .whileTrue(
             DriveCommands.chasePoseRobotRelativeCommandXOverride(
-                drive, () -> new Pose2d(), () -> controller.getLeftY()));
-  }
-
-  /** Write all the auto named commands here */
-  private void registerAutoCommands() {
-    /** Overriding commands */
-
-    // overrides the x axis
-    NamedCommands.registerCommand(
-        "OverrideCoralOffset", DriveCommands.overridePathplannerCoralOffset(() -> 2.0));
-
-    // clears all override commands in the x and y direction
-    NamedCommands.registerCommand("Clear XY Override", DriveCommands.clearXYOverrides());
-
-    /** Robot function commands */
+                drive, () -> new Pose2d(5, 5, new Rotation2d()), () -> controller.getLeftY()));
   }
 
   /**

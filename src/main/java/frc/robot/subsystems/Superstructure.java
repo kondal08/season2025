@@ -9,8 +9,6 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Config;
 import frc.robot.GlobalConstants;
 import frc.robot.subsystems.climber.ClimberIOReal;
@@ -125,6 +123,5 @@ public class Superstructure extends SubsystemBase {
   }
 
   public void registerSuperstructureCharacterization(
-      Supplier<LoggedDashboardChooser<Command>> autoChooser) {
-  }
+      Supplier<LoggedDashboardChooser<Command>> autoChooser) {}
 }
