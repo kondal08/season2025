@@ -59,7 +59,7 @@ public class Superstructure extends SubsystemBase {
   private final FeederSubsystem feeder =
       Config.Subsystems.FEEDER_ENABLED
           ? (MODE == GlobalConstants.RobotMode.REAL
-              ? new FeederSubsystem("Feeder", new FeederIOReal(41, 40, false, false, 0))
+              ? new FeederSubsystem("Feeder", new FeederIOReal())
               : new FeederSubsystem(
                   "Feeder Sim", new FeederIOSim(new DCMotor(1, 1, 1, 1, 1, 1), 0, 0)))
           : null;
@@ -75,7 +75,7 @@ public class Superstructure extends SubsystemBase {
       Config.Subsystems.ELEVATOR_ENABLED
           ? (MODE == GlobalConstants.RobotMode.REAL
               ? new ElevatorSubsystem("Climber", new ElevatorIOReal())
-              : new ElevatorSubsystem("Climber Sim", new ElevatorIOSim(2,0.0)))
+              : new ElevatorSubsystem("Climber Sim", new ElevatorIOSim(2, 0.0)))
           : null;
 
   private final LEDSubsystem leds =
