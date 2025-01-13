@@ -163,11 +163,11 @@ public final class SwerveConstants {
           Meters.of(WHEEL_BASE),
           Meters.of(TRACK_WIDTH),
           () ->
-              COTS.ofMAXSwerve(
-                      DRIVE_GEARBOX, // Drive motor is a Neo Vortex
-                      TURN_GEARBOX, // Steer motor is a Neo 550
+              COTS.ofMark4i(
+                      DCMotor.getKrakenX60Foc(1), // Drive motor is a Neo Vortex
+                      DCMotor.getFalcon500(1), // Steer motor is a Neo 550
                       WHEEL_FRICTION_COEFF, // Use the COF for Colson Wheels
-                      2)
+                      3)
                   .get(), // Medium Gear ratio
           COTS.ofNav2X());
 
