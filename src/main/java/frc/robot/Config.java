@@ -50,7 +50,7 @@ public final class Config {
             case DEVBOT -> JOYSTICK_OPERATOR_ENABLED
                 ? new XboxOperatorMap(OPERATOR_PORT)
                 : new BoardOperatorMap(OPERATOR_PORT);
-            case SIMBOT -> new SimXboxUniversalMap(OPERATOR_PORT);
+            case SIMBOT -> new SimXboxUniversalMap(DRIVER_PORT);
           }
           : null;
     }

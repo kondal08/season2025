@@ -16,8 +16,6 @@ public interface GenericArmSystemIO {
   }
 
   default void updateInputs(GenericArmSystemIOInputs inputs) {}
-  /** Run elevator system to a height */
-  default void runPosition(double height) {}
-  /** Stop elevator system */
-  default void stop() {}
+  /** Run arm system to an angle */
+  default void runPosition(double angle) {}
 }

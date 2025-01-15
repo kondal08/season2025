@@ -46,6 +46,6 @@ public abstract class GenericPositionArmSystem<G extends GenericPositionArmSyste
     }
 
     io.runPosition(getGoal().getHeightSupplier().magnitude());
-    Logger.recordOutput("Rollers/" + name + "Goal", getGoal().toString());
+    Logger.recordOutput("Arm/" + name + "Goal", getGoal().toString());
   }
 }
