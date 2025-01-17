@@ -78,7 +78,8 @@ public class Superstructure extends SubsystemBase {
   }
 
   public static enum SuperStates {
-    IDLING
+    IDLING,
+    RUNNING
   }
 
   /**
@@ -113,6 +114,10 @@ public class Superstructure extends SubsystemBase {
               () -> Color.kBlack,
               5,
               1);
+      }
+      case RUNNING -> {
+        System.out.println("hi");
+        if (feeder != null) feeder.setGoal(FeederSubsystem.FeederGoal.FORWARD);
       }
     }
   }

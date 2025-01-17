@@ -3,6 +3,7 @@ package frc.robot.subsystems.feeder;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import frc.robot.generic.rollers.GenericVoltageRollerSystem;
+import frc.robot.generic.rollers.GenericVoltageRollerSystem.VoltageGoal;
 import java.util.function.DoubleSupplier;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

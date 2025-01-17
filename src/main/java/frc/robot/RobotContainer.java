@@ -26,7 +26,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.OI.OperatorMap;
 import frc.robot.commands.DriveCommands;
+import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.swerve.GyroIO;
 import frc.robot.subsystems.swerve.GyroIONavX;
 import frc.robot.subsystems.swerve.ModuleIO;
@@ -48,8 +50,12 @@ public class RobotContainer {
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
 
+  private final OperatorMap operaterController = Config.Controllers.getOperatorController();
+
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
+
+  private final Superstructure superstructure = new Superstructure(null);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -110,9 +116,11 @@ public class RobotContainer {
 
       // Configure the button bindings
       configureButtonBindings();
-
-      // Register the auto commands
-    } else drive = null;
+      // Register the auto commands)
+    } else {
+      drive = null;
+      autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+    }
   }
 
   /**
@@ -160,6 +168,15 @@ public class RobotContainer {
         .whileTrue(
             DriveCommands.chasePoseRobotRelativeCommandXOverride(
                 drive, () -> new Pose2d(5, 5, new Rotation2d()), () -> controller.getLeftY()));
+
+    // set state to idle
+    operaterController
+        .shoot()
+        .whileFalse(superstructure.setSuperStateCmd(Superstructure.SuperStates.IDLING));
+    // set state to running
+    operaterController
+        .shoot()
+        .whileTrue(superstructure.setSuperStateCmd(Superstructure.SuperStates.RUNNING));
   }
 
   /**

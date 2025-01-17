@@ -6,6 +6,7 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.units.measure.Distance;
 import frc.robot.generic.elevators.GenericPositionElevatorSystem;
+import frc.robot.generic.elevators.GenericPositionElevatorSystem.ExtensionGoal;
 import java.util.function.DoubleSupplier;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
