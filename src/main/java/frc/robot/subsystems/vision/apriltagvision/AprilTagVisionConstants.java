@@ -6,6 +6,8 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.util.LoggedTunableNumber;
+import java.util.function.DoubleSupplier;
 
 // TODO tune all of these!!
 public final class AprilTagVisionConstants {
@@ -30,12 +32,19 @@ public final class AprilTagVisionConstants {
           VisionConstants.CameraType.TELEPHOTO_OV9281,
           1);
 
-  //      public static final UnitDeviationParams MOVING_DEVIATION_PARAMS =
-  //          new UnitDeviationParams(
-  //              MOVING_DEVIATION_VELOCITY_MULTIPLIER, MOVING_DEVIATION_EULER_MULTIPLIER, 1);
-  public static final double MOVING_DEVIATION_EULER_MULTIPLIER = 0.5;
-  public static final double MOVING_DEVIATION_VELOCITY_MULTIPLIER = 0.5;
-  public static final double TURNING_DEVIATION_EULER_MULTIPLIER = 0.5;
-  public static final double TURNING_DEVIATION_VELOCITY_MULTIPLIER = 0.5;
+  public static final DoubleSupplier[] TRANSLATION_EULER_MULTIPLIERS =
+      new DoubleSupplier[] {
+        new LoggedTunableNumber("AprilTagVision/EulerMultipliers/1Tag", 8),
+        new LoggedTunableNumber("AprilTagVision/EulerMultipliers/2Tags", 10),
+        new LoggedTunableNumber("AprilTagVision/EulerMultipliers/3Tags", 9)
+      };
+  public static final DoubleSupplier[] ROTATION_EULER_MULTIPLIERS =
+      new DoubleSupplier[] {
+        new LoggedTunableNumber("AprilTagVision/EulerMultipliers/1Tag", 20),
+        new LoggedTunableNumber("AprilTagVision/EulerMultipliers/1Tag", 30),
+        new LoggedTunableNumber("AprilTagVision/EulerMultipliers/1Tag", 25)
+      };
+
   static final double MAX_AMBIGUITY_CUTOFF = 0.05;
+  static final double MAX_Z_ERROR_CUTOFF = 0.05;
 }

@@ -57,7 +57,7 @@ public class LoggedTunableNumber implements DoubleSupplier {
     if (!hasDefault) {
       hasDefault = true;
       this.defaultValue = defaultValue;
-      if (GlobalConstants.tuningMode) {
+      if (GlobalConstants.TUNING_MODE) {
         dashboardNumber = new LoggedDashboardNumber(key, defaultValue);
       }
     }
@@ -72,7 +72,7 @@ public class LoggedTunableNumber implements DoubleSupplier {
     if (!hasDefault) {
       return 0.0;
     } else {
-      return GlobalConstants.tuningMode ? dashboardNumber.get() : defaultValue;
+      return GlobalConstants.TUNING_MODE ? dashboardNumber.get() : defaultValue;
     }
   }
 
