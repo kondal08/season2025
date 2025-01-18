@@ -1,30 +1,25 @@
 package frc.robot.subsystems;
 
+import static frc.robot.Config.Subsystems.*;
 import static frc.robot.GlobalConstants.MODE;
 import static frc.robot.subsystems.Superstructure.SuperStates.IDLING;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Config;
 import frc.robot.GlobalConstants;
-import frc.robot.subsystems.climber.ClimberIOReal;
-import frc.robot.subsystems.climber.ClimberIOSim;
+import frc.robot.generic.arm.Arms;
+import frc.robot.generic.elevators.Elevators;
+import frc.robot.generic.rollers.Rollers;
 import frc.robot.subsystems.climber.ClimberSubsystem;
-import frc.robot.subsystems.elevator.ElevatorIOReal;
-import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
-import frc.robot.subsystems.feeder.FeederIOReal;
-import frc.robot.subsystems.feeder.FeederIOSim;
 import frc.robot.subsystems.feeder.FeederSubsystem;
 import frc.robot.subsystems.leds.LEDIOPWM;
 import frc.robot.subsystems.leds.LEDIOSim;
 import frc.robot.subsystems.leds.LEDSubsystem;
-import frc.robot.subsystems.pivot.PivotIOReal;
-import frc.robot.subsystems.pivot.PivotIOSim;
 import frc.robot.subsystems.pivot.PivotSubsystem;
 import frc.robot.util.AllianceFlipUtil;
 import java.util.function.Supplier;
@@ -38,34 +33,9 @@ public class Superstructure extends SubsystemBase {
    */
   private Supplier<Pose2d> drivePoseSupplier;
 
-  private final PivotSubsystem pivot =
-      Config.Subsystems.ELEVATOR_ENABLED
-          ? (MODE == GlobalConstants.RobotMode.REAL
-              ? new PivotSubsystem("Pivot", new PivotIOReal())
-              : new PivotSubsystem("Pivot Sim", new PivotIOSim(2, 0.0)))
-          : null;
-  private final FeederSubsystem feeder =
-      Config.Subsystems.FEEDER_ENABLED
-          ? (MODE == GlobalConstants.RobotMode.REAL
-              ? new FeederSubsystem("Feeder", new FeederIOReal())
-              : new FeederSubsystem(
-                  "Feeder Sim", new FeederIOSim(new DCMotor(1, 1, 1, 1, 1, 1), 0, 0)))
-          : null;
-
-  private final ClimberSubsystem climber =
-      Config.Subsystems.ELEVATOR_ENABLED
-          ? (MODE == GlobalConstants.RobotMode.REAL
-              ? new ClimberSubsystem("Climber", new ClimberIOReal())
-              : new ClimberSubsystem("Climber Sim", new ClimberIOSim(2, 0.0)))
-          : null;
-
-  private final ElevatorSubsystem elevator =
-      Config.Subsystems.ELEVATOR_ENABLED
-          ? (MODE == GlobalConstants.RobotMode.REAL
-              ? new ElevatorSubsystem("Climber", new ElevatorIOReal())
-              : new ElevatorSubsystem("Climber Sim", new ElevatorIOSim(2, 0.0)))
-          : null;
-
+  private final Arms arms = new Arms();
+  private final Elevators elevators = new Elevators();
+  private final Rollers rollers = new Rollers();
   private final LEDSubsystem leds =
       Config.Subsystems.LEDS_ENABLED
           ? (MODE == GlobalConstants.RobotMode.REAL
@@ -103,11 +73,11 @@ public class Superstructure extends SubsystemBase {
   public void periodic() {
     switch (currentState) {
       case IDLING -> {
-        if (feeder != null) feeder.setGoal(FeederSubsystem.FeederGoal.IDLING);
-        // if (flywheel != null)
-        if (pivot != null) pivot.setGoal(PivotSubsystem.PivotGoal.IDLING);
-        if (climber != null) climber.setGoal(ClimberSubsystem.ClimberGoal.IDLING);
-        if (elevator != null) elevator.setGoal(ElevatorSubsystem.ElevatorGoal.IDLING);
+        if (FEEDER_ENABLED) rollers.getFeeder().setGoal(FeederSubsystem.FeederGoal.IDLING);
+        if (ELEVATOR_ENABLED)
+          elevators.getElevator().setGoal(ElevatorSubsystem.ElevatorGoal.IDLING);
+        if (CLIMBER_ENABLED) elevators.getClimber().setGoal(ClimberSubsystem.ClimberGoal.IDLING);
+        if (PIVOT_ENABLED) arms.getPivot().setGoal(PivotSubsystem.PivotGoal.IDLING);
         if (leds != null)
           leds.setRunAlongCmd(
               () -> AllianceFlipUtil.shouldFlip() ? Color.kRed : Color.kBlue,
@@ -116,8 +86,12 @@ public class Superstructure extends SubsystemBase {
               1);
       }
       case RUNNING -> {
-        System.out.println("hi");
-        if (feeder != null) feeder.setGoal(FeederSubsystem.FeederGoal.FORWARD);
+        if (FEEDER_ENABLED) rollers.getFeeder().setGoal(FeederSubsystem.FeederGoal.FORWARD);
+        if (ELEVATOR_ENABLED)
+          elevators.getElevator().setGoal(ElevatorSubsystem.ElevatorGoal.LEVEL_FOUR);
+        if (CLIMBER_ENABLED)
+          elevators.getClimber().setGoal(ClimberSubsystem.ClimberGoal.SHALLOW_CLIMB);
+        if (PIVOT_ENABLED) arms.getPivot().setGoal(PivotSubsystem.PivotGoal.LEVEL_FOUR);
       }
     }
   }
