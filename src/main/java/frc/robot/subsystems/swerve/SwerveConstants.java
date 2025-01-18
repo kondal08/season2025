@@ -64,7 +64,7 @@ public final class SwerveConstants {
 
   // Drive motor PID configuration
   static final Gains DRIVE_GAINS = new Gains(0.0, 0.0, 0.0, 0.1);
-  static final Gains DRIVE_SIM_GAINS = new Gains(0.05, 0.0, 0.0, 0.0789);
+  static final Gains DRIVE_SIM_GAINS = new Gains(0.05, 0.0, 0.0, 0.07);
 
   // Drive encoder configuration
   /** Wheel radians */

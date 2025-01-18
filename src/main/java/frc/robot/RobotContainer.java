@@ -13,6 +13,7 @@
 
 package frc.robot;
 
+import static frc.robot.Config.Controllers.getDriverController;
 import static frc.robot.Config.Subsystems.DRIVETRAIN_ENABLED;
 import static frc.robot.GlobalConstants.MODE;
 import static frc.robot.subsystems.swerve.SwerveConstants.*;
@@ -25,8 +26,8 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.OI.DriverMap;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.swerve.GyroIO;
 import frc.robot.subsystems.swerve.GyroIOPigeon2;
@@ -34,6 +35,8 @@ import frc.robot.subsystems.swerve.ModuleIO;
 import frc.robot.subsystems.swerve.ModuleIOSim;
 import frc.robot.subsystems.swerve.ModuleIOSpark;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.subsystems.vision.*;
+import frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -47,10 +50,11 @@ public class RobotContainer {
   private final SwerveSubsystem drive;
 
   // Controller
-  private final CommandXboxController controller = new CommandXboxController(0);
+  private final DriverMap driver = getDriverController();
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
+  private final Vision vision;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -65,6 +69,14 @@ public class RobotContainer {
                   new ModuleIOSpark(FRONT_RIGHT),
                   new ModuleIOSpark(BACK_LEFT),
                   new ModuleIOSpark(BACK_RIGHT));
+          vision =
+              new Vision(
+                  drive,
+                  new AprilTagVisionIOPhotonVision(
+                      "leftcam", AprilTagVisionConstants.LEFT_CAM_CONSTANTS.robotToCamera()),
+                  new AprilTagVisionIOPhotonVision(
+                      "rightcam", AprilTagVisionConstants.RIGHT_CAM_CONSTANTS.robotToCamera()),
+                  new GamePieceVisionIOLimelight("limelight", drive::getRotation));
           break;
 
         case SIM:
@@ -76,6 +88,17 @@ public class RobotContainer {
                   new ModuleIOSim(),
                   new ModuleIOSim(),
                   new ModuleIOSim());
+          vision =
+              new Vision(
+                  drive,
+                  new VisionIOPhotonVisionSim(
+                      "leftcam",
+                      AprilTagVisionConstants.LEFT_CAM_CONSTANTS.robotToCamera(),
+                      drive::getPose),
+                  new VisionIOPhotonVisionSim(
+                      "rightcam",
+                      AprilTagVisionConstants.RIGHT_CAM_CONSTANTS.robotToCamera(),
+                      drive::getPose));
           break;
 
         default:
@@ -87,6 +110,7 @@ public class RobotContainer {
                   new ModuleIO() {},
                   new ModuleIO() {},
                   new ModuleIO() {});
+          vision = new Vision(drive, new VisionIO() {}, new VisionIO() {});
           break;
       }
 
@@ -127,27 +151,21 @@ public class RobotContainer {
     // Default command, normal field-relative drive
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
-            drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
+            drive, driver.getXAxis(), driver.getYAxis(), driver.getRotAxis()));
 
     // Lock to 0° when A button is held
-    controller
-        .a()
+    driver
+        .alignToSpeaker()
         .whileTrue(
             DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> new Rotation2d()));
+                drive, driver.getXAxis(), driver.getYAxis(), () -> new Rotation2d()));
 
     // Switch to X pattern when X button is pressed
-    controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    driver.stopWithX().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
     // Reset gyro to 0° when B button is pressed
-    controller
-        .b()
+    driver
+        .resetOdometry()
         .onTrue(
             Commands.runOnce(
                     () ->
@@ -157,11 +175,11 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     // align to coral station with position customization when LB is pressed
-    controller
-        .leftBumper()
+    driver
+        .alignToGamePiece()
         .whileTrue(
             DriveCommands.chasePoseRobotRelativeCommandXOverride(
-                drive, () -> new Pose2d(), () -> controller.getLeftY()));
+                drive, () -> new Pose2d(), driver.getYAxis()));
   }
 
   /** Write all the auto named commands here */

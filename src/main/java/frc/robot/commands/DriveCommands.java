@@ -13,6 +13,7 @@
 
 package frc.robot.commands;
 
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -31,7 +32,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import java.text.DecimalFormat;
@@ -41,8 +41,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
-
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 public class DriveCommands {
   // driving
@@ -164,11 +162,11 @@ public class DriveCommands {
         .beforeStarting(() -> angleController.reset(drive.getRotation().getRadians()));
   }
 
-  /** Command to align the robot to a target with robot relative driving
-   * with an override of the robot's x direction using the driver's y axis
+  /**
+   * Command to align the robot to a target with robot relative driving with an override of the
+   * robot's x direction using the driver's y axis
    */
-
-   public static Command chasePoseRobotRelativeCommandXOverride(
+  public static Command chasePoseRobotRelativeCommandXOverride(
       SwerveSubsystem drive, Supplier<Pose2d> target, DoubleSupplier yDriver) {
     TrapezoidProfile.Constraints X_CONSTRAINTS = new TrapezoidProfile.Constraints(3, 2);
     TrapezoidProfile.Constraints Y_CONSTRAINTS = new TrapezoidProfile.Constraints(3, 2);
@@ -192,10 +190,11 @@ public class DriveCommands {
                 () -> {
                   double xSpeed = yDriver.getAsDouble();
                   double ySpeed = yController.calculate(0, target.get().getX());
-                  double omegaSpeed = omegaPID.calculate(0, target.get().getRotation().getDegrees());
+                  double omegaSpeed =
                       omegaPID.calculate(0, target.get().getRotation().getDegrees());
+                  omegaPID.calculate(0, target.get().getRotation().getDegrees());
 
-                  DriveCommands.joystickDrive(drive,  () -> xSpeed, () -> ySpeed, () -> omegaSpeed);
+                  DriveCommands.joystickDrive(drive, () -> xSpeed, () -> ySpeed, () -> omegaSpeed);
                 },
                 interrupted -> {
                   DriveCommands.joystickDrive(drive, () -> 0, () -> 0, () -> 0);
@@ -210,18 +209,18 @@ public class DriveCommands {
   }
 
   /** Updates the path to override for the coral offset */
-    public static Command overridePathplannerCoralOffset(DoubleSupplier offset) {
-      return Commands.run(() -> PPHolonomicDriveController.overrideXFeedback(() -> {
-        // Calculate feedback from your custom PID controller
-        return offset.getAsDouble();
-    }));
-    }
-    
+  public static Command overridePathplannerCoralOffset(DoubleSupplier offset) {
+    return Commands.run(
+        () ->
+          // Calculate feedback from your custom PID controller
+          PPHolonomicDriveController.overrideXFeedback(
+            offset));
+  }
 
-    /** clears all x and y overrides  */
-    public static Command clearXYOverrides() {
-      return Commands.run(() -> PPHolonomicDriveController.clearXYFeedbackOverride());
-    }
+  /** clears all x and y overrides */
+  public static Command clearXYOverrides() {
+    return Commands.run(PPHolonomicDriveController::clearXYFeedbackOverride);
+  }
 
   /**
    * Measures the velocity feedforward constants for the drive motors.

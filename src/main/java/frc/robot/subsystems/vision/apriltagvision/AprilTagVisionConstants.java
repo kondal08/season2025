@@ -33,9 +33,8 @@ public final class AprilTagVisionConstants {
   //      public static final UnitDeviationParams MOVING_DEVIATION_PARAMS =
   //          new UnitDeviationParams(
   //              MOVING_DEVIATION_VELOCITY_MULTIPLIER, MOVING_DEVIATION_EULER_MULTIPLIER, 1);
-  public static final double MOVING_DEVIATION_EULER_MULTIPLIER = 0.5;
-  public static final double MOVING_DEVIATION_VELOCITY_MULTIPLIER = 0.5;
-  public static final double TURNING_DEVIATION_EULER_MULTIPLIER = 0.5;
-  public static final double TURNING_DEVIATION_VELOCITY_MULTIPLIER = 0.5;
-  static final double MAX_AMBIGUITY_CUTOFF = 0.05;
+  public static final double MOVING_DEVIATION_EULER_MULTIPLIER = 3;
+  public static final double TURNING_DEVIATION_EULER_MULTIPLIER = 5;
+  public static final double MAX_AMBIGUITY_CUTOFF = 0.05;
+  public static final double MAX_Z_ERROR = 0.25;
 }
