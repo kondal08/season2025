@@ -1,11 +1,9 @@
 package frc.robot.subsystems.pivot;
 
-import static edu.wpi.first.units.Units.Meters;
-
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
-import edu.wpi.first.units.measure.Distance;
 import frc.robot.generic.arm.GenericPositionArmSystem;
+import frc.robot.util.LoggedTunableNumber;
 import java.util.function.DoubleSupplier;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -17,17 +15,17 @@ public class PivotSubsystem extends GenericPositionArmSystem<PivotSubsystem.Pivo
   @RequiredArgsConstructor
   @Getter
   public enum PivotGoal implements GenericPositionArmSystem.PivotGoal {
-    IDLING(() -> PivotConstants.Hardware.RESTING_ANGLE),
-    LEVEL_ONE(() -> PivotConstants.Hardware.RESTING_ANGLE + 0.1),
-    LEVEL_TWO(() -> PivotConstants.Hardware.RESTING_ANGLE + 0.2),
-    LEVEL_THREE(() -> PivotConstants.Hardware.RESTING_ANGLE + 0.3),
-    LEVEL_FOUR(() -> PivotConstants.Hardware.MAX_ANGLE_RAD);
+    IDLING(new LoggedTunableNumber("Pivot/RestingAngle", 0)),
+    LEVEL_ONE(() -> PivotConstants.Hardware.RESTING_ANGLE + 10),
+    LEVEL_TWO(() -> PivotConstants.Hardware.RESTING_ANGLE + 20),
+    LEVEL_THREE(() -> PivotConstants.Hardware.RESTING_ANGLE + 30),
+    LEVEL_FOUR(new LoggedTunableNumber("Pivot/L4Angle", 50));
 
-    private final DoubleSupplier heightSupplier;
+    private final DoubleSupplier angleSupplier;
 
     @Override
-    public Distance getHeightSupplier() {
-      return Meters.of(heightSupplier.getAsDouble());
+    public DoubleSupplier getAngleSupplier() {
+      return angleSupplier;
     }
   }
 

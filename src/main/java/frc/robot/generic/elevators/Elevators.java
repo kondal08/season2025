@@ -1,5 +1,7 @@
 package frc.robot.generic.elevators;
 
+import static frc.robot.Config.Subsystems.CLIMBER_ENABLED;
+import static frc.robot.Config.Subsystems.ELEVATOR_ENABLED;
 import static frc.robot.GlobalConstants.MODE;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -16,7 +18,7 @@ import lombok.Getter;
 public class Elevators extends SubsystemBase {
   @Getter
   private final ClimberSubsystem climber =
-      Config.Subsystems.ELEVATOR_ENABLED
+      Config.Subsystems.CLIMBER_ENABLED
           ? (MODE == GlobalConstants.RobotMode.REAL
               ? new ClimberSubsystem("Climber", new ClimberIOReal())
               : new ClimberSubsystem("Climber Sim", new ClimberIOSim(2, 0.0)))
@@ -26,13 +28,13 @@ public class Elevators extends SubsystemBase {
   private final ElevatorSubsystem elevator =
       Config.Subsystems.ELEVATOR_ENABLED
           ? (MODE == GlobalConstants.RobotMode.REAL
-              ? new ElevatorSubsystem("Climber", new ElevatorIOReal())
-              : new ElevatorSubsystem("Climber Sim", new ElevatorIOSim(2, 0.0)))
+              ? new ElevatorSubsystem("Elevator", new ElevatorIOReal())
+              : new ElevatorSubsystem("Elevator Sim", new ElevatorIOSim(2, 0.0)))
           : null;
 
   @Override
   public void periodic() {
-    elevator.periodic();
-    climber.periodic();
+    if (ELEVATOR_ENABLED) elevator.periodic();
+    if (CLIMBER_ENABLED) climber.periodic();
   }
 }

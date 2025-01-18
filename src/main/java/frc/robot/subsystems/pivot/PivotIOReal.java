@@ -10,7 +10,7 @@ public class PivotIOReal extends GenericArmSystemIOSparkMax implements PivotIO {
         PivotConstants.Hardware.RESTING_ANGLE,
         false,
         true,
-        0,
+        1.0,
         PivotConstants.Software.gains.kP(),
         PivotConstants.Software.gains.kI(),
         PivotConstants.Software.gains.kD());

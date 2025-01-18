@@ -172,10 +172,7 @@ public class RobotContainer {
     // set state to idle
     operaterController
         .shoot()
-        .whileFalse(superstructure.setSuperStateCmd(Superstructure.SuperStates.IDLING));
-    // set state to running
-    operaterController
-        .shoot()
+        .whileFalse(superstructure.setSuperStateCmd(Superstructure.SuperStates.IDLING))
         .whileTrue(superstructure.setSuperStateCmd(Superstructure.SuperStates.RUNNING));
   }
 

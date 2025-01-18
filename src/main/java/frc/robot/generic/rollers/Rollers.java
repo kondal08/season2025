@@ -1,5 +1,6 @@
 package frc.robot.generic.rollers;
 
+import static frc.robot.Config.Subsystems.FEEDER_ENABLED;
 import static frc.robot.GlobalConstants.MODE;
 
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -23,6 +24,6 @@ public class Rollers extends SubsystemBase {
 
   @Override
   public void periodic() {
-    feeder.periodic();
+    if (FEEDER_ENABLED) feeder.periodic();
   }
 }

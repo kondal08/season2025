@@ -1,11 +1,13 @@
 package frc.robot.subsystems.elevator;
 
 import static edu.wpi.first.units.Units.Meters;
+import static java.lang.Math.PI;
 
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.units.measure.Distance;
 import frc.robot.generic.elevators.GenericPositionElevatorSystem;
+import frc.robot.util.LoggedTunableNumber;
 import java.util.function.DoubleSupplier;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -19,16 +21,17 @@ public class ElevatorSubsystem
   @Getter
   public enum ElevatorGoal implements GenericPositionElevatorSystem.ExtensionGoal {
     IDLING(() -> 0.0),
-    LEVEL_ONE(() -> 0.1),
-    LEVEL_TWO(() -> 0.2),
-    LEVEL_THREE(() -> 0.3),
-    LEVEL_FOUR(() -> 0.4);
+    LEVEL_ONE(() -> 0.46),
+    LEVEL_TWO(() -> 0.81),
+    LEVEL_THREE(() -> 1.21),
+    LEVEL_FOUR(() -> 1.83),
+    TESTING(new LoggedTunableNumber("Elevator/Test", 0.0));
 
     private final DoubleSupplier heightSupplier;
 
     @Override
     public Distance getHeightSupplier() {
-      return Meters.of(heightSupplier.getAsDouble());
+      return Meters.of(heightSupplier.getAsDouble() / (2 * PI * ElevatorConstants.radius));
     }
   }
 

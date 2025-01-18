@@ -10,7 +10,7 @@ public class ElevatorIOReal extends GenericElevatorSystemIOSparkMax implements E
         0.0,
         false,
         true,
-        0.0,
+        1.0,
         ElevatorConstants.kP,
         ElevatorConstants.kI,
         ElevatorConstants.kD);

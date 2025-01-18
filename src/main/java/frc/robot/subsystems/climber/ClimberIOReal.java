@@ -10,7 +10,7 @@ public class ClimberIOReal extends GenericElevatorSystemIOSparkMax implements Cl
         0.0,
         false,
         true,
-        0.0,
+        1.0,
         ClimberConstants.kP,
         ClimberConstants.kI,
         ClimberConstants.kD);

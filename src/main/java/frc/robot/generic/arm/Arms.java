@@ -1,5 +1,6 @@
 package frc.robot.generic.arm;
 
+import static frc.robot.Config.Subsystems.PIVOT_ENABLED;
 import static frc.robot.GlobalConstants.MODE;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -13,7 +14,7 @@ import lombok.Getter;
 public class Arms extends SubsystemBase {
   @Getter
   private final PivotSubsystem pivot =
-      Config.Subsystems.ELEVATOR_ENABLED
+      Config.Subsystems.PIVOT_ENABLED
           ? (MODE == GlobalConstants.RobotMode.REAL
               ? new PivotSubsystem("Pivot", new PivotIOReal())
               : new PivotSubsystem("Pivot Sim", new PivotIOSim(2, 0.0)))
@@ -21,6 +22,6 @@ public class Arms extends SubsystemBase {
 
   @Override
   public void periodic() {
-    pivot.periodic();
+    if (PIVOT_ENABLED) pivot.periodic();
   }
 }

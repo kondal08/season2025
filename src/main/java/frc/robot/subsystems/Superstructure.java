@@ -73,7 +73,9 @@ public class Superstructure extends SubsystemBase {
   public void periodic() {
     switch (currentState) {
       case IDLING -> {
-        if (FEEDER_ENABLED) rollers.getFeeder().setGoal(FeederSubsystem.FeederGoal.IDLING);
+        if (FEEDER_ENABLED) {
+          rollers.getFeeder().setGoal(FeederSubsystem.FeederGoal.IDLING);
+        }
         if (ELEVATOR_ENABLED)
           elevators.getElevator().setGoal(ElevatorSubsystem.ElevatorGoal.IDLING);
         if (CLIMBER_ENABLED) elevators.getClimber().setGoal(ClimberSubsystem.ClimberGoal.IDLING);
@@ -86,11 +88,12 @@ public class Superstructure extends SubsystemBase {
               1);
       }
       case RUNNING -> {
-        if (FEEDER_ENABLED) rollers.getFeeder().setGoal(FeederSubsystem.FeederGoal.FORWARD);
+        if (FEEDER_ENABLED) {
+          rollers.getFeeder().setGoal(FeederSubsystem.FeederGoal.FORWARD);
+        }
         if (ELEVATOR_ENABLED)
-          elevators.getElevator().setGoal(ElevatorSubsystem.ElevatorGoal.LEVEL_FOUR);
-        if (CLIMBER_ENABLED)
-          elevators.getClimber().setGoal(ClimberSubsystem.ClimberGoal.SHALLOW_CLIMB);
+          elevators.getElevator().setGoal(ElevatorSubsystem.ElevatorGoal.TESTING);
+        if (CLIMBER_ENABLED) elevators.getClimber().setGoal(ClimberSubsystem.ClimberGoal.TESTING);
         if (PIVOT_ENABLED) arms.getPivot().setGoal(PivotSubsystem.PivotGoal.LEVEL_FOUR);
       }
     }

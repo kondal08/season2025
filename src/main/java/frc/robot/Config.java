@@ -10,11 +10,10 @@ public final class Config {
     public static final boolean DRIVETRAIN_ENABLED = true;
     public static final boolean VISION_ENABLED = false;
     public static final boolean GAME_PIECE_VISION_ENABLED = false;
-    public static final boolean INTAKE_ENABLED = false;
-    public static final boolean FEEDER_ENABLED = true;
+    public static final boolean FEEDER_ENABLED = false;
     public static final boolean PIVOT_ENABLED = false;
     public static final boolean SHOOTER_ENABLED = false;
-    public static final boolean CLIMBER_ENABLED = false;
+    public static final boolean CLIMBER_ENABLED = true;
     public static final boolean LEDS_ENABLED = false;
     public static final boolean ELEVATOR_ENABLED = false;
 
