@@ -18,7 +18,6 @@ import static frc.robot.GlobalConstants.MODE;
 import static frc.robot.subsystems.swerve.SwerveConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -26,6 +25,15 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.OI.OperatorMap;
+import frc.robot.commands.DriveCommands;
+import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.swerve.GyroIO;
+import frc.robot.subsystems.swerve.GyroIONavX;
+import frc.robot.subsystems.swerve.ModuleIO;
+import frc.robot.subsystems.swerve.ModuleIOSim;
+import frc.robot.subsystems.swerve.ModuleIOSpark;
+import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.GlobalConstants.RobotMode;
 import frc.robot.OI.DriverMap;
 import frc.robot.commands.DriveCommands;
@@ -49,8 +57,12 @@ public class RobotContainer {
   // Controller
   private final DriverMap driver = Config.Controllers.getDriverController();
 
+  private final OperatorMap operaterController = Config.Controllers.getOperatorController();
+
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
+
+  private final Superstructure superstructure = new Superstructure(null);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -60,7 +72,7 @@ public class RobotContainer {
           // Real robot, instantiate hardware IO implementations
           drive =
               new SwerveSubsystem(
-                  new GyroIOPigeon2(),
+                  new GyroIONavX(),
                   new ModuleIOSpark(FRONT_LEFT),
                   new ModuleIOSpark(FRONT_RIGHT),
                   new ModuleIOSpark(BACK_LEFT),
@@ -117,10 +129,11 @@ public class RobotContainer {
 
       // Configure the button bindings
       configureButtonBindings();
-
-      // Register the auto commands
-      registerAutoCommands();
-    } else drive = null;
+      // Register the auto commands)
+    } else {
+      drive = null;
+      autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+    }
   }
 
   /**
@@ -162,7 +175,13 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                     drive)
                 .ignoringDisable(true));
-
+    
+    driver
+        .pathToAmp()
+        .whileTrue(
+            DriveCommands.chasePoseRobotRelativeCommandXOverride(
+                drive, () -> new Pose2d(5, 5, new Rotation2d()), () -> controller.getLeftY()));
+    
     final Runnable resetGyro =
         MODE == RobotMode.SIM
             ? () ->
@@ -173,8 +192,6 @@ public class RobotContainer {
             : () ->
                 drive.resetOdometry(
                     new Pose2d(drive.getPose().getTranslation(), new Rotation2d())); // zero gyro
-
-    driver.pathToAmp().onTrue(Commands.runOnce(resetGyro, drive).ignoringDisable(true));
   }
 
   /** Write all the auto named commands here */
@@ -188,7 +205,11 @@ public class RobotContainer {
     // clears all override commands in the x and y direction
     NamedCommands.registerCommand("Clear XY Override", DriveCommands.clearXYOverrides());
 
-    /** Robot function commands */
+    // set state to idle
+    operaterController
+        .shoot()
+        .whileFalse(superstructure.setSuperStateCmd(Superstructure.SuperStates.IDLING))
+        .whileTrue(superstructure.setSuperStateCmd(Superstructure.SuperStates.RUNNING));
   }
 
   /**
