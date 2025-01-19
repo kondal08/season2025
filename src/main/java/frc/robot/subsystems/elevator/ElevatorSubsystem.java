@@ -36,7 +36,6 @@ public class ElevatorSubsystem
   }
 
   private ElevatorGoal goal = ElevatorGoal.IDLING;
-  private Debouncer currentDebouncer = new Debouncer(0.25, DebounceType.kFalling);
 
   public ElevatorSubsystem(String name, ElevatorIO io) {
     super(name, io);

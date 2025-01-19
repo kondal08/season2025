@@ -16,6 +16,6 @@ public interface GenericArmSystemIO {
   }
 
   default void updateInputs(GenericArmSystemIOInputs inputs) {}
-  /** Run arm system to a height */
-  default void runToDegree(double degrees) {}
+  /** Run arm system to an angle */
+  default void runPosition(double angle) {}
 }

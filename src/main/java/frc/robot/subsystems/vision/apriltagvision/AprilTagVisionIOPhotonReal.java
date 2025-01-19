@@ -16,6 +16,7 @@ package frc.robot.subsystems.vision.apriltagvision;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import frc.robot.subsystems.vision.VisionIO;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,7 +24,7 @@ import java.util.Set;
 import org.photonvision.PhotonCamera;
 
 /** IO implementation for real PhotonVision hardware. */
-public class AprilTagVisionIOPhotonReal implements AprilTagVisionIO {
+public class AprilTagVisionIOPhotonReal implements VisionIO {
   protected final PhotonCamera camera;
   protected final Transform3d robotToCamera;
 
@@ -31,7 +32,6 @@ public class AprilTagVisionIOPhotonReal implements AprilTagVisionIO {
    * Creates a new VisionIOPhotonVision.
    *
    * @param name The configured name of the camera.
-   * @param rotationSupplier The 3D position of the camera relative to the robot.
    */
   public AprilTagVisionIOPhotonReal(String name, Transform3d robotToCamera) {
     camera = new PhotonCamera(name);

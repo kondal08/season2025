@@ -1,11 +1,13 @@
 package frc.robot.subsystems.vision.apriltagvision;
 
+import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.ROTATION_EULER_MULTIPLIERS;
+
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import frc.robot.subsystems.vision.VisionIO.PoseObservation;
 
 /**
  * This class provides utility methods and record classes for vision-related operations,
@@ -21,17 +23,13 @@ public class AprilTagVisionHelpers {
     return MatBuilder.fill(
         Nat.N3(),
         Nat.N1(),
-        Math.exp(poseObservation.averageTagDistance / poseObservation.tagCount));
+        Math.exp(poseObservation.averageTagDistance() / poseObservation.tagCount()));
   }
 
-  public static double eulerScale(double eulerCoefficient, PoseObservation poseObservation) {
-    return eulerCoefficient
-        * poseObservation.ambiguity
-        / poseObservation.tagCount
-        * Math.exp(poseObservation.averageTagDistance / poseObservation.tagCount);
+  public static double eulerScale(PoseObservation poseObservation) {
+    return ROTATION_EULER_MULTIPLIERS[poseObservation.tagCount()].getAsDouble()
+        * poseObservation.ambiguity()
+        / poseObservation.tagCount()
+        * Math.exp(poseObservation.averageTagDistance() / poseObservation.tagCount());
   }
-
-  /** Represents a robot pose sample used for pose estimation. */
-  public static record PoseObservation(
-      double timestamp, Pose3d pose, double ambiguity, int tagCount, double averageTagDistance) {}
 }

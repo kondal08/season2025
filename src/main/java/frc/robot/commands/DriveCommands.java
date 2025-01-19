@@ -201,8 +201,8 @@ public class DriveCommands {
                   double omegaSpeed =
                       omegaPID.calculate(0, targetOffset.get().getRotation().getRadians());
 
-                  DriveCommands.chassisSpeedDrive(
-                      drive, new ChassisSpeeds(xSpeed, ySpeed, omegaSpeed));
+                  DriveCommands.joystickDrive(drive, () -> xSpeed, () -> ySpeed, () -> omegaSpeed);
+                  
                 },
                 interrupted -> {
                   DriveCommands.chassisSpeedDrive(drive, new ChassisSpeeds());
@@ -347,8 +347,7 @@ public class DriveCommands {
                         wheelDelta += Math.abs(positions[i] - state.positions[i]) / 4.0;
                       }
                       double wheelRadius =
-                          (state.gyroDelta * SwerveConstants.Hardware.DRIVE_BASE_RADIUS)
-                              / wheelDelta;
+                          (state.gyroDelta * SwerveConstants.DRIVE_BASE_RADIUS) / wheelDelta;
 
                       NumberFormat formatter = new DecimalFormat("#0.000");
                       System.out.println(

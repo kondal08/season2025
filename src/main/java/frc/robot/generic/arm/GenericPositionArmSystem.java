@@ -46,6 +46,7 @@ public abstract class GenericPositionArmSystem<G extends GenericPositionArmSyste
     }
 
     io.runToDegree(getGoal().getAngleSupplier().getAsDouble());
+
     Logger.recordOutput("Arm/" + name + "Goal", getGoal().toString());
   }
 }
