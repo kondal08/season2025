@@ -13,7 +13,6 @@
 
 package frc.robot.commands;
 
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -108,6 +107,13 @@ public class DriveCommands {
         drive);
   }
 
+  public static void chassisSpeedDrive(SwerveSubsystem drive, ChassisSpeeds speeds) {
+    boolean isFlipped =
+        DriverStation.getAlliance().isPresent()
+            && DriverStation.getAlliance().get() == Alliance.Red;
+    drive.runVelocity(ChassisSpeeds.fromRobotRelativeSpeeds(speeds, drive.getRotation()));
+  }
+
   /**
    * Field relative drive command using joystick for linear control and PID for angular control.
    * Possible use cases include snapping to an angle, aiming at a vision target, or controlling
@@ -167,7 +173,7 @@ public class DriveCommands {
    * robot's x direction using the driver's y axis
    */
   public static Command chasePoseRobotRelativeCommandXOverride(
-      SwerveSubsystem drive, Supplier<Pose2d> target, DoubleSupplier yDriver) {
+      SwerveSubsystem drive, Supplier<Pose2d> targetOffset, DoubleSupplier yDriver) {
     TrapezoidProfile.Constraints X_CONSTRAINTS = new TrapezoidProfile.Constraints(3, 2);
     TrapezoidProfile.Constraints Y_CONSTRAINTS = new TrapezoidProfile.Constraints(3, 2);
     // TrapezoidProfile.Constraints OMEGA_CONSTRAINTS =   new TrapezoidProfile.Constraints(1, 1.5);
@@ -188,18 +194,19 @@ public class DriveCommands {
                   // Init
                 },
                 () -> {
-                  double xSpeed = yDriver.getAsDouble();
-                  double ySpeed = yController.calculate(0, target.get().getX());
+                  double driverInputFactor = 2;
+                  double ySpeed = -yDriver.getAsDouble() * driverInputFactor;
+                  double xSpeed = yController.calculate(0, targetOffset.get().getY());
                   double omegaSpeed =
-                      omegaPID.calculate(0, target.get().getRotation().getDegrees());
-                  omegaPID.calculate(0, target.get().getRotation().getDegrees());
+                      omegaPID.calculate(0, targetOffset.get().getRotation().getRadians());
 
                   DriveCommands.joystickDrive(drive, () -> xSpeed, () -> ySpeed, () -> omegaSpeed);
+                  
                 },
                 interrupted -> {
-                  DriveCommands.joystickDrive(drive, () -> 0, () -> 0, () -> 0);
+                  DriveCommands.chassisSpeedDrive(drive, new ChassisSpeeds());
                   omegaPID.close();
-                  System.out.println("Aligned now");
+                  System.out.println("aligned now");
                 },
                 () -> {
                   return omegaPID.atSetpoint() && xController.atGoal() && yController.atGoal();
@@ -212,14 +219,16 @@ public class DriveCommands {
   public static Command overridePathplannerCoralOffset(DoubleSupplier offset) {
     return Commands.run(
         () ->
-          // Calculate feedback from your custom PID controller
-          PPHolonomicDriveController.overrideXFeedback(
-            offset));
+            PPHolonomicDriveController.overrideYFeedback(
+                () -> {
+                  // Calculate feedback from your custom PID controller
+                  return offset.getAsDouble();
+                }));
   }
 
   /** clears all x and y overrides */
   public static Command clearXYOverrides() {
-    return Commands.run(PPHolonomicDriveController::clearXYFeedbackOverride);
+    return Commands.run(() -> PPHolonomicDriveController.clearXYFeedbackOverride());
   }
 
   /**
@@ -337,8 +346,7 @@ public class DriveCommands {
                         wheelDelta += Math.abs(positions[i] - state.positions[i]) / 4.0;
                       }
                       double wheelRadius =
-                          (state.gyroDelta * SwerveConstants.Hardware.DRIVE_BASE_RADIUS)
-                              / wheelDelta;
+                          (state.gyroDelta * SwerveConstants.DRIVE_BASE_RADIUS) / wheelDelta;
 
                       NumberFormat formatter = new DecimalFormat("#0.000");
                       System.out.println(

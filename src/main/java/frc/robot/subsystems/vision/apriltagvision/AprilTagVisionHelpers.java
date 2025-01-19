@@ -1,10 +1,13 @@
 package frc.robot.subsystems.vision.apriltagvision;
 
+import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.ROTATION_EULER_MULTIPLIERS;
+
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import frc.robot.subsystems.vision.VisionIO.PoseObservation;
 import frc.robot.subsystems.vision.VisionIO.PoseObservation;
 
 /**
@@ -24,8 +27,8 @@ public class AprilTagVisionHelpers {
         Math.exp(poseObservation.averageTagDistance() / poseObservation.tagCount()));
   }
 
-  public static double eulerScale(double eulerCoefficient, PoseObservation poseObservation) {
-    return eulerCoefficient
+  public static double eulerScale(PoseObservation poseObservation) {
+    return ROTATION_EULER_MULTIPLIERS[poseObservation.tagCount()].getAsDouble()
         * poseObservation.ambiguity()
         / poseObservation.tagCount()
         * Math.exp(poseObservation.averageTagDistance() / poseObservation.tagCount());

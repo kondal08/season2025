@@ -1,15 +1,15 @@
 package frc.robot.generic.arm;
 
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.generic.rollers.Rollers;
+import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
 public abstract class GenericPositionArmSystem<G extends GenericPositionArmSystem.PivotGoal> {
   public interface PivotGoal {
-    Distance getHeightSupplier();
+    DoubleSupplier getAngleSupplier();
   }
 
   public abstract G getGoal();
@@ -45,7 +45,8 @@ public abstract class GenericPositionArmSystem<G extends GenericPositionArmSyste
       lastGoal = getGoal();
     }
 
-    io.runPosition(getGoal().getHeightSupplier().magnitude());
-    Logger.recordOutput("Rollers/" + name + "Goal", getGoal().toString());
+    io.runToDegree(getGoal().getAngleSupplier().getAsDouble());
+
+    Logger.recordOutput("Arm/" + name + "Goal", getGoal().toString());
   }
 }
