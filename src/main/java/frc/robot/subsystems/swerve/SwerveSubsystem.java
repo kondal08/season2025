@@ -44,15 +44,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.GlobalConstants;
-import frc.robot.subsystems.vision.apriltagvision.AprilTagVisionSubsystem;
+import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class SwerveSubsystem extends SubsystemBase
-    implements AprilTagVisionSubsystem.VisionConsumer {
+public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsumer {
   static final Lock odometryLock = new ReentrantLock();
   private final GyroIO gyroIO;
   private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
@@ -120,7 +119,7 @@ public class SwerveSubsystem extends SubsystemBase
             new SysIdRoutine.Config(
                 null,
                 null,
-                null,
+                Seconds.of(4),
                 (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));

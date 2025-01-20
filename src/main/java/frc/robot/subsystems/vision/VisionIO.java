@@ -6,7 +6,7 @@ import org.littletonrobotics.junction.AutoLog;
 
 public interface VisionIO {
   @AutoLog
-  public static class AprilTagVisionIOInputs {
+  public static class VisionIOInputs {
     public boolean connected = false;
     public TargetObservation latestTargetObservation =
         new TargetObservation(new Rotation2d(), new Rotation2d());
@@ -21,5 +21,5 @@ public interface VisionIO {
   public static record PoseObservation(
       double timestamp, Pose3d pose, double ambiguity, int tagCount, double averageTagDistance) {}
 
-  public default void updateInputs(AprilTagVisionIOInputs inputs) {}
+  public default void updateInputs(VisionIOInputs inputs) {}
 }

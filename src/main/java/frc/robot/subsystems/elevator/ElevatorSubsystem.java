@@ -1,11 +1,7 @@
 package frc.robot.subsystems.elevator;
 
-import static edu.wpi.first.units.Units.Meters;
 import static java.lang.Math.PI;
 
-import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.math.filter.Debouncer.DebounceType;
-import edu.wpi.first.units.measure.Distance;
 import frc.robot.generic.elevators.GenericPositionElevatorSystem;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.function.DoubleSupplier;
@@ -30,8 +26,8 @@ public class ElevatorSubsystem
     private final DoubleSupplier heightSupplier;
 
     @Override
-    public Distance getHeightSupplier() {
-      return Meters.of(heightSupplier.getAsDouble() / (2 * PI * ElevatorConstants.radius));
+    public DoubleSupplier getHeight() {
+      return () -> heightSupplier.getAsDouble() / (2 * PI * ElevatorConstants.PULLEY_RADIUS);
     }
   }
 

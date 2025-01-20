@@ -202,7 +202,6 @@ public class DriveCommands {
                       omegaPID.calculate(0, targetOffset.get().getRotation().getRadians());
 
                   DriveCommands.joystickDrive(drive, () -> xSpeed, () -> ySpeed, () -> omegaSpeed);
-                  
                 },
                 interrupted -> {
                   DriveCommands.chassisSpeedDrive(drive, new ChassisSpeeds());

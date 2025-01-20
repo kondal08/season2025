@@ -23,6 +23,10 @@ public final class SwerveConstants {
   public static final double TRACK_WIDTH = Units.inchesToMeters(23.5);
   /** Meters */
   public static final double WHEEL_BASE = Units.inchesToMeters(23.5);
+  /** Meters */
+  public static final double BUMPER_LENGTH = Units.inchesToMeters(30);
+  /** Meters */
+  public static final double BUMPER_WIDTH = Units.inchesToMeters(30);
 
   public static final Translation2d[] MODULE_TRANSLATIONS =
       new Translation2d[] {
@@ -97,7 +101,7 @@ public final class SwerveConstants {
 
   // Drive motor PID configuration
   static final Gains DRIVE_GAINS = new Gains(0.0, 0.0, 0.0, 0.1);
-  static final Gains DRIVE_SIM_GAINS = new Gains(0.05, 0.0, 0.0, 0.0789);
+  static final Gains DRIVE_SIM_GAINS = new Gains(0.05, 0.0, 0.0, 0.085);
 
   // Drive encoder configuration
   // this and below for choreo and pathfinding
@@ -158,17 +162,17 @@ public final class SwerveConstants {
   public static final DriveTrainSimulationConfig mapleSimConfig =
       new DriveTrainSimulationConfig(
           Kilograms.of(ROBOT_MASS),
-          Meters.of(30),
-          Meters.of(30),
+          Meters.of(BUMPER_LENGTH),
+          Meters.of(BUMPER_WIDTH),
           Meters.of(WHEEL_BASE),
           Meters.of(TRACK_WIDTH),
           () ->
-              COTS.ofMark4i(
-                      DCMotor.getKrakenX60Foc(1), // Drive motor is a Neo Vortex
-                      DCMotor.getFalcon500(1), // Steer motor is a Neo 550
+              COTS.ofMAXSwerve(
+                      DRIVE_GEARBOX, // Drive motor is a Neo Vortex
+                      TURN_GEARBOX, // Steer motor is a Neo 550
                       WHEEL_FRICTION_COEFF, // Use the COF for Colson Wheels
-                      3)
-                  .get(), // Medium Gear ratio
+                      2) // Medium Gear ratio
+                  .get(),
           COTS.ofNav2X());
 
   // Gyro
