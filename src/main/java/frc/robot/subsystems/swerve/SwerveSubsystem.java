@@ -44,7 +44,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.GlobalConstants;
-import frc.robot.subsystems.vision.apriltagvision.AprilTagVisionSubsystem;
+import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -119,7 +119,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
             new SysIdRoutine.Config(
                 null,
                 null,
-                null,
+                Seconds.of(4),
                 (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));

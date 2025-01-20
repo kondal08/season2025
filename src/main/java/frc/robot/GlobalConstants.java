@@ -22,6 +22,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import frc.robot.util.AllianceFlipUtil;
+import lombok.Getter;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -32,8 +33,8 @@ import frc.robot.util.AllianceFlipUtil;
  * constants are needed, to reduce verbosity.
  */
 public final class GlobalConstants {
-  public static final RobotMode MODE = RobotMode.REAL;
-  public static final RobotType ROBOT = RobotType.COMPBOT;
+  public static final RobotMode MODE = RobotMode.SIM;
+  public static final RobotType ROBOT = RobotType.SIMBOT;
   public static final double ODOMETRY_FREQUENCY = 250.0;
 
   public static boolean TUNING_MODE = true;
@@ -71,14 +72,10 @@ public final class GlobalConstants {
       SPEAKER(new Pose2d(0.05, 5.55, Rotation2d.fromDegrees(0))),
       AMP(new Pose2d(1.85, 7.6, Rotation2d.fromDegrees(270)));
 
-      private final Pose2d pose;
+      @Getter private final Pose2d pose;
 
       Coordinates(Pose2d pose) {
-        this.pose = pose;
-      }
-
-      public Pose2d getPose() {
-        return AllianceFlipUtil.apply(pose);
+        this.pose = AllianceFlipUtil.apply(pose);
       }
     }
 

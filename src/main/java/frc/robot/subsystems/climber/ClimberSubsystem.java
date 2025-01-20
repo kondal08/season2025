@@ -3,7 +3,6 @@ package frc.robot.subsystems.climber;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import frc.robot.generic.elevators.GenericPositionElevatorSystem;
-import frc.robot.generic.elevators.GenericPositionElevatorSystem.ExtensionGoal;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.function.DoubleSupplier;
 import lombok.Getter;
@@ -21,11 +20,11 @@ public class ClimberSubsystem extends GenericPositionElevatorSystem<ClimberSubsy
     SHALLOW_CLIMB(() -> 10),
     TESTING(new LoggedTunableNumber("Climber/Test", 0.0)); // Deep climb level
 
-    private final DoubleSupplier heightSupplier;
+    private final DoubleSupplier height;
 
     @Override
-    public DoubleSupplier getHeightSupplier() {
-      return () -> heightSupplier.getAsDouble() / (2 * Math.PI * ClimberConstants.radius));
+    public DoubleSupplier getHeight() {
+      return () -> height.getAsDouble() / (2 * Math.PI * ClimberConstants.PULLEY_RADIUS);
     }
   }
 

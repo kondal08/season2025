@@ -2,10 +2,9 @@ package frc.robot.subsystems.vision;
 
 import static frc.robot.GlobalConstants.FieldMap.APRIL_TAG_FIELD_LAYOUT;
 import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.*;
-import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionHelpers.eulerScale;
+import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionHelpers.generateDynamicStdDevs;
 
 import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -93,7 +92,7 @@ public class Vision extends SubsystemBase {
                     && observation.ambiguity() > MAX_AMBIGUITY_CUTOFF) // Cannot be high ambiguity
                 || Math.abs(observation.pose().getZ())
                     > MAX_Z_ERROR // Must have realistic Z coordinate
-
+                || observation.averageTagDistance() > 3.5
                 // Must be within the field boundaries
                 || observation.pose().getX() < 0.0
                 || observation.pose().getX() > APRIL_TAG_FIELD_LAYOUT.getFieldLength()
@@ -113,14 +112,11 @@ public class Vision extends SubsystemBase {
           continue;
         }
 
-        var linearStdDev = eulerScale(MOVING_DEVIATION_EULER_MULTIPLIER, observation);
-        var angularStdDev = eulerScale(TURNING_DEVIATION_EULER_MULTIPLIER, observation);
-
         // Send vision observation
         consumer.accept(
             observation.pose().toPose2d(),
             observation.timestamp(),
-            VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
+            generateDynamicStdDevs(observation));
       }
 
       // Log camera datadata

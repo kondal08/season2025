@@ -13,13 +13,15 @@
 
 package frc.robot;
 
+import static frc.robot.Config.Controllers.*;
 import static frc.robot.Config.Subsystems.*;
-import static frc.robot.Config.Controllers.getDriverController;
 import static frc.robot.Config.Subsystems.DRIVETRAIN_ENABLED;
 import static frc.robot.GlobalConstants.MODE;
 import static frc.robot.subsystems.swerve.SwerveConstants.*;
+import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -27,25 +29,22 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.OI.OperatorMap;
+import frc.robot.GlobalConstants.RobotMode;
 import frc.robot.OI.DriverMap;
+import frc.robot.OI.OperatorMap;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.swerve.*;
 import frc.robot.subsystems.swerve.GyroIO;
 import frc.robot.subsystems.swerve.GyroIONavX;
 import frc.robot.subsystems.swerve.ModuleIO;
 import frc.robot.subsystems.swerve.ModuleIOSim;
 import frc.robot.subsystems.swerve.ModuleIOSpark;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
-import frc.robot.GlobalConstants.RobotMode;
-import frc.robot.OI.DriverMap;
-import frc.robot.commands.DriveCommands;
-import frc.robot.subsystems.swerve.*;
+import frc.robot.subsystems.vision.*;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
-import frc.robot.subsystems.vision.*;
-import frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -60,9 +59,9 @@ public class RobotContainer {
   private SwerveDriveSimulation driveSimulation;
 
   // Controller
-  private final DriverMap driver = Config.Controllers.getDriverController();
+  private final DriverMap driver = getDriverController();
 
-  private final OperatorMap operaterController = Config.Controllers.getOperatorController();
+  private final OperatorMap operaterController = getOperatorController();
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -86,10 +85,8 @@ public class RobotContainer {
           vision =
               new Vision(
                   drive,
-                  new AprilTagVisionIOPhotonVision(
-                      "leftcam", AprilTagVisionConstants.LEFT_CAM_CONSTANTS.robotToCamera()),
-                  new AprilTagVisionIOPhotonVision(
-                      "rightcam", AprilTagVisionConstants.RIGHT_CAM_CONSTANTS.robotToCamera()),
+                  new AprilTagVisionIOPhotonVision("leftcam", LEFT_CAM_CONSTANTS.robotToCamera()),
+                  new AprilTagVisionIOPhotonVision("rightcam", RIGHT_CAM_CONSTANTS.robotToCamera()),
                   new GamePieceVisionIOLimelight("limelight", drive::getRotation));
           break;
 
@@ -103,22 +100,20 @@ public class RobotContainer {
           // Sim robot, instantiate physics sim IO implementations
           drive =
               new SwerveSubsystem(
-                  new GyroIO() {},
-                  new ModuleIOSim(),
-                  new ModuleIOSim(),
-                  new ModuleIOSim(),
-                  new ModuleIOSim());
+                  new GyroIOSim(driveSimulation.getGyroSimulation()),
+                  new ModuleIOSim(driveSimulation.getModules()[0]),
+                  new ModuleIOSim(driveSimulation.getModules()[1]),
+                  new ModuleIOSim(driveSimulation.getModules()[2]),
+                  new ModuleIOSim(driveSimulation.getModules()[3]));
           vision =
               new Vision(
                   drive,
-                  new VisionIOPhotonVisionSim(
-                      "leftcam",
-                      AprilTagVisionConstants.LEFT_CAM_CONSTANTS.robotToCamera(),
-                      drive::getPose),
-                  new VisionIOPhotonVisionSim(
-                      "rightcam",
-                      AprilTagVisionConstants.RIGHT_CAM_CONSTANTS.robotToCamera(),
-                      drive::getPose));
+                  LEFT_CAM_ENABLED
+                      ? new VisionIOPhotonVisionSim(LEFT_CAM_CONSTANTS, drive::getPose)
+                      : new VisionIO() {},
+                  RIGHT_CAM_ENABLED
+                      ? new VisionIOPhotonVisionSim(RIGHT_CAM_CONSTANTS, drive::getPose)
+                      : new VisionIO() {});
           break;
 
         default:
@@ -155,7 +150,7 @@ public class RobotContainer {
 
       // Configure the button bindings
       configureButtonBindings();
-      // Register the auto commands)
+      // Register the auto commands
     } else {
       drive = null;
       autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -172,20 +167,14 @@ public class RobotContainer {
     // Default command, normal field-relative drive
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
-            drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
+            drive, driver.getYAxis(), driver.getXAxis(), driver.getRotAxis()));
 
     // Lock to 0° when A button is held
     driver
         .alignToSpeaker()
         .whileTrue(
             DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> new Rotation2d()));
+                drive, driver.getYAxis(), driver.getXAxis(), () -> new Rotation2d()));
 
     // Switch to X pattern when X button is pressed
     driver.stopWithX().onTrue(Commands.runOnce(drive::stopWithX, drive));
@@ -209,11 +198,11 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     // align to coral station with position customization when LB is pressed
-    controller
-        .leftBumper()
+    driver
+        .alignToGamePiece()
         .whileTrue(
             DriveCommands.chasePoseRobotRelativeCommandXOverride(
-                drive, () -> new Pose2d(), () -> controller.getLeftY()));
+                drive, () -> new Pose2d(), driver.getYAxis()));
   }
 
   /** Write all the auto named commands here */
@@ -247,6 +236,7 @@ public class RobotContainer {
     if (MODE != RobotMode.SIM) return;
 
     driveSimulation.setSimulationWorldPose(new Pose2d(3, 3, new Rotation2d()));
+    drive.resetOdometry(driveSimulation.getSimulatedDriveTrainPose());
     SimulatedArena.getInstance().resetFieldForAuto();
   }
 
