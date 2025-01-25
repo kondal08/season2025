@@ -182,9 +182,7 @@ public class RobotContainer {
     // align to coral station with position customization when LB is pressed
     driver
         .alignToGamePiece()
-        .whileTrue(
-            DriveCommands.chasePoseRobotRelativeCommandXOverride(
-                drive, Pose2d::new, driver.getYAxis()));
+        .whileTrue(DriveCommands.alignToNearestCoralStationCommand(drive, driver.getYAxis()));
 
     // Reset gyro to 0° when B button is pressed
     driver
@@ -197,12 +195,8 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    // align to coral station with position customization when LB is pressed
-    driver
-        .alignToGamePiece()
-        .whileTrue(
-            DriveCommands.chasePoseRobotRelativeCommandXOverride(
-                drive, () -> new Pose2d(), driver.getYAxis()));
+    // align to the target reef face or closest reef face if no face was selected by the operator
+    driver.alignToSpeaker().whileTrue(DriveCommands.alignToReefCommnd(drive));
   }
 
   /** Write all the auto named commands here */
