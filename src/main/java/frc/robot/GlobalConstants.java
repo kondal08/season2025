@@ -21,7 +21,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
-import frc.robot.util.AllianceFlipUtil;
+import frc.robot.util.RotationalAllianceFlipUtil;
 import lombok.Getter;
 
 /**
@@ -69,21 +69,34 @@ public final class GlobalConstants {
 
   public static final class FieldMap {
     public static enum Coordinates {
-      SPEAKER(new Pose2d(0.05, 5.55, Rotation2d.fromDegrees(0))),
-      AMP(new Pose2d(1.85, 7.6, Rotation2d.fromDegrees(270)));
+      REEF1(new Pose2d(3.6576, 4.0259, Rotation2d.fromDegrees(0 + 180))),
+      REEF2(new Pose2d(4.073905999999999, 3.3063179999999996, Rotation2d.fromDegrees(60 + 180))),
+      REEF3(new Pose2d(4.904739999999999, 3.3063179999999996, Rotation2d.fromDegrees(120 + 180))),
+      REEF4(new Pose2d(5.321046, 4.0259, Rotation2d.fromDegrees(180))),
+      REEF5(new Pose2d(4.904739999999999, 4.745482, Rotation2d.fromDegrees(240 + 180))),
+      REEF6(new Pose2d(4.073905999999999, 4.745482, Rotation2d.fromDegrees(300 + 180))),
+      LEFT_CORAL_STATION(
+          new Pose2d(0.851154, 7.3964799999999995, Rotation2d.fromDegrees(-54.011392 + 180))),
+      RIGHT_CORAL_STATION(new Pose2d(0.851154, 0.65532, Rotation2d.fromDegrees(54.011392 + 180))),
+      PROCESSOR(new Pose2d(5.9875419999999995, -0.0038099999999999996, Rotation2d.fromDegrees(90)));
 
       @Getter private final Pose2d pose;
 
       Coordinates(Pose2d pose) {
-        this.pose = AllianceFlipUtil.apply(pose);
+        this.pose = RotationalAllianceFlipUtil.apply(pose);
       }
     }
 
-    public static final double FIELD_WIDTH_METERS = Units.feetToMeters(26 + (11.25 / 12));
-    public static final double FIELD_LENGTH_METERS = Units.feetToMeters(54 + (3.25 / 12));
+    public static final double FIELD_WIDTH_METERS = Units.feetToMeters(26 + (5.0 / 12));
+    public static final double FIELD_LENGTH_METERS = Units.feetToMeters(57 + (6.875 / 12));
 
     public static final AprilTagFieldLayout APRIL_TAG_FIELD_LAYOUT =
         loadField(AprilTagFields.kDefaultField);
+  }
+
+  public static final class AlignOffsets {
+    public static final double BUMPER_TO_CENTER_OFFSET = 16.0;
+    public static final double REEF_TO_BRANCH_OFFSET = 13.0 / 2;
   }
 
   /** PID + FF gains, with overloaded constructors for disabling each term. */
