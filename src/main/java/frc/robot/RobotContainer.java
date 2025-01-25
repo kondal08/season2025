@@ -170,18 +170,35 @@ public class RobotContainer {
             drive, driver.getYAxis(), driver.getXAxis(), driver.getRotAxis()));
 
     // Lock to 0° when A button is held
-    driver
-        .alignToSpeaker()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive, driver.getYAxis(), driver.getXAxis(), () -> new Rotation2d()));
+    // driver
+    //     .alignToSpeaker()
+    //     .whileTrue(
+    //         DriveCommands.joystickDriveAtAngle(
+    //             drive, driver.getYAxis(), driver.getXAxis(), () -> new Rotation2d()));
 
     // Switch to X pattern when X button is pressed
     driver.stopWithX().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
-    // align to coral station with position customization when LB is pressed
+    // align to right side of reef face
+    driver
+        .alignToSpeaker()
+        .whileTrue(Commands.repeatingSequence(Commands.run(() -> DriveCommands.setLeftAlign(false)), 
+        DriveCommands.alignToReefCommnd(drive)));
+
+    // align to left side of reef face
     driver
         .alignToGamePiece()
+        .whileTrue(Commands.repeatingSequence(Commands.run(() -> DriveCommands.setLeftAlign(true)), 
+        DriveCommands.alignToReefCommnd(drive)));
+
+    // align to face 2
+    driver
+        .slowMode()
+        .onTrue(Commands.run(() -> DriveCommands.setTargetReefFace(2)));
+
+    // align to coral station with position customization when right trigger is pressed
+    driver
+        .coralStation()
         .whileTrue(DriveCommands.alignToNearestCoralStationCommand(drive, driver.getYAxis()));
 
     // Reset gyro to 0° when B button is pressed
