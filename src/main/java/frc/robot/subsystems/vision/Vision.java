@@ -1,7 +1,8 @@
 package frc.robot.subsystems.vision;
 
 import static frc.robot.GlobalConstants.FieldMap.APRIL_TAG_FIELD_LAYOUT;
-import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.*;
+import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.MAX_AMBIGUITY_CUTOFF;
+import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.MAX_Z_ERROR;
 import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionHelpers.generateDynamicStdDevs;
 
 import edu.wpi.first.math.Matrix;
@@ -92,7 +93,7 @@ public class Vision extends SubsystemBase {
                     && observation.ambiguity() > MAX_AMBIGUITY_CUTOFF) // Cannot be high ambiguity
                 || Math.abs(observation.pose().getZ())
                     > MAX_Z_ERROR // Must have realistic Z coordinate
-                || observation.averageTagDistance() > 3.5
+                || observation.averageTagDistance() > 35
                 // Must be within the field boundaries
                 || observation.pose().getX() < 0.0
                 || observation.pose().getX() > APRIL_TAG_FIELD_LAYOUT.getFieldLength()

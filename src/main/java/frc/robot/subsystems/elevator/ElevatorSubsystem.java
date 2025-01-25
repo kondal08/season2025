@@ -16,11 +16,11 @@ public class ElevatorSubsystem
   @RequiredArgsConstructor
   @Getter
   public enum ElevatorGoal implements GenericPositionElevatorSystem.ExtensionGoal {
-    IDLING(() -> 0.0),
-    LEVEL_ONE(() -> 0.46),
-    LEVEL_TWO(() -> 0.81),
-    LEVEL_THREE(() -> 1.21),
-    LEVEL_FOUR(() -> 1.83),
+    IDLING(new LoggedTunableNumber("Elevator/Idling", 0.0)),
+    LEVEL_ONE(new LoggedTunableNumber("Elevator/Level_One", 0.46)),
+    LEVEL_TWO(new LoggedTunableNumber("Elevator/Level_Two", 0.81)),
+    LEVEL_THREE(new LoggedTunableNumber("Elevator/Level_Three", 1.21)),
+    LEVEL_FOUR(new LoggedTunableNumber("Elevator/Level_Four", 1.83)),
     TESTING(new LoggedTunableNumber("Elevator/Test", 0.0));
 
     private final DoubleSupplier heightSupplier;

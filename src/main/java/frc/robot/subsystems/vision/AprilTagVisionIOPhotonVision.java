@@ -16,6 +16,7 @@ package frc.robot.subsystems.vision;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import frc.robot.subsystems.vision.VisionConstants.CameraConstants;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,9 +37,9 @@ public class AprilTagVisionIOPhotonVision implements VisionIO {
    * @param name The configured name of the camera.
    * @param robotToCamera The 3D position of the camera relative to the robot.
    */
-  public AprilTagVisionIOPhotonVision(String name, Transform3d robotToCamera) {
-    camera = new PhotonCamera(name);
-    this.robotToCamera = robotToCamera;
+  public AprilTagVisionIOPhotonVision(CameraConstants cameraConstants) {
+    camera = new PhotonCamera(cameraConstants.cameraName());
+    this.robotToCamera = cameraConstants.robotToCamera();
   }
 
   @Override
@@ -48,8 +49,10 @@ public class AprilTagVisionIOPhotonVision implements VisionIO {
     // Read new camera observations
     Set<Short> tagIds = new HashSet<>();
     List<PoseObservation> poseObservations = new LinkedList<>();
+
     for (var result : camera.getAllUnreadResults()) {
       // Update latest target observation
+
       if (result.hasTargets()) {
         inputs.latestTargetObservation =
             new TargetObservation(
@@ -58,6 +61,7 @@ public class AprilTagVisionIOPhotonVision implements VisionIO {
       } else {
         inputs.latestTargetObservation = new TargetObservation(new Rotation2d(), new Rotation2d());
       }
+      System.out.println(result.multitagResult.isPresent());
 
       // Add pose observation (multitag only)
       if (result.multitagResult.isPresent()) {

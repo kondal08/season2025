@@ -14,10 +14,10 @@ import lombok.Setter;
 public class ClimberSubsystem extends GenericPositionElevatorSystem<ClimberSubsystem.ClimberGoal> {
   @RequiredArgsConstructor
   @Getter
-  public enum ClimberGoal implements ExtensionGoal {
-    IDLING(() -> 0.0), // Climber is off
-    DEEP_CLIMB(() -> 0.5), // Deep climb level
-    SHALLOW_CLIMB(() -> 10),
+  public enum ClimberGoal implements GenericPositionElevatorSystem.ExtensionGoal {
+    IDLING(new LoggedTunableNumber("Climber/Idling", 0.0)), // Climber is off
+    DEEP_CLIMB(new LoggedTunableNumber("Climber/Deep_Climb", 0.5)), // Deep climb level
+    SHALLOW_CLIMB(new LoggedTunableNumber("Climber/Shallow_Climb", 10)),
     TESTING(new LoggedTunableNumber("Climber/Test", 0.0)); // Deep climb level
 
     private final DoubleSupplier height;

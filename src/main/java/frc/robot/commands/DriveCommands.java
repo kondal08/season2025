@@ -88,7 +88,7 @@ public class DriveCommands {
               getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
 
           // Apply rotation deadband
-          double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND);
+          double omega = MathUtil.applyDeadband(-omegaSupplier.getAsDouble(), DEADBAND);
 
           // Square rotation value for more precise control
           omega = Math.copySign(omega * omega, omega);
@@ -291,16 +291,21 @@ public class DriveCommands {
     if (targetReefFace == 6) targetFace = GlobalConstants.FieldMap.Coordinates.REEF6.getPose();
     else targetFace = findClosestReefFace(drive);
 
-    double xOffset =
-        Units.feetToMeters(-GlobalConstants.AlignOffsets.BUMPER_TO_CENTER_OFFSET / 12);
-    double yOffset = Units.feetToMeters(GlobalConstants.AlignOffsets.REEF_TO_BRANCH_OFFSET / 12)
-    * (leftAlign ? 1 : -1);
+    double xOffset = Units.feetToMeters(-GlobalConstants.AlignOffsets.BUMPER_TO_CENTER_OFFSET / 12);
+    double yOffset =
+        Units.feetToMeters(GlobalConstants.AlignOffsets.REEF_TO_BRANCH_OFFSET / 12)
+            * (leftAlign ? 1 : -1);
     Rotation2d rotation = targetFace.getRotation();
     Transform2d branchTransform =
         new Transform2d(new Translation2d(xOffset, yOffset).rotateBy(rotation), new Rotation2d());
     Pose2d target = targetFace.transformBy(branchTransform);
 
-    PathConstraints constraints = new PathConstraints(null, null, null, null);
+    PathConstraints constraints =
+        new PathConstraints(
+            SwerveConstants.MAX_LINEAR_SPEED,
+            SwerveConstants.MAX_LINEAR_ACCELERATION,
+            SwerveConstants.MAX_ANGULAR_SPEED,
+            SwerveConstants.MAX_ANGULAR_ACCELERATION);
 
     double endVelocity = 0.0;
 

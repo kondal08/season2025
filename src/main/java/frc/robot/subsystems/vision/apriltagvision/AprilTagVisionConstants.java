@@ -18,17 +18,17 @@ public final class AprilTagVisionConstants {
           "lefttagcam",
           new Transform3d(
               new Translation3d(0.3, -0.3, 0.15),
-              new Rotation3d(0, degreesToRadians(0), degreesToRadians(0))),
+              new Rotation3d(0, degreesToRadians(-14), degreesToRadians(0))),
           VisionConstants.CameraType.TELEPHOTO_OV9281,
           0.5);
 
-  public static final boolean RIGHT_CAM_ENABLED = false;
+  public static final boolean RIGHT_CAM_ENABLED = true;
   public static final VisionConstants.CameraConstants RIGHT_CAM_CONSTANTS =
       new VisionConstants.CameraConstants(
           "righttagcam",
           new Transform3d(
               new Translation3d(0.3, 0.3, 0.15),
-              new Rotation3d(0, degreesToRadians(0), degreesToRadians(0))),
+              new Rotation3d(0, degreesToRadians(-14), degreesToRadians(0))),
           VisionConstants.CameraType.TELEPHOTO_OV9281,
           0.5);
 

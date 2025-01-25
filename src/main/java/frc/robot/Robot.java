@@ -13,6 +13,7 @@
 
 package frc.robot;
 
+import static frc.robot.Config.Subsystems.DRIVETRAIN_ENABLED;
 import static frc.robot.GlobalConstants.MODE;
 
 import edu.wpi.first.wpilibj.Threads;
@@ -79,7 +80,7 @@ public class Robot extends LoggedRobot {
         break;
     }
 
-    AutoCommands.registerAutoCommands();
+    if (DRIVETRAIN_ENABLED) AutoCommands.registerAutoCommands();
 
     // Initialize URCL
     Logger.registerURCL(URCL.startExternal());
@@ -122,11 +123,13 @@ public class Robot extends LoggedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    autonomousCommand = robotContainer.getAutonomousCommand();
+    if (DRIVETRAIN_ENABLED) {
+      autonomousCommand = robotContainer.getAutonomousCommand();
 
-    // schedule the autonomous command (example)
-    if (autonomousCommand != null) {
-      autonomousCommand.schedule();
+      // schedule the autonomous command (example)
+      if (autonomousCommand != null) {
+        autonomousCommand.schedule();
+      }
     }
   }
 

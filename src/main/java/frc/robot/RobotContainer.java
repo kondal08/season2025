@@ -13,12 +13,18 @@
 
 package frc.robot;
 
-import static frc.robot.Config.Controllers.*;
-import static frc.robot.Config.Subsystems.*;
+import static frc.robot.Config.Controllers.getDriverController;
+import static frc.robot.Config.Controllers.getOperatorController;
 import static frc.robot.Config.Subsystems.DRIVETRAIN_ENABLED;
 import static frc.robot.GlobalConstants.MODE;
-import static frc.robot.subsystems.swerve.SwerveConstants.*;
-import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.*;
+import static frc.robot.subsystems.swerve.SwerveConstants.BACK_LEFT;
+import static frc.robot.subsystems.swerve.SwerveConstants.BACK_RIGHT;
+import static frc.robot.subsystems.swerve.SwerveConstants.FRONT_LEFT;
+import static frc.robot.subsystems.swerve.SwerveConstants.FRONT_RIGHT;
+import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.LEFT_CAM_CONSTANTS;
+import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.LEFT_CAM_ENABLED;
+import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.RIGHT_CAM_CONSTANTS;
+import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.RIGHT_CAM_ENABLED;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -34,14 +40,18 @@ import frc.robot.OI.DriverMap;
 import frc.robot.OI.OperatorMap;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.swerve.*;
 import frc.robot.subsystems.swerve.GyroIO;
 import frc.robot.subsystems.swerve.GyroIONavX;
+import frc.robot.subsystems.swerve.GyroIOSim;
 import frc.robot.subsystems.swerve.ModuleIO;
 import frc.robot.subsystems.swerve.ModuleIOSim;
 import frc.robot.subsystems.swerve.ModuleIOSpark;
+import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
-import frc.robot.subsystems.vision.*;
+import frc.robot.subsystems.vision.AprilTagVisionIOPhotonVision;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
@@ -85,9 +95,10 @@ public class RobotContainer {
           vision =
               new Vision(
                   drive,
-                  new AprilTagVisionIOPhotonVision("leftcam", LEFT_CAM_CONSTANTS.robotToCamera()),
-                  new AprilTagVisionIOPhotonVision("rightcam", RIGHT_CAM_CONSTANTS.robotToCamera()),
-                  new GamePieceVisionIOLimelight("limelight", drive::getRotation));
+                  new AprilTagVisionIOPhotonVision(LEFT_CAM_CONSTANTS),
+                  new AprilTagVisionIOPhotonVision(RIGHT_CAM_CONSTANTS)
+                  /*new GamePieceVisionIOLimelight("limelight", drive::getRotation)*/
+                  );
           break;
 
         case SIM:
@@ -149,11 +160,14 @@ public class RobotContainer {
           "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
       // Configure the button bindings
-      configureButtonBindings();
+      configureDriveButtonBindings();
+      configureOperatorButtonBindings();
       // Register the auto commands
     } else {
       drive = null;
-      autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+      autoChooser = null;
+      vision = null;
+      configureOperatorButtonBindings();
     }
   }
 
@@ -163,7 +177,7 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
-  private void configureButtonBindings() {
+  private void configureDriveButtonBindings() {
     // Default command, normal field-relative drive
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
@@ -216,6 +230,13 @@ public class RobotContainer {
     driver.alignToSpeaker().whileTrue(DriveCommands.alignToReefCommnd(drive));
   }
 
+  private void configureOperatorButtonBindings() {
+    operaterController
+        .shoot()
+        .whileFalse(superstructure.setSuperStateCmd(Superstructure.SuperStates.IDLING))
+        .whileTrue(superstructure.setSuperStateCmd(Superstructure.SuperStates.RUNNING));
+  }
+
   /** Write all the auto named commands here */
   private void registerAutoCommands() {
     /** Overriding commands */
@@ -226,12 +247,6 @@ public class RobotContainer {
 
     // clears all override commands in the x and y direction
     NamedCommands.registerCommand("Clear XY Override", DriveCommands.clearXYOverrides());
-
-    // set state to idle
-    operaterController
-        .shoot()
-        .whileFalse(superstructure.setSuperStateCmd(Superstructure.SuperStates.IDLING))
-        .whileTrue(superstructure.setSuperStateCmd(Superstructure.SuperStates.RUNNING));
   }
 
   /**

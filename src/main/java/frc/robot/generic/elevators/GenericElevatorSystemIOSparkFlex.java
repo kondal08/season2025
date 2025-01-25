@@ -1,20 +1,23 @@
 package frc.robot.generic.elevators;
 
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkBase;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 
 public class GenericElevatorSystemIOSparkFlex implements GenericElevatorSystemIO {
   private final SparkFlex[] motors;
   private final RelativeEncoder encoder;
-  private final PIDController pidController;
   private double restingAngle;
   private final double reduction;
+  private SparkBaseConfig config;
+  private SparkClosedLoopController controller;
 
   public GenericElevatorSystemIOSparkFlex(
       int[] id,
@@ -29,33 +32,30 @@ public class GenericElevatorSystemIOSparkFlex implements GenericElevatorSystemIO
     this.reduction = reduction;
     this.restingAngle = restingAngle;
     motors = new SparkFlex[id.length];
-    pidController = new PIDController(kP, kI, kD);
-    var config =
+    config =
         new SparkFlexConfig()
             .smartCurrentLimit(currentLimitAmps)
             .inverted(invert)
             .idleMode(brake ? SparkBaseConfig.IdleMode.kBrake : SparkBaseConfig.IdleMode.kCoast);
+    config.closedLoop.pid(kP, kI, kD).positionWrappingEnabled(true).outputRange(-Math.PI, Math.PI);
 
     for (int i = 0; i < id.length; i++) {
       motors[i] = new SparkFlex(id[i], SparkLowLevel.MotorType.kBrushless);
 
       if (i == 0)
-        motors[i].configure(
-            config,
-            SparkBase.ResetMode.kResetSafeParameters,
-            SparkBase.PersistMode.kPersistParameters);
+        motors[i].configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
       else
         motors[i].configure(
-            new SparkFlexConfig().follow(motors[0]),
-            SparkBase.ResetMode.kResetSafeParameters,
-            SparkBase.PersistMode.kPersistParameters);
+            new SparkFlexConfig().apply(config).follow(motors[0]),
+            ResetMode.kResetSafeParameters,
+            PersistMode.kPersistParameters);
     }
-
     encoder = motors[0].getEncoder();
+    controller = motors[0].getClosedLoopController();
   }
 
-  public void updateInputs(GenericElevatorSystemIO.GenericElevatorSystemIOInputs inputs) {
-    inputs.positionMeters = Units.rotationsToRadians(encoder.getPosition()) / reduction;
+  public void updateInputs(GenericElevatorSystemIOInputs inputs) {
+    inputs.positionMeters = Units.rotationsToRadians(encoder.getPosition());
     inputs.velocityMetersPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity()) / reduction;
     inputs.appliedVoltage = motors[0].getAppliedOutput() * motors[0].getBusVoltage();
@@ -65,6 +65,6 @@ public class GenericElevatorSystemIOSparkFlex implements GenericElevatorSystemIO
 
   @Override
   public void runPosition(double position) {
-    motors[0].setVoltage(pidController.calculate(encoder.getPosition(), position));
+    controller.setReference(position, ControlType.kPosition);
   }
 }

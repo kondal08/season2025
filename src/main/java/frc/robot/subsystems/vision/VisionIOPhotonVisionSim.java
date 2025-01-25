@@ -22,7 +22,7 @@ public class VisionIOPhotonVisionSim extends AprilTagVisionIOPhotonVision {
    * @param poseSupplier Supplier for the robot pose to use in simulation.
    */
   public VisionIOPhotonVisionSim(CameraConstants cameraConstants, Supplier<Pose2d> poseSupplier) {
-    super(cameraConstants.cameraName(), cameraConstants.robotToCamera());
+    super(cameraConstants);
     this.poseSupplier = poseSupplier;
 
     // Initialize vision sim
