@@ -2,16 +2,21 @@ package frc.robot;
 
 import static frc.robot.GlobalConstants.ROBOT;
 
-import frc.robot.OI.*;
+import frc.robot.OI.BoardOperatorMap;
+import frc.robot.OI.DriverMap;
+import frc.robot.OI.OperatorMap;
+import frc.robot.OI.SimXboxUniversalMap;
+import frc.robot.OI.XboxDriverMap;
+import frc.robot.OI.XboxOperatorMap;
 
 public final class Config {
 
   public static final class Subsystems {
-    public static final boolean DRIVETRAIN_ENABLED = true;
-    public static final boolean VISION_ENABLED = true;
+    public static final boolean DRIVETRAIN_ENABLED = false;
+    public static final boolean VISION_ENABLED = false;
     public static final boolean GAME_PIECE_VISION_ENABLED = false;
     public static final boolean FEEDER_ENABLED = false;
-    public static final boolean PIVOT_ENABLED = false;
+    public static final boolean PIVOT_ENABLED = true;
     public static final boolean SHOOTER_ENABLED = false;
     public static final boolean CLIMBER_ENABLED = false;
     public static final boolean LEDS_ENABLED = false;

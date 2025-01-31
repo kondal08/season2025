@@ -61,7 +61,6 @@ public class AprilTagVisionIOPhotonVision implements VisionIO {
       } else {
         inputs.latestTargetObservation = new TargetObservation(new Rotation2d(), new Rotation2d());
       }
-      System.out.println(result.multitagResult.isPresent());
 
       // Add pose observation (multitag only)
       if (result.multitagResult.isPresent()) {

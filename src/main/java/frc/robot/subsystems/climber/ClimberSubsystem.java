@@ -18,7 +18,7 @@ public class ClimberSubsystem extends GenericPositionElevatorSystem<ClimberSubsy
     IDLING(new LoggedTunableNumber("Climber/Idling", 0.0)), // Climber is off
     DEEP_CLIMB(new LoggedTunableNumber("Climber/Deep_Climb", 0.5)), // Deep climb level
     SHALLOW_CLIMB(new LoggedTunableNumber("Climber/Shallow_Climb", 10)),
-    TESTING(new LoggedTunableNumber("Climber/Test", 0.0)); // Deep climb level
+    TESTING(new LoggedTunableNumber("Climber/Test", 400.0)); // Deep climb level
 
     private final DoubleSupplier height;
 

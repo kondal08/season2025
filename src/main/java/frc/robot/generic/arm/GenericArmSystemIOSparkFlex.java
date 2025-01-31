@@ -9,7 +9,6 @@ import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
-import edu.wpi.first.math.util.Units;
 
 public class GenericArmSystemIOSparkFlex implements GenericArmSystemIO {
   private final SparkFlex[] motors;
@@ -37,7 +36,13 @@ public class GenericArmSystemIOSparkFlex implements GenericArmSystemIO {
             .smartCurrentLimit(currentLimitAmps)
             .inverted(invert)
             .idleMode(brake ? SparkBaseConfig.IdleMode.kBrake : SparkBaseConfig.IdleMode.kCoast);
-    config.closedLoop.pid(kP, kI, kD).positionWrappingEnabled(true).outputRange(-Math.PI, Math.PI);
+    config
+        .closedLoop
+        .pid(kP, kI, kD)
+        .maxMotion
+        .maxAcceleration(6000)
+        .maxVelocity(6000)
+        .allowedClosedLoopError(0.002);
 
     for (int i = 0; i < id.length; i++) {
       motors[i] = new SparkFlex(id[i], SparkLowLevel.MotorType.kBrushless);
@@ -54,17 +59,18 @@ public class GenericArmSystemIOSparkFlex implements GenericArmSystemIO {
     controller = motors[0].getClosedLoopController();
   }
 
+  @Override
   public void updateInputs(GenericArmSystemIOInputs inputs) {
-    inputs.degrees = Units.rotationsToDegrees(encoder.getPosition());
-    inputs.velocityRadsPerSec =
-        Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity()) / reduction;
+    inputs.degrees = encoder.getPosition();
+    inputs.velocityRadsPerSec = encoder.getVelocity();
     inputs.appliedVoltage = motors[0].getAppliedOutput() * motors[0].getBusVoltage();
     inputs.supplyCurrentAmps = motors[0].getOutputCurrent();
     inputs.tempCelsius = motors[0].getMotorTemperature();
   }
 
   @Override
-  public void runToDegree(double degrees) {
-    controller.setReference(degrees, ControlType.kPosition);
+  public void runToDegree(double degree) {
+    controller.setReference(degree, ControlType.kMAXMotionPositionControl);
+    System.out.println(degree);
   }
 }

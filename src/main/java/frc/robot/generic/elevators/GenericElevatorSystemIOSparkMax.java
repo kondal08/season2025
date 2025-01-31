@@ -9,7 +9,6 @@ import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import edu.wpi.first.math.util.Units;
 
 public class GenericElevatorSystemIOSparkMax implements GenericElevatorSystemIO {
   private final SparkMax[] motors;
@@ -37,7 +36,13 @@ public class GenericElevatorSystemIOSparkMax implements GenericElevatorSystemIO 
             .smartCurrentLimit(currentLimitAmps)
             .inverted(invert)
             .idleMode(brake ? SparkBaseConfig.IdleMode.kBrake : SparkBaseConfig.IdleMode.kCoast);
-    config.closedLoop.pid(kP, kI, kD).positionWrappingEnabled(true).outputRange(-Math.PI, Math.PI);
+    config
+        .closedLoop
+        .pid(kP, kI, kD)
+        .maxMotion
+        .maxAcceleration(6000)
+        .maxVelocity(6000)
+        .allowedClosedLoopError(0.2);
 
     for (int i = 0; i < id.length; i++) {
       motors[i] = new SparkMax(id[i], SparkLowLevel.MotorType.kBrushless);
@@ -54,10 +59,10 @@ public class GenericElevatorSystemIOSparkMax implements GenericElevatorSystemIO 
     controller = motors[0].getClosedLoopController();
   }
 
+  @Override
   public void updateInputs(GenericElevatorSystemIOInputs inputs) {
-    inputs.positionMeters = Units.rotationsToRadians(encoder.getPosition());
-    inputs.velocityMetersPerSec =
-        Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity()) / reduction;
+    inputs.positionMeters = encoder.getPosition();
+    inputs.velocityMetersPerSec = encoder.getVelocity();
     inputs.appliedVoltage = motors[0].getAppliedOutput() * motors[0].getBusVoltage();
     inputs.supplyCurrentAmps = motors[0].getOutputCurrent();
     inputs.tempCelsius = motors[0].getMotorTemperature();
@@ -65,6 +70,6 @@ public class GenericElevatorSystemIOSparkMax implements GenericElevatorSystemIO 
 
   @Override
   public void runPosition(double position) {
-    controller.setReference(position, ControlType.kPosition);
+    controller.setReference(position, ControlType.kMAXMotionPositionControl);
   }
 }

@@ -49,7 +49,9 @@ public class Superstructure extends SubsystemBase {
 
   public static enum SuperStates {
     IDLING,
-    RUNNING
+    RUNNING,
+    INTAKING,
+    OUTTAKING
   }
 
   /**
@@ -96,13 +98,23 @@ public class Superstructure extends SubsystemBase {
         if (CLIMBER_ENABLED) elevators.getClimber().setGoal(ClimberSubsystem.ClimberGoal.TESTING);
         if (PIVOT_ENABLED) arms.getPivot().setGoal(PivotSubsystem.PivotGoal.LEVEL_FOUR);
       }
+      case INTAKING -> {
+        if (FEEDER_ENABLED) rollers.getFeeder().setGoal(FeederSubsystem.FeederGoal.FORWARD);
+        if (ELEVATOR_ENABLED)
+          elevators.getElevator().setGoal(ElevatorSubsystem.ElevatorGoal.TESTING);
+        if (CLIMBER_ENABLED) elevators.getClimber().setGoal(ClimberSubsystem.ClimberGoal.TESTING);
+        if (PIVOT_ENABLED) arms.getPivot().setGoal(PivotSubsystem.PivotGoal.LEVEL_FOUR);
+      }
+      case OUTTAKING -> {
+        if (FEEDER_ENABLED) rollers.getFeeder().setGoal(FeederSubsystem.FeederGoal.REVERSE);
+      }
     }
   }
 
-  public Command setLEDBlinkingCmd(Color onColor, Color offColor, double frequency) {
-    if (leds != null) return leds.setBlinkingCmd(onColor, offColor, frequency);
-    else return null;
-  }
+  // public Command setLEDBlinkingCmd(Color onColor, Color offColor, double frequency) {
+  //   if (leds != null) return leds.setBlinkingCmd(onColor, offColor, frequency);
+  //   else return null;
+  // }
 
   public void registerSuperstructureCharacterization(
       Supplier<LoggedDashboardChooser<Command>> autoChooser) {}

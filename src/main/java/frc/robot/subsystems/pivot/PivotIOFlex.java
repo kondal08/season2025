@@ -5,7 +5,7 @@ import frc.robot.generic.arm.GenericArmSystemIOSparkMax;
 public class PivotIOFlex extends GenericArmSystemIOSparkMax implements PivotIO {
   public PivotIOFlex() {
     super(
-        new int[] {PivotConstants.Software.LEFT_PIVOT_ID, PivotConstants.Software.RIGHT_PIVOT_ID},
+        new int[] {PivotConstants.Software.LEFT_PIVOT_ID},
         40,
         PivotConstants.Hardware.RESTING_ANGLE,
         false,

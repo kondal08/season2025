@@ -5,7 +5,7 @@ import frc.robot.generic.elevators.GenericElevatorSystemIOSparkMax;
 public class ElevatorIOMax extends GenericElevatorSystemIOSparkMax implements ElevatorIO {
   public ElevatorIOMax() {
     super(
-        new int[] {ElevatorConstants.LEFT_ELEVATOR, ElevatorConstants.RIGHT_ELEVATOR},
+        new int[] {ElevatorConstants.LEFT_ELEVATOR},
         40,
         0.0,
         false,
