@@ -92,4 +92,14 @@ public class SimXboxUniversalMap extends CommandXboxController implements Driver
     return startEnd(
         () -> getHID().setRumble(kBothRumble, 1), () -> getHID().setRumble(kBothRumble, 0));
   }
+
+  @Override
+  public Trigger coralStation() {
+    return button(2);
+  }
+
+  @Override
+  public Trigger slowMode() {
+    return button(3);
+  }
 }

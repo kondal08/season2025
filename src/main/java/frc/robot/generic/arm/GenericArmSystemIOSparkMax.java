@@ -37,7 +37,13 @@ public class GenericArmSystemIOSparkMax implements GenericArmSystemIO {
             .smartCurrentLimit(currentLimitAmps)
             .inverted(invert)
             .idleMode(brake ? SparkBaseConfig.IdleMode.kBrake : SparkBaseConfig.IdleMode.kCoast);
-    config.closedLoop.pid(kP, kI, kD).positionWrappingEnabled(true).outputRange(-Math.PI, Math.PI);
+    config
+        .closedLoop
+        .pid(kP, kI, kD)
+        .maxMotion
+        .maxAcceleration(6000)
+        .maxVelocity(6000)
+        .allowedClosedLoopError(0.2);
 
     for (int i = 0; i < id.length; i++) {
       motors[i] = new SparkMax(id[i], SparkLowLevel.MotorType.kBrushless);
@@ -54,6 +60,7 @@ public class GenericArmSystemIOSparkMax implements GenericArmSystemIO {
     controller = motors[0].getClosedLoopController();
   }
 
+  @Override
   public void updateInputs(GenericArmSystemIOInputs inputs) {
     inputs.degrees = Units.rotationsToDegrees(encoder.getPosition());
     inputs.velocityRadsPerSec =
@@ -65,6 +72,6 @@ public class GenericArmSystemIOSparkMax implements GenericArmSystemIO {
 
   @Override
   public void runToDegree(double degrees) {
-    controller.setReference(degrees, ControlType.kPosition);
+    controller.setReference(degrees, ControlType.kMAXMotionPositionControl);
   }
 }

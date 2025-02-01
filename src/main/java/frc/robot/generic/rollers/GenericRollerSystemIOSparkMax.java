@@ -1,10 +1,5 @@
 package frc.robot.generic.rollers;
 
-import static com.revrobotics.spark.SparkBase.PersistMode;
-import static com.revrobotics.spark.SparkBase.ResetMode;
-import static com.revrobotics.spark.SparkLowLevel.MotorType;
-import static com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -36,6 +31,7 @@ public abstract class GenericRollerSystemIOSparkMax implements GenericRollerSyst
     encoder = sparkMax.getEncoder();
   }
 
+  @Override
   public void updateInputs(GenericRollerSystemIOInputs inputs) {
     inputs.positionRads = Units.rotationsToRadians(encoder.getPosition()) / reduction;
     inputs.velocityRadsPerSec =

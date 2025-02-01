@@ -14,15 +14,15 @@ public final class PivotConstants {
 
     public static final Gains gains =
         switch (ROBOT) {
-          case COMPBOT -> new Gains(0.003, 0, 0.0, 0, 0.5, 1.3);
+          case COMPBOT -> new Gains(0.02, 0, 0.0, 0, 0.5, 1.3); // 0.4 kP for neo
           case DEVBOT -> new Gains(0, 0, 0, 0, 0, 0);
           case SIMBOT -> new Gains(0, 0, 0, 0, 0, 0);
         };
     public static final double kIZone = 0.08;
     public static final double POSITION_TOLERANCE = 0.05;
     public static final double VELOCITY_TOLERANCE = 0.1;
-    public static final int LEFT_PIVOT_ID = 34;
-    public static final int RIGHT_PIVOT_ID = 33;
+    public static final int LEFT_PIVOT_ID = 24;
+    public static final int RIGHT_PIVOT_ID = 23;
 
     public static final int ENCODER_PORT = 2;
     public static TrapezoidProfile.Constraints profileConstraints =

@@ -5,7 +5,7 @@ import frc.robot.generic.elevators.GenericElevatorSystemIOSparkFlex;
 public class ClimberIOFlex extends GenericElevatorSystemIOSparkFlex implements ClimberIO {
   public ClimberIOFlex() {
     super(
-        new int[] {ClimberConstants.LEFT_CLIMBER, ClimberConstants.RIGHT_CLIMBER},
+        new int[] {ClimberConstants.RIGHT_CLIMBER},
         40,
         0.0,
         false,
