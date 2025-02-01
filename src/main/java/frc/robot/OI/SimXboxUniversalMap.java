@@ -78,6 +78,14 @@ public class SimXboxUniversalMap extends CommandXboxController implements Driver
     return button(1);
   }
 
+  public Trigger slowMode() {
+    return button(2);
+  }
+
+  public Trigger coralStation() {
+    return button(5);
+  }
+
   // would we need to mutex this through a subsys req if we switch to the maple swerve skeleton?
   @Override
   public Command rumble() {

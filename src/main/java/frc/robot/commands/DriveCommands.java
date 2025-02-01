@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+import org.littletonrobotics.junction.Logger;
 
 public class DriveCommands {
   // driving
@@ -76,47 +77,41 @@ public class DriveCommands {
   /**
    * Field relative drive command using two joysticks (controlling linear and angular velocities).
    */
-  public static Command joystickDrive(
+  public static void joystickDrive(
       SwerveSubsystem drive,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
       DoubleSupplier omegaSupplier) {
-    return Commands.run(
-        () -> {
-          // Get linear velocity
-          Translation2d linearVelocity =
-              getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
+    // Get linear velocity
+    Translation2d linearVelocity =
+        getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
 
-          // Apply rotation deadband
-          double omega = MathUtil.applyDeadband(-omegaSupplier.getAsDouble(), DEADBAND);
+    // Apply rotation deadband
+    double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND);
 
-          // Square rotation value for more precise control
-          omega = Math.copySign(omega * omega, omega);
+    // Square rotation value for more precise control
+    omega = Math.copySign(omega * omega, omega);
 
-          // Convert to field relative speeds & send command
-          ChassisSpeeds speeds =
-              new ChassisSpeeds(
-                  linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
-                  linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
-                  omega * drive.getMaxAngularSpeedRadPerSec());
-          boolean isFlipped =
-              DriverStation.getAlliance().isPresent()
-                  && DriverStation.getAlliance().get() == Alliance.Red;
-          drive.runVelocity(
-              ChassisSpeeds.fromFieldRelativeSpeeds(
-                  speeds,
-                  isFlipped
-                      ? drive.getRotation().plus(new Rotation2d(Math.PI))
-                      : drive.getRotation()));
-        },
-        drive);
-  }
-
-  public static void chassisSpeedDrive(SwerveSubsystem drive, ChassisSpeeds speeds) {
+    // Convert to field relative speeds & send command
+    ChassisSpeeds speeds =
+        new ChassisSpeeds(
+            linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
+            linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
+            omega * drive.getMaxAngularSpeedRadPerSec());
     boolean isFlipped =
         DriverStation.getAlliance().isPresent()
             && DriverStation.getAlliance().get() == Alliance.Red;
-    drive.runVelocity(ChassisSpeeds.fromRobotRelativeSpeeds(speeds, drive.getRotation()));
+    drive.runVelocity(
+        ChassisSpeeds.fromFieldRelativeSpeeds(
+            speeds,
+            isFlipped ? drive.getRotation().plus(new Rotation2d(Math.PI)) : drive.getRotation()));
+  }
+
+  public static void robotRelativeChassisSpeedDrive(SwerveSubsystem drive, ChassisSpeeds speeds) {
+    boolean isFlipped =
+        DriverStation.getAlliance().isPresent()
+            && DriverStation.getAlliance().get() == Alliance.Red;
+    drive.runVelocity(speeds);
   }
 
   /**
@@ -176,8 +171,8 @@ public class DriveCommands {
   // use PID to align to a target
   public static Command chasePoseRobotRelativeCommand(
       SwerveSubsystem drive, Supplier<Transform2d> targetOffset) {
-    TrapezoidProfile.Constraints X_CONSTRAINTS = new TrapezoidProfile.Constraints(3, 2);
-    TrapezoidProfile.Constraints Y_CONSTRAINTS = new TrapezoidProfile.Constraints(3, 2);
+    TrapezoidProfile.Constraints X_CONSTRAINTS = new TrapezoidProfile.Constraints(0.5, 2);
+    TrapezoidProfile.Constraints Y_CONSTRAINTS = new TrapezoidProfile.Constraints(0.5, 2);
     // TrapezoidProfile.Constraints OMEGA_CONSTRAINTS =   new TrapezoidProfile.Constraints(1, 1.5);
 
     ProfiledPIDController xController = new ProfiledPIDController(0.5, 0, 0, X_CONSTRAINTS);
@@ -200,11 +195,11 @@ public class DriveCommands {
                   double xSpeed = xController.calculate(0, targetOffset.get().getX());
                   double omegaSpeed =
                       omegaPID.calculate(0, targetOffset.get().getRotation().getDegrees());
-
-                  DriveCommands.joystickDrive(drive, () -> xSpeed, () -> ySpeed, () -> omegaSpeed);
+                  DriveCommands.robotRelativeChassisSpeedDrive(
+                      drive, new ChassisSpeeds(xSpeed, ySpeed, omegaSpeed));
                 },
                 interrupted -> {
-                  DriveCommands.chassisSpeedDrive(drive, new ChassisSpeeds());
+                  DriveCommands.robotRelativeChassisSpeedDrive(drive, new ChassisSpeeds());
                   omegaPID.close();
                   System.out.println("aligned now");
                 },
@@ -241,21 +236,22 @@ public class DriveCommands {
                   // Init
                 },
                 () -> {
-                  double driverInputFactor = 2;
-                  double ySpeed = -yDriver.getAsDouble() * driverInputFactor;
-                  double xSpeed = xController.calculate(0, targetOffset.get().getX());
+                  double driverInputFactor = 0.5;
+                  double ySpeed = yDriver.getAsDouble() * driverInputFactor;
+                  double xSpeed =
+                      Math.min(0.5, xController.calculate(0, targetOffset.get().getX()));
                   double omegaSpeed =
-                      omegaPID.calculate(0, targetOffset.get().getRotation().getRadians());
-
-                  DriveCommands.joystickDrive(drive, () -> xSpeed, () -> ySpeed, () -> omegaSpeed);
+                      omegaPID.calculate(0, targetOffset.get().getRotation().getDegrees());
+                  DriveCommands.robotRelativeChassisSpeedDrive(
+                      drive, new ChassisSpeeds(xSpeed, ySpeed, omegaSpeed));
                 },
                 interrupted -> {
-                  DriveCommands.chassisSpeedDrive(drive, new ChassisSpeeds());
+                  DriveCommands.robotRelativeChassisSpeedDrive(drive, new ChassisSpeeds());
                   omegaPID.close();
                   System.out.println("aligned now");
                 },
                 () -> {
-                  return omegaPID.atSetpoint() && xController.atGoal() && yController.atGoal();
+                  return omegaPID.atSetpoint() && xController.atGoal();
                 },
                 drive),
         Set.of(drive));
@@ -280,44 +276,60 @@ public class DriveCommands {
   /** code for reef alignment */
 
   // align to target face
-  public static Command alignToReefCommnd(SwerveSubsystem drive) {
-    // find the coordinates of the selected face
-    Pose2d targetFace;
-    if (targetReefFace == 1) targetFace = GlobalConstants.FieldMap.Coordinates.REEF1.getPose();
-    if (targetReefFace == 2) targetFace = GlobalConstants.FieldMap.Coordinates.REEF2.getPose();
-    if (targetReefFace == 3) targetFace = GlobalConstants.FieldMap.Coordinates.REEF3.getPose();
-    if (targetReefFace == 4) targetFace = GlobalConstants.FieldMap.Coordinates.REEF4.getPose();
-    if (targetReefFace == 5) targetFace = GlobalConstants.FieldMap.Coordinates.REEF5.getPose();
-    if (targetReefFace == 6) targetFace = GlobalConstants.FieldMap.Coordinates.REEF6.getPose();
-    else targetFace = findClosestReefFace(drive);
+  public static Command alignToReefCommand(SwerveSubsystem drive) {
+    return Commands.defer(
+        () -> {
+          // find the coordinates of the selected face
+          Supplier<Pose2d> targetFace;
+          if (targetReefFace == 1)
+            targetFace = () -> GlobalConstants.FieldMap.Coordinates.REEF1.getPose();
+          else if (targetReefFace == 2)
+            targetFace = () -> GlobalConstants.FieldMap.Coordinates.REEF2.getPose();
+          else if (targetReefFace == 3)
+            targetFace = () -> GlobalConstants.FieldMap.Coordinates.REEF3.getPose();
+          else if (targetReefFace == 4)
+            targetFace = () -> GlobalConstants.FieldMap.Coordinates.REEF4.getPose();
+          else if (targetReefFace == 5)
+            targetFace = () -> GlobalConstants.FieldMap.Coordinates.REEF5.getPose();
+          else if (targetReefFace == 6)
+            targetFace = () -> GlobalConstants.FieldMap.Coordinates.REEF6.getPose();
+          else targetFace = findClosestReefFace(drive);
 
-    double xOffset = Units.feetToMeters(-GlobalConstants.AlignOffsets.BUMPER_TO_CENTER_OFFSET / 12);
-    double yOffset =
-        Units.feetToMeters(GlobalConstants.AlignOffsets.REEF_TO_BRANCH_OFFSET / 12)
-            * (leftAlign ? 1 : -1);
-    Rotation2d rotation = targetFace.getRotation();
-    Transform2d branchTransform =
-        new Transform2d(new Translation2d(xOffset, yOffset).rotateBy(rotation), new Rotation2d());
-    Pose2d target = targetFace.transformBy(branchTransform);
+          double xOffset =
+              Units.feetToMeters(-GlobalConstants.AlignOffsets.BUMPER_TO_CENTER_OFFSET / 12);
+          double yOffset =
+              Units.feetToMeters(GlobalConstants.AlignOffsets.REEF_TO_BRANCH_OFFSET / 12)
+                  * (leftAlign ? 1 : -1);
+          Rotation2d rotation = targetFace.get().getRotation();
+          Transform2d branchTransform =
+              new Transform2d(
+                  new Translation2d(xOffset, yOffset).rotateBy(rotation), new Rotation2d());
+          Supplier<Pose2d> target = () -> targetFace.get().transformBy(branchTransform);
 
-    PathConstraints constraints =
-        new PathConstraints(
-            SwerveConstants.MAX_LINEAR_SPEED,
-            SwerveConstants.MAX_LINEAR_ACCELERATION,
-            SwerveConstants.MAX_ANGULAR_SPEED,
-            SwerveConstants.MAX_ANGULAR_ACCELERATION);
+          Logger.recordOutput("Targets/Target Reef", target.get());
+          Logger.recordOutput("Targets/Target Reef Number", targetReefFace);
 
-    double endVelocity = 0.0;
+          // PathConstraints constraints =
+          //     new PathConstraints(
+          //         SwerveConstants.MAX_LINEAR_SPEED,
+          //         SwerveConstants.MAX_LINEAR_ACCELERATION,
+          //         SwerveConstants.MAX_ANGULAR_SPEED,
+          //         SwerveConstants.MAX_ANGULAR_ACCELERATION);
 
-    if (targetReefFace > 0) {
-      // reset reef face
-      targetReefFace = 0;
-      return AutoBuilder.pathfindToPose(target, constraints, endVelocity);
-    }
+          PathConstraints constraints = new PathConstraints(0.5, 1, 0.5, 0.5);
 
-    Transform2d targetOffset = target.minus(drive.getPose());
+          double endVelocity = 0.0;
 
-    return chasePoseRobotRelativeCommand(drive, () -> targetOffset);
+          // reset reef face
+          System.out.println("aligning to " + targetReefFace);
+          targetReefFace = 0;
+          return AutoBuilder.pathfindToPose(target.get(), constraints, endVelocity);
+
+          // Supplier<Transform2d> targetOffset = () -> target.get().minus(drive.getPose());
+
+          // return chasePoseRobotRelativeCommand(drive, targetOffset);
+        },
+        Set.of(drive));
   }
 
   /** helper methods for alignment */
@@ -336,7 +348,7 @@ public class DriveCommands {
   }
 
   // returns the nearest face of the reef
-  private static Pose2d findClosestReefFace(SwerveSubsystem drive) {
+  private static Supplier<Pose2d> findClosestReefFace(SwerveSubsystem drive) {
     double reef1 =
         drive
             .getPose()
@@ -370,12 +382,12 @@ public class DriveCommands {
 
     double closestFace =
         Math.min(Math.min(Math.min(reef1, reef2), Math.min(reef3, reef4)), Math.min(reef5, reef6));
-    if (reef1 == closestFace) return GlobalConstants.FieldMap.Coordinates.REEF1.getPose();
-    if (reef2 == closestFace) return GlobalConstants.FieldMap.Coordinates.REEF2.getPose();
-    if (reef3 == closestFace) return GlobalConstants.FieldMap.Coordinates.REEF3.getPose();
-    if (reef4 == closestFace) return GlobalConstants.FieldMap.Coordinates.REEF4.getPose();
-    if (reef5 == closestFace) return GlobalConstants.FieldMap.Coordinates.REEF5.getPose();
-    return GlobalConstants.FieldMap.Coordinates.REEF6.getPose();
+    if (reef1 == closestFace) return () -> GlobalConstants.FieldMap.Coordinates.REEF1.getPose();
+    if (reef2 == closestFace) return () -> GlobalConstants.FieldMap.Coordinates.REEF2.getPose();
+    if (reef3 == closestFace) return () -> GlobalConstants.FieldMap.Coordinates.REEF3.getPose();
+    if (reef4 == closestFace) return () -> GlobalConstants.FieldMap.Coordinates.REEF4.getPose();
+    if (reef5 == closestFace) return () -> GlobalConstants.FieldMap.Coordinates.REEF5.getPose();
+    return () -> GlobalConstants.FieldMap.Coordinates.REEF6.getPose();
   }
   /**
    * Command to align to the nearest coral station
@@ -385,12 +397,23 @@ public class DriveCommands {
    */
   public static Command alignToNearestCoralStationCommand(
       SwerveSubsystem drive, DoubleSupplier yDriver) {
-    DoubleSupplier driver =
-        () -> yDriver.getAsDouble() * (shouldFlipDriverOverride(drive) ? -1 : 1);
-    Supplier<Transform2d> targetOffset =
-        () -> findClosestCoralStation(drive).minus(drive.getPose());
+    return Commands.defer(
+        () -> {
+          DoubleSupplier driver =
+              () -> yDriver.getAsDouble() * (shouldFlipDriverOverride(drive) ? -1 : 1);
+          Transform2d bumperOffset =
+              new Transform2d(
+                  new Translation2d(0, GlobalConstants.AlignOffsets.BUMPER_TO_CENTER_OFFSET)
+                      .rotateBy(drive.getRotation()),
+                  new Rotation2d());
+          Supplier<Transform2d> fieldRelativeOffset =
+              () -> findClosestCoralStation(drive).minus(drive.getPose());
+          Logger.recordOutput("Targets/Coral Station Offset", fieldRelativeOffset.get());
+          Logger.recordOutput("Targets/Coral Station", findClosestCoralStation(drive));
 
-    return chasePoseRobotRelativeCommandYOverride(drive, targetOffset, driver);
+          return chasePoseRobotRelativeCommandYOverride(drive, fieldRelativeOffset, driver);
+        },
+        Set.of(drive));
   }
 
   /** helper methods for alignment */

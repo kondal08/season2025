@@ -30,17 +30,17 @@ public class XboxDriverMap extends CommandXboxController implements DriverMap {
 
   @Override
   public DoubleSupplier getXAxis() {
-    return this::getLeftX;
+    return () -> -getLeftX();
   }
 
   @Override
   public DoubleSupplier getYAxis() {
-    return this::getLeftY;
+    return () -> -getLeftY();
   }
 
   @Override
   public DoubleSupplier getRotAxis() {
-    return this::getRightX;
+    return () -> -getRightX();
   }
 
   @Override

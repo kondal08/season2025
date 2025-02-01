@@ -13,6 +13,8 @@
 
 package frc.robot.subsystems.vision;
 
+import static frc.robot.GlobalConstants.FieldMap.APRIL_TAG_FIELD_LAYOUT;
+
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -22,6 +24,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 /**
  * IO implementation for real PhotonVision hardware. On the AprilTag pipeline, PhotonVision still
@@ -30,6 +34,8 @@ import org.photonvision.PhotonCamera;
 public class AprilTagVisionIOPhotonVision implements VisionIO {
   protected final PhotonCamera camera;
   protected final Transform3d robotToCamera;
+
+  private final PhotonPoseEstimator poseEstimator;
 
   /**
    * Creates a new VisionIOPhotonVision.
@@ -40,6 +46,9 @@ public class AprilTagVisionIOPhotonVision implements VisionIO {
   public AprilTagVisionIOPhotonVision(CameraConstants cameraConstants) {
     camera = new PhotonCamera(cameraConstants.cameraName());
     this.robotToCamera = cameraConstants.robotToCamera();
+    poseEstimator =
+        new PhotonPoseEstimator(
+            APRIL_TAG_FIELD_LAYOUT, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToCamera);
   }
 
   @Override
@@ -61,10 +70,11 @@ public class AprilTagVisionIOPhotonVision implements VisionIO {
       } else {
         inputs.latestTargetObservation = new TargetObservation(new Rotation2d(), new Rotation2d());
       }
-      System.out.println(result.multitagResult.isPresent());
 
       // Add pose observation (multitag only)
       if (result.multitagResult.isPresent()) {
+
+        System.out.println(result);
         var multitagResult = result.multitagResult.get();
 
         // Calculate robot pose
@@ -90,6 +100,25 @@ public class AprilTagVisionIOPhotonVision implements VisionIO {
                 multitagResult.fiducialIDsUsed.size(), // Tag count
                 totalTagDistance / result.targets.size() // Average tag distance
                 ));
+      } else {
+
+        var target = result.getBestTarget();
+
+        if (target != null) {
+          tagIds.add((short) target.fiducialId);
+
+          poseEstimator
+              .update(result)
+              .ifPresent(
+                  estimate ->
+                      poseObservations.add(
+                          new PoseObservation(
+                              estimate.timestampSeconds,
+                              estimate.estimatedPose,
+                              target.poseAmbiguity,
+                              1,
+                              target.getBestCameraToTarget().getTranslation().getNorm())));
+        }
       }
     }
 

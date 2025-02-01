@@ -48,7 +48,6 @@ import frc.robot.subsystems.swerve.ModuleIOSim;
 import frc.robot.subsystems.swerve.ModuleIOSpark;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
-import frc.robot.subsystems.vision.AprilTagVisionIOPhotonVision;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
@@ -95,8 +94,12 @@ public class RobotContainer {
           vision =
               new Vision(
                   drive,
-                  new AprilTagVisionIOPhotonVision(LEFT_CAM_CONSTANTS),
-                  new AprilTagVisionIOPhotonVision(RIGHT_CAM_CONSTANTS)
+                  LEFT_CAM_ENABLED
+                      ? new VisionIOPhotonVisionSim(LEFT_CAM_CONSTANTS, drive::getPose)
+                      : new VisionIO() {},
+                  RIGHT_CAM_ENABLED
+                      ? new VisionIOPhotonVisionSim(RIGHT_CAM_CONSTANTS, drive::getPose)
+                      : new VisionIO() {}
                   /*new GamePieceVisionIOLimelight("limelight", drive::getRotation)*/
                   );
           break;
@@ -180,8 +183,11 @@ public class RobotContainer {
   private void configureDriveButtonBindings() {
     // Default command, normal field-relative drive
     drive.setDefaultCommand(
-        DriveCommands.joystickDrive(
-            drive, driver.getYAxis(), driver.getXAxis(), driver.getRotAxis()));
+        Commands.run(
+            () ->
+                DriveCommands.joystickDrive(
+                    drive, driver.getYAxis(), driver.getXAxis(), driver.getRotAxis()),
+            drive));
 
     // Lock to 0° when A button is held
     // driver
@@ -194,21 +200,20 @@ public class RobotContainer {
     driver.stopWithX().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
     // align to right side of reef face
-    driver
-        .alignToSpeaker()
-        .whileTrue(Commands.repeatingSequence(Commands.run(() -> DriveCommands.setLeftAlign(false)), 
-        DriveCommands.alignToReefCommnd(drive)));
+    driver.alignToSpeaker().whileTrue(DriveCommands.alignToReefCommand(drive));
+
+    driver.alignToSpeaker().onTrue(Commands.run(() -> DriveCommands.setLeftAlign(false)));
 
     // align to left side of reef face
     driver
         .alignToGamePiece()
-        .whileTrue(Commands.repeatingSequence(Commands.run(() -> DriveCommands.setLeftAlign(true)), 
-        DriveCommands.alignToReefCommnd(drive)));
+        .whileTrue(
+            Commands.repeatingSequence(
+                Commands.run(() -> DriveCommands.setLeftAlign(true)),
+                DriveCommands.alignToReefCommand(drive)));
 
     // align to face 2
-    driver
-        .slowMode()
-        .onTrue(Commands.run(() -> DriveCommands.setTargetReefFace(2)));
+    driver.slowMode().onTrue(Commands.run(() -> DriveCommands.setTargetReefFace(1)));
 
     // align to coral station with position customization when right trigger is pressed
     driver
@@ -225,9 +230,6 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                     drive)
                 .ignoringDisable(true));
-
-    // align to the target reef face or closest reef face if no face was selected by the operator
-    driver.alignToSpeaker().whileTrue(DriveCommands.alignToReefCommnd(drive));
   }
 
   private void configureOperatorButtonBindings() {

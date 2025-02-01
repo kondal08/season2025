@@ -37,7 +37,7 @@ public final class GlobalConstants {
   public static final RobotType ROBOT = RobotType.COMPBOT;
   public static final double ODOMETRY_FREQUENCY = 250.0;
 
-  public static boolean TUNING_MODE = true;
+  public static boolean TUNING_MODE = false;
 
   public static enum RobotMode {
     /** Running on a real robot. */
@@ -69,12 +69,12 @@ public final class GlobalConstants {
 
   public static final class FieldMap {
     public static enum Coordinates {
-      REEF1(new Pose2d(3.6576, 4.0259, Rotation2d.fromDegrees(0 + 180))),
-      REEF2(new Pose2d(4.073905999999999, 3.3063179999999996, Rotation2d.fromDegrees(60 + 180))),
-      REEF3(new Pose2d(4.904739999999999, 3.3063179999999996, Rotation2d.fromDegrees(120 + 180))),
+      REEF1(new Pose2d(3.6576, 4.0259, Rotation2d.fromDegrees(0))),
+      REEF2(new Pose2d(4.073905999999999, 3.3063179999999996, Rotation2d.fromDegrees(60))),
+      REEF3(new Pose2d(4.904739999999999, 3.3063179999999996, Rotation2d.fromDegrees(120))),
       REEF4(new Pose2d(5.321046, 4.0259, Rotation2d.fromDegrees(180))),
-      REEF5(new Pose2d(4.904739999999999, 4.745482, Rotation2d.fromDegrees(240 + 180))),
-      REEF6(new Pose2d(4.073905999999999, 4.745482, Rotation2d.fromDegrees(300 + 180))),
+      REEF5(new Pose2d(4.904739999999999, 4.745482, Rotation2d.fromDegrees(240))),
+      REEF6(new Pose2d(4.073905999999999, 4.745482, Rotation2d.fromDegrees(300))),
       LEFT_CORAL_STATION(
           new Pose2d(0.851154, 7.3964799999999995, Rotation2d.fromDegrees(-54.011392 + 180))),
       RIGHT_CORAL_STATION(new Pose2d(0.851154, 0.65532, Rotation2d.fromDegrees(54.011392 + 180))),

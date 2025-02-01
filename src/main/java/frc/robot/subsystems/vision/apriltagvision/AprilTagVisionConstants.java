@@ -22,7 +22,7 @@ public final class AprilTagVisionConstants {
           VisionConstants.CameraType.TELEPHOTO_OV9281,
           0.5);
 
-  public static final boolean RIGHT_CAM_ENABLED = true;
+  public static final boolean RIGHT_CAM_ENABLED = false;
   public static final VisionConstants.CameraConstants RIGHT_CAM_CONSTANTS =
       new VisionConstants.CameraConstants(
           "righttagcam",
@@ -34,9 +34,9 @@ public final class AprilTagVisionConstants {
 
   public static final DoubleSupplier[] TRANSLATION_EULER_MULTIPLIERS =
       new DoubleSupplier[] {
-        new LoggedTunableNumber("AprilTagVision/EulerMultipliers/1Tag", 8),
-        new LoggedTunableNumber("AprilTagVision/EulerMultipliers/2Tags", 10),
-        new LoggedTunableNumber("AprilTagVision/EulerMultipliers/3Tags", 9)
+        new LoggedTunableNumber("AprilTagVision/EulerMultipliers/1Tag", 0.8),
+        new LoggedTunableNumber("AprilTagVision/EulerMultipliers/2Tags", 0.10),
+        new LoggedTunableNumber("AprilTagVision/EulerMultipliers/3Tags", 0.9)
       };
   public static final DoubleSupplier[] ROTATION_EULER_MULTIPLIERS =
       new DoubleSupplier[] {
@@ -45,6 +45,6 @@ public final class AprilTagVisionConstants {
         new LoggedTunableNumber("AprilTagVision/EulerMultipliers/1Tag", 25)
       };
 
-  public static final double MAX_AMBIGUITY_CUTOFF = 0.05;
-  public static final double MAX_Z_ERROR = 0.05;
+  public static final double MAX_AMBIGUITY_CUTOFF = 0.1;
+  public static final double MAX_Z_ERROR = 0.1;
 }
