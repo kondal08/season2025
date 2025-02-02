@@ -25,17 +25,16 @@ import org.ironmaple.simulation.motorsims.SimulatedMotorController;
 
 /** Physics sim implementation of module IO. */
 public class ModuleIOSim implements ModuleIO {
-
   private final SwerveModuleSimulation moduleSimulation;
   private final SimulatedMotorController.GenericMotorController driveMotor;
   private final SimulatedMotorController.GenericMotorController turnMotor;
 
   private boolean driveClosedLoop = false;
   private boolean turnClosedLoop = false;
-  private PIDController driveController =
-      new PIDController(DRIVE_SIM_GAINS.kP(), 0, DRIVE_SIM_GAINS.kD());
-  private PIDController turnController =
-      new PIDController(ROTATOR_SIM_GAINS.kP(), 0, ROTATOR_SIM_GAINS.kD());
+  private final PIDController driveController =
+      new PIDController(DRIVE_MOTOR_GAINS.kP(), 0, DRIVE_MOTOR_GAINS.kD());
+  private final PIDController turnController =
+      new PIDController(ROTATOR_GAINS.kP(), 0, ROTATOR_GAINS.kD());
   private double driveFFVolts = 0.0;
   private double driveAppliedVolts = 0.0;
   private double turnAppliedVolts = 0.0;
@@ -117,8 +116,8 @@ public class ModuleIOSim implements ModuleIO {
   public void setDriveVelocity(double velocityRadPerSec) {
     driveClosedLoop = true;
     driveFFVolts =
-        DRIVE_SIM_GAINS.kS() * Math.signum(velocityRadPerSec)
-            + DRIVE_SIM_GAINS.kV() * velocityRadPerSec;
+        DRIVE_MOTOR_GAINS.kS() * Math.signum(velocityRadPerSec)
+            + DRIVE_MOTOR_GAINS.kV() * velocityRadPerSec;
     driveController.setSetpoint(velocityRadPerSec);
   }
 

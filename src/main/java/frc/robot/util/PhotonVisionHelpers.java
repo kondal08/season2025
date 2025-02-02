@@ -14,7 +14,7 @@ public final class PhotonVisionHelpers {
   private static SwerveDrivePoseEstimator poseEstimator;
   private static Kinematics kinematics;
 
-  public static enum CameraType {
+  static enum CameraType {
     LIMELIGHT,
     LIMELIGHT_3G;
   }

@@ -36,8 +36,5 @@ public final class GamePieceVisionConstants {
 
   public static final VisionConstants.CameraConstants NOTE_CAM_CONSTANTS =
       new VisionConstants.CameraConstants(
-          "notecam",
-          ROBOT_CENTER_TO_DETECTOR_LIMELIGHT_3D,
-          VisionConstants.CameraType.LIMELIGHT,
-          0.5);
+          "notecam", ROBOT_CENTER_TO_DETECTOR_LIMELIGHT_3D, VisionConstants.CameraType.LIMELIGHT);
 }

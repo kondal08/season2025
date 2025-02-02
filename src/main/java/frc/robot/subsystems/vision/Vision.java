@@ -1,8 +1,7 @@
 package frc.robot.subsystems.vision;
 
 import static frc.robot.GlobalConstants.FieldMap.APRIL_TAG_FIELD_LAYOUT;
-import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.MAX_AMBIGUITY_CUTOFF;
-import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.MAX_Z_ERROR;
+import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.*;
 import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionHelpers.generateDynamicStdDevs;
 
 import edu.wpi.first.math.Matrix;
@@ -44,7 +43,7 @@ public class Vision extends SubsystemBase {
   }
 
   /**
-   * Returns the X angle to the best target, which can be used for simple servoing with vision.
+   * Returns the yaw to the best target, which can be used for vision-based object or tag tracking.
    *
    * @param cameraIndex The index of the camera to use.
    */
@@ -52,11 +51,21 @@ public class Vision extends SubsystemBase {
     return inputs[cameraIndex].latestTargetObservation.tx();
   }
 
+  /**
+   * Returns the pitch to the best target, which can be used for vision-based object or tag
+   * tracking.
+   *
+   * @param cameraIndex The index of the camera to use.
+   */
+  public Rotation2d getTargetY(int cameraIndex) {
+    return inputs[cameraIndex].latestTargetObservation.ty();
+  }
+
   @Override
   public void periodic() {
     for (int i = 0; i < ios.length; i++) {
       ios[i].updateInputs(inputs[i]);
-      Logger.processInputs("Vision/Camera" + i, inputs[i]);
+      Logger.processInputs("AprilTagVision/Camera" + i, inputs[i]);
     }
 
     // Initialize logging values
@@ -90,10 +99,11 @@ public class Vision extends SubsystemBase {
         boolean rejectPose =
             observation.tagCount() == 0 // Must have at least one tag
                 || (observation.tagCount() == 1
-                    && observation.ambiguity() > MAX_AMBIGUITY_CUTOFF) // Cannot be high ambiguity
+                    && observation.ambiguity()
+                        > MAX_AMBIGUITY_CUTOFF) // Cannot be high ambiguity on single tag
                 || Math.abs(observation.pose().getZ())
                     > MAX_Z_ERROR // Must have realistic Z coordinate
-                || observation.averageTagDistance() > 35
+                //                || observation.averageTagDistance() > MAX_DISTANCE_CUTOFF
                 // Must be within the field boundaries
                 || observation.pose().getX() < 0.0
                 || observation.pose().getX() > APRIL_TAG_FIELD_LAYOUT.getFieldLength()
@@ -117,21 +127,21 @@ public class Vision extends SubsystemBase {
         consumer.accept(
             observation.pose().toPose2d(),
             observation.timestamp(),
-            generateDynamicStdDevs(observation));
+            generateDynamicStdDevs(observation, cameraIndex));
       }
 
       // Log camera datadata
       Logger.recordOutput(
-          "Vision/Camera" + cameraIndex + "/TagPoses",
+          "AprilTagVision/Camera" + cameraIndex + "/TagPoses",
           tagPoses.toArray(new Pose3d[tagPoses.size()]));
       Logger.recordOutput(
-          "Vision/Camera" + cameraIndex + "/RobotPoses",
+          "AprilTagVision/Camera" + cameraIndex + "/RobotPoses",
           robotPoses.toArray(new Pose3d[robotPoses.size()]));
       Logger.recordOutput(
-          "Vision/Camera" + cameraIndex + "/RobotPosesAccepted",
+          "AprilTagVision/Camera" + cameraIndex + "/RobotPosesAccepted",
           robotPosesAccepted.toArray(new Pose3d[robotPosesAccepted.size()]));
       Logger.recordOutput(
-          "Vision/Camera" + cameraIndex + "/RobotPosesRejected",
+          "AprilTagVision/Camera" + cameraIndex + "/RobotPosesRejected",
           robotPosesRejected.toArray(new Pose3d[robotPosesRejected.size()]));
       allTagPoses.addAll(tagPoses);
       allRobotPoses.addAll(robotPoses);
@@ -141,14 +151,15 @@ public class Vision extends SubsystemBase {
 
     // Log summary data
     Logger.recordOutput(
-        "Vision/Summary/TagPoses", allTagPoses.toArray(new Pose3d[allTagPoses.size()]));
+        "AprilTagVision/Summary/TagPoses", allTagPoses.toArray(new Pose3d[allTagPoses.size()]));
     Logger.recordOutput(
-        "Vision/Summary/RobotPoses", allRobotPoses.toArray(new Pose3d[allRobotPoses.size()]));
+        "AprilTagVision/Summary/RobotPoses",
+        allRobotPoses.toArray(new Pose3d[allRobotPoses.size()]));
     Logger.recordOutput(
-        "Vision/Summary/RobotPosesAccepted",
+        "AprilTagVision/Summary/RobotPosesAccepted",
         allRobotPosesAccepted.toArray(new Pose3d[allRobotPosesAccepted.size()]));
     Logger.recordOutput(
-        "Vision/Summary/RobotPosesRejected",
+        "AprilTagVision/Summary/RobotPosesRejected",
         allRobotPosesRejected.toArray(new Pose3d[allRobotPosesRejected.size()]));
   }
 

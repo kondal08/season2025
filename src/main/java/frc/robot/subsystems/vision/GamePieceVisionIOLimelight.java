@@ -23,11 +23,12 @@ public class GamePieceVisionIOLimelight implements VisionIO {
   /**
    * Creates a new VisionIOLimelight.
    *
-   * @param name The configured name of the Limelight.
+   * @param constants The constants associated with this camera.
    * @param rotationSupplier Supplier for the current estimated rotation, used for MegaTag 2.
    */
-  public GamePieceVisionIOLimelight(String name, Supplier<Rotation2d> rotationSupplier) {
-    var table = NetworkTableInstance.getDefault().getTable(name);
+  public GamePieceVisionIOLimelight(
+      VisionConstants.CameraConstants constants, Supplier<Rotation2d> rotationSupplier) {
+    var table = NetworkTableInstance.getDefault().getTable(constants.cameraName());
     this.rotationSupplier = rotationSupplier;
     orientationPublisher = table.getDoubleArrayTopic("robot_orientation_set").publish();
     latencySubscriber = table.getDoubleTopic("tl").subscribe(0.0);

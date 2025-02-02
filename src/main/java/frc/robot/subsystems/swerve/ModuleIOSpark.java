@@ -79,15 +79,15 @@ public class ModuleIOSpark implements ModuleIO {
     driveConfig
         .encoder
         .positionConversionFactor(DRIVE_ENCODER_POSITION_FACTOR)
-        .velocityConversionFactor(DRIVE_ENCODER_POSITION_FACTOR)
+        .velocityConversionFactor(DRIVE_ENCODER_VELOCITY_FACTOR)
         .uvwMeasurementPeriod(10)
         .uvwAverageDepth(2);
     driveConfig
         .closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
         .pidf(
-            DRIVE_GAINS.kP(), 0.0,
-            DRIVE_GAINS.kD(), 0.0);
+            DRIVE_MOTOR_GAINS.kP(), 0.0,
+            DRIVE_MOTOR_GAINS.kD(), 0.0);
     driveConfig
         .signals
         .primaryEncoderPositionAlwaysOn(true)
@@ -114,15 +114,15 @@ public class ModuleIOSpark implements ModuleIO {
         .voltageCompensation(12.0);
     turnConfig
         .absoluteEncoder
-        .inverted(TURN_ENCODER_INVERTED)
-        .positionConversionFactor(TURN_ENCODER_POSITION_FACTOR)
-        .velocityConversionFactor(TURN_ENCODER_VELOCITY_FACTOR)
+        .inverted(ROTATOR_ENCODER_INVERTED)
+        .positionConversionFactor(ROTATOR_ENCODER_POSITION_FACTOR)
+        .velocityConversionFactor(ROTATOR_ENCODER_VELOCITY_FACTOR)
         .averageDepth(2);
     turnConfig
         .closedLoop
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
         .positionWrappingEnabled(true)
-        .positionWrappingInputRange(TURN_PID_MIN_INPUT, TURN_PID_MAX_INPUT)
+        .positionWrappingInputRange(ROTATOR_PID_MIN_INPUT, ROTATOR_PID_MAX_INPUT)
         .pidf(ROTATOR_GAINS.kP(), 0.0, ROTATOR_GAINS.kD(), 0.0);
     turnConfig
         .signals
@@ -202,7 +202,8 @@ public class ModuleIOSpark implements ModuleIO {
   @Override
   public void setDriveVelocity(double velocityRadPerSec) {
     double ffVolts =
-        DRIVE_GAINS.kS() * Math.signum(velocityRadPerSec) + DRIVE_GAINS.kV() * velocityRadPerSec;
+        DRIVE_MOTOR_GAINS.kS() * Math.signum(velocityRadPerSec)
+            + DRIVE_MOTOR_GAINS.kV() * velocityRadPerSec;
     driveController.setReference(
         velocityRadPerSec,
         ControlType.kVelocity,
@@ -215,7 +216,7 @@ public class ModuleIOSpark implements ModuleIO {
   public void setTurnPosition(Rotation2d rotation) {
     double setpoint =
         MathUtil.inputModulus(
-            rotation.plus(zeroRotation).getRadians(), TURN_PID_MIN_INPUT, TURN_PID_MAX_INPUT);
+            rotation.plus(zeroRotation).getRadians(), ROTATOR_PID_MIN_INPUT, ROTATOR_PID_MAX_INPUT);
     turnController.setReference(setpoint, ControlType.kPosition);
   }
 }

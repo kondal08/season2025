@@ -17,10 +17,7 @@ import static frc.robot.Config.Controllers.getDriverController;
 import static frc.robot.Config.Controllers.getOperatorController;
 import static frc.robot.Config.Subsystems.DRIVETRAIN_ENABLED;
 import static frc.robot.GlobalConstants.MODE;
-import static frc.robot.subsystems.swerve.SwerveConstants.BACK_LEFT;
-import static frc.robot.subsystems.swerve.SwerveConstants.BACK_RIGHT;
-import static frc.robot.subsystems.swerve.SwerveConstants.FRONT_LEFT;
-import static frc.robot.subsystems.swerve.SwerveConstants.FRONT_RIGHT;
+import static frc.robot.subsystems.swerve.SwerveConstants.*;
 import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.LEFT_CAM_CONSTANTS;
 import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.LEFT_CAM_ENABLED;
 import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.RIGHT_CAM_CONSTANTS;
@@ -40,14 +37,7 @@ import frc.robot.OI.DriverMap;
 import frc.robot.OI.OperatorMap;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.swerve.GyroIO;
-import frc.robot.subsystems.swerve.GyroIONavX;
-import frc.robot.subsystems.swerve.GyroIOSim;
-import frc.robot.subsystems.swerve.ModuleIO;
-import frc.robot.subsystems.swerve.ModuleIOSim;
-import frc.robot.subsystems.swerve.ModuleIOSpark;
-import frc.robot.subsystems.swerve.SwerveConstants;
-import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.subsystems.swerve.*;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
@@ -70,7 +60,7 @@ public class RobotContainer {
   // Controller
   private final DriverMap driver = getDriverController();
 
-  private final OperatorMap operaterController = getOperatorController();
+  private final OperatorMap operator = getOperatorController();
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -86,7 +76,11 @@ public class RobotContainer {
           // Real robot, instantiate hardware IO implementations
           drive =
               new SwerveSubsystem(
-                  new GyroIONavX(),
+                  switch (GYRO_TYPE) {
+                    case PIGEON -> new GyroIOPigeon2();
+                    case NAVX -> new GyroIONavX();
+                    case ADIS -> new GyroIO() {};
+                  },
                   new ModuleIOSpark(FRONT_LEFT),
                   new ModuleIOSpark(FRONT_RIGHT),
                   new ModuleIOSpark(BACK_LEFT),
@@ -108,7 +102,7 @@ public class RobotContainer {
           // create a maple-sim swerve drive simulation instance
           this.driveSimulation =
               new SwerveDriveSimulation(
-                  SwerveConstants.mapleSimConfig, new Pose2d(3, 3, new Rotation2d()));
+                  SwerveConstants.MAPLE_SIM_CONFIG, new Pose2d(3, 3, new Rotation2d()));
           // add the simulated drivetrain to the simulation field
           SimulatedArena.getInstance().addDriveTrainSimulation(driveSimulation);
           // Sim robot, instantiate physics sim IO implementations
@@ -123,10 +117,12 @@ public class RobotContainer {
               new Vision(
                   drive,
                   LEFT_CAM_ENABLED
-                      ? new VisionIOPhotonVisionSim(LEFT_CAM_CONSTANTS, drive::getPose)
+                      ? new VisionIOPhotonVisionSim(
+                          LEFT_CAM_CONSTANTS, driveSimulation::getSimulatedDriveTrainPose)
                       : new VisionIO() {},
                   RIGHT_CAM_ENABLED
-                      ? new VisionIOPhotonVisionSim(RIGHT_CAM_CONSTANTS, drive::getPose)
+                      ? new VisionIOPhotonVisionSim(
+                          RIGHT_CAM_CONSTANTS, driveSimulation::getSimulatedDriveTrainPose)
                       : new VisionIO() {});
           break;
 
@@ -233,7 +229,7 @@ public class RobotContainer {
   }
 
   private void configureOperatorButtonBindings() {
-    operaterController
+    operator
         .shoot()
         .whileFalse(superstructure.setSuperStateCmd(Superstructure.SuperStates.IDLING))
         .whileTrue(superstructure.setSuperStateCmd(Superstructure.SuperStates.RUNNING));

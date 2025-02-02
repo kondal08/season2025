@@ -18,37 +18,29 @@ import static frc.robot.GlobalConstants.FieldMap.APRIL_TAG_FIELD_LAYOUT;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import frc.robot.subsystems.vision.VisionConstants.CameraConstants;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonPoseEstimator;
-import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 /**
- * IO implementation for real PhotonVision hardware. On the AprilTag pipeline, PhotonVision still
- * publishes the angles to each tag, which can be helpful for robot-relative tag alignment.
+ * IO implementation for a real PhotonVision camera on the coprocessor. On the AprilTag pipeline,
+ * PhotonVision still publishes the angles to each tag, which can be helpful for robot-relative tag
+ * alignment.
  */
 public class AprilTagVisionIOPhotonVision implements VisionIO {
   protected final PhotonCamera camera;
   protected final Transform3d robotToCamera;
 
-  private final PhotonPoseEstimator poseEstimator;
-
   /**
    * Creates a new VisionIOPhotonVision.
    *
-   * @param name The configured name of the camera.
-   * @param robotToCamera The 3D position of the camera relative to the robot.
+   * @param cameraConstants The constants associated with this camera.
    */
-  public AprilTagVisionIOPhotonVision(CameraConstants cameraConstants) {
+  public AprilTagVisionIOPhotonVision(VisionConstants.CameraConstants cameraConstants) {
     camera = new PhotonCamera(cameraConstants.cameraName());
     this.robotToCamera = cameraConstants.robotToCamera();
-    poseEstimator =
-        new PhotonPoseEstimator(
-            APRIL_TAG_FIELD_LAYOUT, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToCamera);
   }
 
   @Override
@@ -58,10 +50,8 @@ public class AprilTagVisionIOPhotonVision implements VisionIO {
     // Read new camera observations
     Set<Short> tagIds = new HashSet<>();
     List<PoseObservation> poseObservations = new LinkedList<>();
-
     for (var result : camera.getAllUnreadResults()) {
       // Update latest target observation
-
       if (result.hasTargets()) {
         inputs.latestTargetObservation =
             new TargetObservation(
@@ -71,10 +61,8 @@ public class AprilTagVisionIOPhotonVision implements VisionIO {
         inputs.latestTargetObservation = new TargetObservation(new Rotation2d(), new Rotation2d());
       }
 
-      // Add pose observation (multitag only)
-      if (result.multitagResult.isPresent()) {
-
-        System.out.println(result);
+      // Add pose observation
+      if (result.multitagResult.isPresent()) { // Multitag result
         var multitagResult = result.multitagResult.get();
 
         // Calculate robot pose
@@ -100,24 +88,32 @@ public class AprilTagVisionIOPhotonVision implements VisionIO {
                 multitagResult.fiducialIDsUsed.size(), // Tag count
                 totalTagDistance / result.targets.size() // Average tag distance
                 ));
-      } else {
 
-        var target = result.getBestTarget();
+      } else if (!result.targets.isEmpty()) { // Single tag result
+        var target = result.targets.get(0);
 
-        if (target != null) {
+        // Calculate robot pose
+        var tagPose = APRIL_TAG_FIELD_LAYOUT.getTagPose(target.fiducialId);
+        if (tagPose.isPresent()) {
+          Transform3d fieldToTarget =
+              new Transform3d(tagPose.get().getTranslation(), tagPose.get().getRotation());
+          Transform3d cameraToTarget = target.bestCameraToTarget;
+          Transform3d fieldToCamera = fieldToTarget.plus(cameraToTarget.inverse());
+          Transform3d fieldToRobot = fieldToCamera.plus(robotToCamera.inverse());
+          Pose3d robotPose = new Pose3d(fieldToRobot.getTranslation(), fieldToRobot.getRotation());
+
+          // Add tag ID
           tagIds.add((short) target.fiducialId);
 
-          poseEstimator
-              .update(result)
-              .ifPresent(
-                  estimate ->
-                      poseObservations.add(
-                          new PoseObservation(
-                              estimate.timestampSeconds,
-                              estimate.estimatedPose,
-                              target.poseAmbiguity,
-                              1,
-                              target.getBestCameraToTarget().getTranslation().getNorm())));
+          // Add observation
+          poseObservations.add(
+              new PoseObservation(
+                  result.getTimestampSeconds(), // Timestamp
+                  robotPose, // 3D pose estimate
+                  target.poseAmbiguity, // Ambiguity
+                  1, // Tag count
+                  cameraToTarget.getTranslation().getNorm() // Average tag distance
+                  ));
         }
       }
     }
