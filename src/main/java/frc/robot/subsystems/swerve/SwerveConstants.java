@@ -1,6 +1,5 @@
 package frc.robot.subsystems.swerve;
 
-import static edu.wpi.first.math.util.Units.lbsToKilograms;
 import static edu.wpi.first.units.Units.*;
 import static frc.robot.GlobalConstants.*;
 import static java.lang.Math.PI;
@@ -16,17 +15,23 @@ import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 
 public final class SwerveConstants {
-  public static final boolean USING_VORTEX_DRIVE = true;
-  public static final DCMotor DRIVE_GEARBOX =
-      USING_VORTEX_DRIVE ? DCMotor.getNeoVortex(1) : DCMotor.getNEO(1);
+  // Gyro
+  public static enum GyroType {
+    PIGEON,
+    NAVX,
+    ADIS,
+  }
+
+  public static final GyroType GYRO_TYPE = GyroType.NAVX;
+
   /** Meters */
-  public static final double TRACK_WIDTH = Units.inchesToMeters(23.5);
+  public static final double TRACK_WIDTH = Units.inchesToMeters(24.5);
   /** Meters */
-  public static final double WHEEL_BASE = Units.inchesToMeters(23.5);
+  public static final double WHEEL_BASE = Units.inchesToMeters(24.5);
   /** Meters */
-  public static final double BUMPER_LENGTH = Units.inchesToMeters(30);
+  public static final double BUMPER_LENGTH = Units.inchesToMeters(34);
   /** Meters */
-  public static final double BUMPER_WIDTH = Units.inchesToMeters(30);
+  public static final double BUMPER_WIDTH = Units.inchesToMeters(34);
 
   public static final Translation2d[] MODULE_TRANSLATIONS =
       new Translation2d[] {
@@ -83,60 +88,64 @@ public final class SwerveConstants {
   /** Meters */
   public static final double WHEEL_RADIUS = Units.inchesToMeters(1.5);
   /** Meters per second */
-  public static final double MAX_LINEAR_SPEED = Units.feetToMeters(10);
+  public static final double MAX_LINEAR_SPEED = Units.feetToMeters(12.6);
   /** Radians per second */
   public static final double MAX_ANGULAR_SPEED = MAX_LINEAR_SPEED / DRIVE_BASE_RADIUS;
 
-  public static final double WHEEL_FRICTION_COEFF = 1.2;
-  /** Kilogram per square meter */
+  public static final double WHEEL_FRICTION_COEFF = COTS.WHEELS.SLS_PRINTED_WHEELS.cof;
+  /** Kilograms per square meter */
   public static final double ROBOT_INERTIA = 6.883;
   /** Kilograms */
-  public static final double ROBOT_MASS = lbsToKilograms(110);
+  public static final double ROBOT_MASS = 45;
 
   // Drive motor configuration
+  public static final DCMotor DRIVE_GEARBOX = DCMotor.getNeoVortex(1);
+
+  public static final double DRIVE_GEAR_RATIO = 5.08;
   /** Amps */
   static final int DRIVE_MOTOR_CURRENT_LIMIT = 40;
   /** Amps */
   static final double DRIVE_MOTOR_MAX_TORQUE = DRIVE_GEARBOX.getTorque(DRIVE_MOTOR_CURRENT_LIMIT);
 
   // Drive motor PID configuration
-  static final Gains DRIVE_GAINS = new Gains(0.0, 0.0, 0.0, 0.1);
-  static final Gains DRIVE_SIM_GAINS = new Gains(0.05, 0.0, 0.0, 0.085);
+  static final Gains DRIVE_MOTOR_GAINS =
+      switch (ROBOT) {
+        case DEVBOT, COMPBOT -> new Gains(0.0, 0.0, 0.0, 0.1);
+        case SIMBOT -> new Gains(0.05, 0.0, 0.0, 0.0789);
+      };
 
   // Drive encoder configuration
-  // this and below for choreo and pathfinding
-  public static final double DRIVE_GEAR_RATIO = 5.08;
-  /** Radians per second per second */
-  public static final double MAX_ANGULAR_ACCELERATION =
-      4 * (DRIVE_GEAR_RATIO * DRIVE_MOTOR_MAX_TORQUE) / WHEEL_RADIUS * DRIVE_BASE_RADIUS / 15.0;
-  /** Meters per second per second */
-  public static final double MAX_LINEAR_ACCELERATION =
-      4 * (DRIVE_GEAR_RATIO * DRIVE_MOTOR_MAX_TORQUE) / WHEEL_RADIUS / ROBOT_MASS;
   /** Wheel radians */
   static final double DRIVE_ENCODER_POSITION_FACTOR = 2 * Math.PI / DRIVE_GEAR_RATIO;
   /** Wheel radians per second */
   static final double DRIVE_ENCODER_VELOCITY_FACTOR = (2 * Math.PI) / 60.0 / DRIVE_GEAR_RATIO;
 
   // Rotator motor configuration
+  public static final DCMotor TURN_GEARBOX = DCMotor.getNeo550(1);
+
+  public static final double ROTATOR_GEAR_RATIO = 9424.0 / 203.0;
   /** Amps */
   static final int ROTATOR_MOTOR_CURRENT_LIMIT_AMPS = 20;
 
   static final boolean ROTATOR_INVERTED = false;
 
   // Rotator PID configuration
-  static final Gains ROTATOR_GAINS = new Gains(2.0, 0.0);
-  static final Gains ROTATOR_SIM_GAINS = new Gains(8.0, 0.0);
+  static final Gains ROTATOR_GAINS =
+      switch (ROBOT) {
+        case DEVBOT, COMPBOT -> new Gains(2.0, 0.0);
+        case SIMBOT -> new Gains(8.0, 0.0);
+      };
   /** Radians */
-  static final double TURN_PID_MIN_INPUT = 0;
+  static final double ROTATOR_PID_MIN_INPUT = 0;
   /** Radians */
-  static final double TURN_PID_MAX_INPUT = 2 * Math.PI;
+  static final double ROTATOR_PID_MAX_INPUT = 2 * Math.PI;
 
   // Rotator encoder configuration
-  static final boolean TURN_ENCODER_INVERTED = true;
+  static final boolean ROTATOR_ENCODER_INVERTED = true;
   /** Radians */
-  static final double TURN_ENCODER_POSITION_FACTOR = 2 * Math.PI; // Rotations -> Radians
+  static final double ROTATOR_ENCODER_POSITION_FACTOR = 2 * Math.PI; // Rotations -> Radians
   /** Radians per second */
-  static final double TURN_ENCODER_VELOCITY_FACTOR = (2 * Math.PI) / 60.0; // RPM -> Rad/Sec
+  static final double ROTATOR_ENCODER_VELOCITY_FACTOR = (2 * Math.PI) / 60.0; // RPM -> Rad/Sec
 
   // Drivetrain PID
   public static final PIDConstants TRANSLATION_CONSTANTS = new PIDConstants(10, 0, 0);
@@ -156,10 +165,7 @@ public final class SwerveConstants {
               1),
           MODULE_TRANSLATIONS);
 
-  public static final double TURN_GEAR_RATIO = 9424.0 / 203.0;
-
-  public static final DCMotor TURN_GEARBOX = DCMotor.getNeo550(1);
-  public static final DriveTrainSimulationConfig mapleSimConfig =
+  public static final DriveTrainSimulationConfig MAPLE_SIM_CONFIG =
       new DriveTrainSimulationConfig(
           Kilograms.of(ROBOT_MASS),
           Meters.of(BUMPER_LENGTH),
@@ -170,17 +176,12 @@ public final class SwerveConstants {
               COTS.ofMAXSwerve(
                       DRIVE_GEARBOX, // Drive motor is a Neo Vortex
                       TURN_GEARBOX, // Steer motor is a Neo 550
-                      WHEEL_FRICTION_COEFF, // Use the COF for Colson Wheels
+                      WHEEL_FRICTION_COEFF, // Use the COF for Spiky Treads
                       2) // Medium Gear ratio
                   .get(),
-          COTS.ofNav2X());
-
-  // Gyro
-  static enum GyroType {
-    PIGEON,
-    NAVX,
-    ADIS,
-  }
-
-  static final GyroType GYRO_TYPE = GyroType.NAVX;
+          switch (GYRO_TYPE) {
+            case PIGEON -> COTS.ofPigeon2();
+            case NAVX -> COTS.ofNav2X();
+            case ADIS -> COTS.ofGenericGyro();
+          });
 }

@@ -35,14 +35,7 @@ public final class VisionConstants {
    * @param robotToCamera the transformation representing the camera's position relative to the
    *     center of the robot. Translations are in meters.
    * @param cameraType the type of hardware camera we are using. See {@link CameraType}.
-   * @param cameraAmbiguityFactor a rough value for how much we trust this camera to produce
-   *     reliable data on our target relative to the other cameras. A lower value means we trust
-   *     this camera more - for instance, if we're more confident in its calibration than the other
-   *     cameras.
    */
   public record CameraConstants(
-      String cameraName,
-      Transform3d robotToCamera,
-      CameraType cameraType,
-      double cameraAmbiguityFactor) {}
+      String cameraName, Transform3d robotToCamera, CameraType cameraType) {}
 }

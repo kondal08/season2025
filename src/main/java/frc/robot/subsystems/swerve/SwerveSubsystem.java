@@ -129,7 +129,7 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
   public void periodic() {
     odometryLock.lock(); // Prevents odometry updates while reading data
     gyroIO.updateInputs(gyroInputs);
-    Logger.processInputs("Drive/Gyro", gyroInputs);
+    Logger.processInputs("Swerve/Gyro", gyroInputs);
     for (var module : modules) {
       module.periodic();
     }
@@ -321,6 +321,6 @@ public class SwerveSubsystem extends SubsystemBase implements Vision.VisionConsu
 
   /** Returns the maximum angular speed in radians per sec. */
   public double getMaxAngularSpeedRadPerSec() {
-    return SwerveConstants.MAX_LINEAR_SPEED / SwerveConstants.DRIVE_BASE_RADIUS;
+    return SwerveConstants.MAX_ANGULAR_SPEED;
   }
 }
