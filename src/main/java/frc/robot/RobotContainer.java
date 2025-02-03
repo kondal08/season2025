@@ -18,10 +18,7 @@ import static frc.robot.Config.Controllers.getOperatorController;
 import static frc.robot.Config.Subsystems.DRIVETRAIN_ENABLED;
 import static frc.robot.GlobalConstants.MODE;
 import static frc.robot.subsystems.swerve.SwerveConstants.*;
-import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.LEFT_CAM_CONSTANTS;
-import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.LEFT_CAM_ENABLED;
-import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.RIGHT_CAM_CONSTANTS;
-import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.RIGHT_CAM_ENABLED;
+import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -93,8 +90,11 @@ public class RobotContainer {
                       : new VisionIO() {},
                   RIGHT_CAM_ENABLED
                       ? new VisionIOPhotonVisionSim(RIGHT_CAM_CONSTANTS, drive::getPose)
+                      : new VisionIO() {},
+                  BACK_CAM_ENABLED
+                      ? new VisionIOPhotonVisionSim(
+                          BACK_CAM_CONSTANTS, driveSimulation::getSimulatedDriveTrainPose)
                       : new VisionIO() {}
-                  /*new GamePieceVisionIOLimelight("limelight", drive::getRotation)*/
                   );
           break;
 
@@ -123,6 +123,10 @@ public class RobotContainer {
                   RIGHT_CAM_ENABLED
                       ? new VisionIOPhotonVisionSim(
                           RIGHT_CAM_CONSTANTS, driveSimulation::getSimulatedDriveTrainPose)
+                      : new VisionIO() {},
+                  BACK_CAM_ENABLED
+                      ? new VisionIOPhotonVisionSim(
+                          BACK_CAM_CONSTANTS, driveSimulation::getSimulatedDriveTrainPose)
                       : new VisionIO() {});
           break;
 

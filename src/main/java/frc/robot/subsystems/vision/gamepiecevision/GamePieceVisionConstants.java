@@ -7,7 +7,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
-import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.subsystems.vision.VisionIO;
 
 public final class GamePieceVisionConstants {
 
@@ -34,7 +34,7 @@ public final class GamePieceVisionConstants {
               DETECTOR_LIMELIGHT_PITCH,
               ROBOT_CENTER_TO_DETECTOR_LIMELIGHT_2D.getRotation().getRadians()));
 
-  public static final VisionConstants.CameraConstants NOTE_CAM_CONSTANTS =
-      new VisionConstants.CameraConstants(
-          "notecam", ROBOT_CENTER_TO_DETECTOR_LIMELIGHT_3D, VisionConstants.CameraType.LIMELIGHT);
+  public static final VisionIO.CameraConstants NOTE_CAM_CONSTANTS =
+      new VisionIO.CameraConstants(
+          "notecam", ROBOT_CENTER_TO_DETECTOR_LIMELIGHT_3D, VisionIO.CameraType.LIMELIGHT);
 }

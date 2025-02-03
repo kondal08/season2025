@@ -5,15 +5,14 @@ import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants
 import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionHelpers.generateDynamicStdDevs;
 
 import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 
 public class Vision extends SubsystemBase {
@@ -22,6 +21,13 @@ public class Vision extends SubsystemBase {
   private final VisionIOInputsAutoLogged[] inputs;
   private final Alert[] disconnectedAlerts;
 
+  /**
+   * Creates a Vision system.
+   *
+   * @param consumer an object that processes the vision pose estimate (should be the drivetrain)
+   * @param ios the collection of {@link VisionIO}s instances that represent the cameras in the
+   *     system.
+   */
   public Vision(VisionConsumer consumer, VisionIO... ios) {
     this.consumer = consumer;
     this.ios = ios;
@@ -37,35 +43,48 @@ public class Vision extends SubsystemBase {
     for (int i = 0; i < inputs.length; i++) {
       disconnectedAlerts[i] =
           new Alert(
-              "Vision camera " + Integer.toString(i) + " is disconnected.",
+              "Vision camera \"" + ios[i].getCameraConstants().cameraName() + "\" is disconnected.",
               Alert.AlertType.kWarning);
     }
   }
 
   /**
-   * Returns the yaw to the best target, which can be used for vision-based object or tag tracking.
+   * Returns the yaw (horizontal angle) to the best detected AprilTag if available. If no tags are
+   * detected, an empty {@link Optional} is returned.
    *
-   * @param cameraIndex The index of the camera to use.
+   * @param cameraIndex The index of the camera to retrieve yaw data from.
+   * @return An {@link Optional} containing the yaw as a {@link Rotation2d}, or empty if no tag is
+   *     detected.
    */
-  public Rotation2d getTargetX(int cameraIndex) {
-    return inputs[cameraIndex].latestTargetObservation.tx();
+  public Optional<Rotation2d> getTargetX(int cameraIndex) {
+    return inputs[cameraIndex].tagIds.length == 0
+        ? Optional.empty()
+        : Optional.of(inputs[cameraIndex].latestTargetObservation.tx());
   }
 
   /**
-   * Returns the pitch to the best target, which can be used for vision-based object or tag
-   * tracking.
+   * Returns the pitch (vertical angle) to the best detected AprilTag if available. If no tags are
+   * detected, an empty {@link Optional} is returned.
    *
-   * @param cameraIndex The index of the camera to use.
+   * @param cameraIndex The index of the camera to retrieve pitch data from.
+   * @return An {@link Optional} containing the pitch as a {@link Rotation2d}, or empty if no tag is
+   *     detected.
    */
-  public Rotation2d getTargetY(int cameraIndex) {
-    return inputs[cameraIndex].latestTargetObservation.ty();
+  public Optional<Rotation2d> getTargetY(int cameraIndex) {
+    return inputs[cameraIndex].tagIds.length == 0
+        ? Optional.empty()
+        : Optional.of(inputs[cameraIndex].latestTargetObservation.ty());
   }
 
+  /**
+   * Updates vision inputs and logs relevant pose data. Filters out invalid observations and sends
+   * valid ones to the pose consumer for fused robot localization.
+   */
   @Override
   public void periodic() {
     for (int i = 0; i < ios.length; i++) {
       ios[i].updateInputs(inputs[i]);
-      Logger.processInputs("AprilTagVision/Camera" + i, inputs[i]);
+      Logger.processInputs("AprilTagVision/" + ios[i].getCameraConstants().cameraName(), inputs[i]);
     }
 
     // Initialize logging values
@@ -76,7 +95,7 @@ public class Vision extends SubsystemBase {
 
     // Loop over cameras
     for (int cameraIndex = 0; cameraIndex < ios.length; cameraIndex++) {
-      // Update disconnected alert
+      // Update alert status for disconnected cameras
       disconnectedAlerts[cameraIndex].set(!inputs[cameraIndex].connected);
 
       // Initialize logging values
@@ -103,7 +122,11 @@ public class Vision extends SubsystemBase {
                         > MAX_AMBIGUITY_CUTOFF) // Cannot be high ambiguity on single tag
                 || Math.abs(observation.pose().getZ())
                     > MAX_Z_ERROR // Must have realistic Z coordinate
-                //                || observation.averageTagDistance() > MAX_DISTANCE_CUTOFF
+                || observation.averageTagDistance()
+                    > ios[cameraIndex]
+                        .getCameraConstants()
+                        .cameraType()
+                        .noisyDistance // Must be reliably detectable by this camera
                 // Must be within the field boundaries
                 || observation.pose().getX() < 0.0
                 || observation.pose().getX() > APRIL_TAG_FIELD_LAYOUT.getFieldLength()
@@ -132,16 +155,20 @@ public class Vision extends SubsystemBase {
 
       // Log camera datadata
       Logger.recordOutput(
-          "AprilTagVision/Camera" + cameraIndex + "/TagPoses",
+          "AprilTagVision/" + ios[cameraIndex].getCameraConstants().cameraName() + "/TagPoses",
           tagPoses.toArray(new Pose3d[tagPoses.size()]));
       Logger.recordOutput(
-          "AprilTagVision/Camera" + cameraIndex + "/RobotPoses",
+          "AprilTagVision/" + ios[cameraIndex].getCameraConstants().cameraName() + "/RobotPoses",
           robotPoses.toArray(new Pose3d[robotPoses.size()]));
       Logger.recordOutput(
-          "AprilTagVision/Camera" + cameraIndex + "/RobotPosesAccepted",
+          "AprilTagVision/"
+              + ios[cameraIndex].getCameraConstants().cameraName()
+              + "/RobotPosesAccepted",
           robotPosesAccepted.toArray(new Pose3d[robotPosesAccepted.size()]));
       Logger.recordOutput(
-          "AprilTagVision/Camera" + cameraIndex + "/RobotPosesRejected",
+          "AprilTagVision/"
+              + ios[cameraIndex].getCameraConstants().cameraName()
+              + "/RobotPosesRejected",
           robotPosesRejected.toArray(new Pose3d[robotPosesRejected.size()]));
       allTagPoses.addAll(tagPoses);
       allRobotPoses.addAll(robotPoses);
@@ -163,8 +190,17 @@ public class Vision extends SubsystemBase {
         allRobotPosesRejected.toArray(new Pose3d[allRobotPosesRejected.size()]));
   }
 
+  /** Functional interface defining a consumer that processes vision-based pose estimates. */
   @FunctionalInterface
   public interface VisionConsumer {
+    /**
+     * Accepts a vision pose estimate for processing.
+     *
+     * @param visionRobotPoseMeters The estimated robot pose, in meters.
+     * @param timestampSeconds The timestamp of the observation for latency compensation, in
+     *     seconds.
+     * @param visionMeasurementStdDevs The standard deviations of the measurement.
+     */
     void accept(
         Pose2d visionRobotPoseMeters,
         double timestampSeconds,
