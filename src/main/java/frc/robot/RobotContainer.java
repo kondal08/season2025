@@ -273,8 +273,6 @@ public class RobotContainer {
   }
 
   public void displaySimFieldToAdvantageScope() {
-    if (MODE != RobotMode.SIM) return;
-
     Logger.recordOutput(
         "FieldSimulation/RobotPosition", driveSimulation.getSimulatedDriveTrainPose());
     Logger.recordOutput(
