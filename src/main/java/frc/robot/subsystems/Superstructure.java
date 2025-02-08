@@ -5,6 +5,7 @@ import static frc.robot.GlobalConstants.MODE;
 import static frc.robot.subsystems.Superstructure.SuperStates.IDLING;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -16,13 +17,17 @@ import frc.robot.generic.elevators.Elevators;
 import frc.robot.generic.rollers.Rollers;
 import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
-import frc.robot.subsystems.feeder.FeederSubsystem;
+import frc.robot.subsystems.intakeAlgae.IntakeAlgaeSubsystem;
+import frc.robot.subsystems.intakeCoral.IntakeCoralSubsystem;
 import frc.robot.subsystems.leds.LEDIOPWM;
 import frc.robot.subsystems.leds.LEDIOSim;
 import frc.robot.subsystems.leds.LEDSubsystem;
 import frc.robot.subsystems.pivot.PivotSubsystem;
-import frc.robot.util.AllianceFlipUtil;
+
+import java.sql.Driver;
 import java.util.function.Supplier;
+
+import frc.robot.util.AllianceFlipUtil;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class Superstructure extends SubsystemBase {
@@ -45,13 +50,30 @@ public class Superstructure extends SubsystemBase {
 
   public Superstructure(Supplier<Pose2d> drivePoseSupplier) {
     this.drivePoseSupplier = drivePoseSupplier;
+    if (LEDS_ENABLED)
+      leds.setDefaultCommand(leds.ledCommand(
+              DriverStation::isEnabled,
+              DriverStation::isFMSAttached,
+              ()->  (DriverStation.getMatchTime()<=30),
+              ()->  true,
+              ()->  false,
+              INTAKE_ALGAE_ENABLED  ? rollers.getIntakeAlgae().hasAlgae() : ()->  false,
+              INTAKE_CORAL_ENABLED  ? rollers.getIntakeCoral().hasCoral() : ()->  false
+              ));
   }
+
 
   public static enum SuperStates {
     IDLING,
-    RUNNING,
-    INTAKING,
-    OUTTAKING
+    TESTING,
+    LEVEL_ONE,
+    LEVEL_TWO,
+    LEVEL_THREE,
+    LEVEL_FOUR,
+    INTAKE_ALGAE,
+    OUTAKE_ALGAE,
+    INTAKE_CORAL,
+    OUTAKE_CORAL
   }
 
   /**
@@ -75,42 +97,50 @@ public class Superstructure extends SubsystemBase {
   public void periodic() {
     switch (currentState) {
       case IDLING -> {
-        if (FEEDER_ENABLED) rollers.getFeeder().setGoal(FeederSubsystem.FeederGoal.IDLING);
-        if (ELEVATOR_ENABLED)
-          elevators.getElevator().setGoal(ElevatorSubsystem.ElevatorGoal.IDLING);
+        if (INTAKE_CORAL_ENABLED) rollers.getIntakeCoral().setGoal(IntakeCoralSubsystem.IntakeCoralGoal.IDLING);
+        if (INTAKE_ALGAE_ENABLED) rollers.getIntakeAlgae().setGoal(IntakeAlgaeSubsystem.IntakeAlgaeGoal.IDLING);
+        if (ELEVATOR_ENABLED) elevators.getElevator().setGoal(ElevatorSubsystem.ElevatorGoal.IDLING);
         if (CLIMBER_ENABLED) elevators.getClimber().setGoal(ClimberSubsystem.ClimberGoal.IDLING);
         if (PIVOT_ENABLED) arms.getPivot().setGoal(PivotSubsystem.PivotGoal.IDLING);
-        if (leds != null)
-          leds.setRunAlongCmd(
-              () -> AllianceFlipUtil.shouldFlip() ? Color.kRed : Color.kBlue,
-              () -> Color.kBlack,
-              5,
-              1);
       }
-      case RUNNING -> {
-        if (FEEDER_ENABLED) rollers.getFeeder().setGoal(FeederSubsystem.FeederGoal.FORWARD);
-        if (ELEVATOR_ENABLED)
-          elevators.getElevator().setGoal(ElevatorSubsystem.ElevatorGoal.TESTING);
+      case TESTING -> {
+        if (INTAKE_CORAL_ENABLED) rollers.getIntakeCoral().setGoal(IntakeCoralSubsystem.IntakeCoralGoal.FORWARD);
+        if (INTAKE_ALGAE_ENABLED) rollers.getIntakeAlgae().setGoal(IntakeAlgaeSubsystem.IntakeAlgaeGoal.FORWARD);
+        if (ELEVATOR_ENABLED) elevators.getElevator().setGoal(ElevatorSubsystem.ElevatorGoal.TESTING);
         if (CLIMBER_ENABLED) elevators.getClimber().setGoal(ClimberSubsystem.ClimberGoal.TESTING);
+        if (PIVOT_ENABLED) arms.getPivot().setGoal(PivotSubsystem.PivotGoal.TESTING);
+      }
+      case LEVEL_ONE -> {
+        if (ELEVATOR_ENABLED) elevators.getElevator().setGoal(ElevatorSubsystem.ElevatorGoal.LEVEL_ONE);
+        if (PIVOT_ENABLED) arms.getPivot().setGoal(PivotSubsystem.PivotGoal.LEVEL_ONE);
+      }
+      case LEVEL_TWO -> {
+        if (ELEVATOR_ENABLED) elevators.getElevator().setGoal(ElevatorSubsystem.ElevatorGoal.LEVEL_TWO);
+        if (PIVOT_ENABLED) arms.getPivot().setGoal(PivotSubsystem.PivotGoal.LEVEL_TWO);
+      }
+      case LEVEL_THREE -> {
+        if (ELEVATOR_ENABLED) elevators.getElevator().setGoal(ElevatorSubsystem.ElevatorGoal.LEVEL_THREE);
+        if (PIVOT_ENABLED) arms.getPivot().setGoal(PivotSubsystem.PivotGoal.LEVEL_THREE);
+      }
+      case LEVEL_FOUR -> {
+        if (ELEVATOR_ENABLED) elevators.getElevator().setGoal(ElevatorSubsystem.ElevatorGoal.LEVEL_FOUR);
         if (PIVOT_ENABLED) arms.getPivot().setGoal(PivotSubsystem.PivotGoal.LEVEL_FOUR);
       }
-      case INTAKING -> {
-        if (FEEDER_ENABLED) rollers.getFeeder().setGoal(FeederSubsystem.FeederGoal.FORWARD);
-        if (ELEVATOR_ENABLED)
-          elevators.getElevator().setGoal(ElevatorSubsystem.ElevatorGoal.TESTING);
-        if (CLIMBER_ENABLED) elevators.getClimber().setGoal(ClimberSubsystem.ClimberGoal.TESTING);
-        if (PIVOT_ENABLED) arms.getPivot().setGoal(PivotSubsystem.PivotGoal.LEVEL_FOUR);
+      case INTAKE_ALGAE -> {
+        if (INTAKE_ALGAE_ENABLED) rollers.getIntakeAlgae().setGoal(IntakeAlgaeSubsystem.IntakeAlgaeGoal.FORWARD);
       }
-      case OUTTAKING -> {
-        if (FEEDER_ENABLED) rollers.getFeeder().setGoal(FeederSubsystem.FeederGoal.REVERSE);
+      case OUTAKE_ALGAE -> {
+        if (INTAKE_ALGAE_ENABLED) rollers.getIntakeAlgae().setGoal(IntakeAlgaeSubsystem.IntakeAlgaeGoal.REVERSE);
+      }
+      case INTAKE_CORAL -> {
+        if (INTAKE_CORAL_ENABLED) rollers.getIntakeCoral().setGoal(IntakeCoralSubsystem.IntakeCoralGoal.FORWARD);
+        if (ELEVATOR_ENABLED) elevators.getElevator().setGoal(ElevatorSubsystem.ElevatorGoal.TESTING);
+      }
+      case OUTAKE_CORAL -> {
+        if (INTAKE_CORAL_ENABLED) rollers.getIntakeCoral().setGoal(IntakeCoralSubsystem.IntakeCoralGoal.REVERSE);
       }
     }
-  }
-
-  // public Command setLEDBlinkingCmd(Color onColor, Color offColor, double frequency) {
-  //   if (leds != null) return leds.setBlinkingCmd(onColor, offColor, frequency);
-  //   else return null;
-  // }
+    }
 
   public void registerSuperstructureCharacterization(
       Supplier<LoggedDashboardChooser<Command>> autoChooser) {}
