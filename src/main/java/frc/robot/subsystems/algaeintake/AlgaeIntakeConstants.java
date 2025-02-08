@@ -1,6 +1,6 @@
-package frc.robot.subsystems.intakeAlgae;
+package frc.robot.subsystems.algaeintake;
 
-public final class IntakeAlgaeConstants {
+public final class AlgaeIntakeConstants {
   public static final int INTAKE_ALGAE_ID = 24; // TODO: Find ID for actual intake
 
   public static final double kP = 0.00036;

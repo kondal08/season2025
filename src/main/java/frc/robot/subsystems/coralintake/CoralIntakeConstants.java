@@ -1,6 +1,6 @@
-package frc.robot.subsystems.intakeCoral;
+package frc.robot.subsystems.coralintake;
 
-public final class IntakeCoralConstants {
+public final class CoralIntakeConstants {
   public static final int INTAKE_CORAL_ID = 24; // TODO: Find ID for actual intake
 
   public static final double kP = 0.00036;

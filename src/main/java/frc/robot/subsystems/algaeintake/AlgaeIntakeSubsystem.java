@@ -1,11 +1,9 @@
-package frc.robot.subsystems.intakeAlgae;
+package frc.robot.subsystems.algaeintake;
 
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import frc.robot.generic.rollers.GenericVoltageRollerSystem;
-import frc.robot.subsystems.intakeCoral.IntakeCoralSubsystem;
 import frc.robot.util.LoggedTunableNumber;
-
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import lombok.Getter;
@@ -14,10 +12,11 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class IntakeAlgaeSubsystem extends GenericVoltageRollerSystem<IntakeAlgaeSubsystem.IntakeAlgaeGoal> {
+public class AlgaeIntakeSubsystem
+    extends GenericVoltageRollerSystem<AlgaeIntakeSubsystem.AlgaeIntakeGoal> {
   @RequiredArgsConstructor
   @Getter
-  public enum IntakeAlgaeGoal implements VoltageGoal {
+  public enum AlgaeIntakeGoal implements VoltageGoal {
     IDLING(new LoggedTunableNumber("Feeder/IdleVoltage", 0.0)), // Intake is off
     FORWARD(new LoggedTunableNumber("Feeder/ForwardVoltage", 12.0)), // Maximum forward voltage
     REVERSE(new LoggedTunableNumber("Feeder/ReverseVoltage", -12.0)); // Maximum reverse voltage
@@ -25,15 +24,16 @@ public class IntakeAlgaeSubsystem extends GenericVoltageRollerSystem<IntakeAlgae
     private final DoubleSupplier voltageSupplier;
   }
 
-  @Setter private IntakeAlgaeGoal goal = IntakeAlgaeGoal.IDLING;
+  @Setter private AlgaeIntakeGoal goal = AlgaeIntakeGoal.IDLING;
   private Debouncer currentDebouncer = new Debouncer(0.25, DebounceType.kFalling);
 
-  public IntakeAlgaeSubsystem(String name, IntakeAlgaeIO io) {
+  public AlgaeIntakeSubsystem(String name, AlgaeIntakeIO io) {
     super(name, io);
   }
 
   public BooleanSupplier hasAlgae() {
-    return ()->(goal == IntakeAlgaeGoal.FORWARD
+    return () ->
+        (goal == AlgaeIntakeGoal.FORWARD
             && stateTimer.hasElapsed(0.25)
             && currentDebouncer.calculate(inputs.torqueCurrentAmps > 45.0));
   }
