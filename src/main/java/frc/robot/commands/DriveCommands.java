@@ -43,6 +43,7 @@ import java.text.NumberFormat;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
@@ -299,7 +300,7 @@ public class DriveCommands {
               Units.feetToMeters(-GlobalConstants.AlignOffsets.BUMPER_TO_CENTER_OFFSET / 12);
           double yOffset =
               Units.feetToMeters(GlobalConstants.AlignOffsets.REEF_TO_BRANCH_OFFSET / 12)
-                  * (leftAlign ? 1 : -1);
+                  * (isFieldRelativeLeftAlign(targetFace).getAsBoolean() ? 1 : -1);
           Rotation2d rotation = targetFace.get().getRotation();
           Transform2d branchTransform =
               new Transform2d(
@@ -345,6 +346,18 @@ public class DriveCommands {
 
   public static void setLeftAlign(boolean leftAlign) {
     DriveCommands.leftAlign = leftAlign;
+  }
+
+  private static BooleanSupplier isFieldRelativeLeftAlign(Supplier<Pose2d> targetReefFace) {
+    boolean facingDriver = RotationalAllianceFlipUtil.apply(
+      targetReefFace.get()).getRotation()
+      .getRadians() > Math.PI
+      || 
+      RotationalAllianceFlipUtil.apply(
+        targetReefFace.get())
+        .getRotation().getRadians() < -Math.PI;
+
+    return () -> facingDriver ? !leftAlign : leftAlign;
   }
 
   // returns the nearest face of the reef
@@ -408,7 +421,7 @@ public class DriveCommands {
                   new Rotation2d());
           Supplier<Transform2d> fieldRelativeOffset =
               () -> findClosestCoralStation(drive).minus(drive.getPose());
-          Logger.recordOutput("Targets/Coral Station Offset", fieldRelativeOffset.get());
+
           Logger.recordOutput("Targets/Coral Station", findClosestCoralStation(drive));
 
           return chasePoseRobotRelativeCommandYOverride(drive, fieldRelativeOffset, driver);
