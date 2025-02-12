@@ -98,7 +98,7 @@ public final class GlobalConstants {
   }
 
   public static final class AlignOffsets {
-    public static final double BUMPER_TO_CENTER_OFFSET = 16.0;
+    public static final double BUMPER_TO_CENTER_OFFSET = ROBOT == RobotType.DEVBOT? 26 / 2 + 3 : 28 / 2 + 3;
     public static final double REEF_TO_BRANCH_OFFSET = 13.0 / 2;
   }
 
