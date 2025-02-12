@@ -19,12 +19,12 @@ public class XboxDriverMap extends CommandXboxController implements DriverMap {
   }
 
   @Override
-  public Trigger alignToGamePiece() {
+  public Trigger leftAlign() {
     return leftBumper();
   }
 
   @Override
-  public Trigger alignToSpeaker() {
+  public Trigger rightAlign() {
     return rightBumper();
   }
 

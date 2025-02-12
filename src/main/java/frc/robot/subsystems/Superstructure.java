@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Config;
 import frc.robot.GlobalConstants;
 import frc.robot.generic.arm.Arms;
@@ -22,6 +23,8 @@ import frc.robot.subsystems.leds.LEDIOPWM;
 import frc.robot.subsystems.leds.LEDIOSim;
 import frc.robot.subsystems.leds.LEDSubsystem;
 import frc.robot.subsystems.pivot.PivotSubsystem;
+
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -157,6 +160,10 @@ public class Superstructure extends SubsystemBase {
         }
       }
     }
+  }
+
+  public Trigger coralMode() {
+    return new Trigger(() -> wantsCoral);
   }
 
   public void registerSuperstructureCharacterization(

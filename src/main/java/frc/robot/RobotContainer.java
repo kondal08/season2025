@@ -23,12 +23,15 @@ import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.path.PathConstraints;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.GlobalConstants.RobotMode;
 import frc.robot.OI.DriverMap;
@@ -201,26 +204,35 @@ public class RobotContainer {
       // Switch to X pattern when X button is pressed
       driver.stopWithX().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
-      // align to right side of reef face
-      driver.alignToSpeaker().whileTrue(DriveCommands.alignToReefCommand(drive));
-
-      driver.alignToSpeaker().onTrue(Commands.run(() -> DriveCommands.setLeftAlign(false)));
-
-      // align to left side of reef face
+      // set target to right align
       driver
-          .alignToGamePiece()
-          .whileTrue(
-              Commands.repeatingSequence(
-                  Commands.run(() -> DriveCommands.setLeftAlign(true)),
-                  DriveCommands.alignToReefCommand(drive)));
+        .rightAlign().and(superstructure.coralMode())
+        .onTrue(Commands.run(() -> DriveCommands.setLeftAlign(false)));
 
-      // align to face 2
-      driver.slowMode().onTrue(Commands.run(() -> DriveCommands.setTargetReefFace(1)));
+    // set target to left align
+    driver
+        .leftAlign().and(superstructure.coralMode())
+        .onTrue(Commands.run(() -> DriveCommands.setLeftAlign(true)));
+    
+      // align to right side of reef face
+      new Trigger(driver
+        .rightAlign().or(driver.leftAlign())).and(superstructure.coralMode())
+        .whileTrue(DriveCommands.alignToReefCommand(drive));
 
       // align to coral station with position customization when right trigger is pressed
       driver
           .coralStation()
           .whileTrue(DriveCommands.alignToNearestCoralStationCommand(drive, driver.getYAxis()));
+
+
+    
+
+    PathConstraints constraints = new PathConstraints(0.5, 1, 0.5, 0.5);
+
+    driver
+        .leftAlign().and(superstructure.coralMode().negate())
+        .whileTrue(AutoBuilder.pathfindToPose(GlobalConstants.FieldMap.Coordinates.PROCESSOR.getPose(), constraints));
+
 
       // Reset gyro to 0° when B button is pressed
       driver
