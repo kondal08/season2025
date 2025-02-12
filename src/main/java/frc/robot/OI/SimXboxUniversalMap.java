@@ -19,12 +19,12 @@ public class SimXboxUniversalMap extends CommandXboxController implements Driver
   }
 
   @Override
-  public Trigger alignToGamePiece() {
+  public Trigger leftAlign() {
     return button(7);
   }
 
   @Override
-  public Trigger alignToSpeaker() {
+  public Trigger rightAlign() {
     return button(8);
   }
 
