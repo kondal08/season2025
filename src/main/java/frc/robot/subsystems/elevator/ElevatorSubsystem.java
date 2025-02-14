@@ -3,6 +3,7 @@ package frc.robot.subsystems.elevator;
 import static java.lang.Math.PI;
 
 import frc.robot.generic.elevators.GenericPositionElevatorSystem;
+import frc.robot.generic.elevators.GenericPositionElevatorSystem.ExtensionGoal;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.function.DoubleSupplier;
 import lombok.Getter;
@@ -15,7 +16,7 @@ public class ElevatorSubsystem
     extends GenericPositionElevatorSystem<ElevatorSubsystem.ElevatorGoal> {
   @RequiredArgsConstructor
   @Getter
-  public enum ElevatorGoal implements GenericPositionElevatorSystem.ExtensionGoal {
+  public enum ElevatorGoal implements ExtensionGoal {
     IDLING(new LoggedTunableNumber("Elevator/Idling", 0.0)),
     LEVEL_ONE(new LoggedTunableNumber("Elevator/Level_One", 0.46)),
     LEVEL_TWO(new LoggedTunableNumber("Elevator/Level_Two", 0.81)),

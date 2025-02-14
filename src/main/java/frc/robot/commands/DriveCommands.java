@@ -349,13 +349,10 @@ public class DriveCommands {
   }
 
   private static BooleanSupplier isFieldRelativeLeftAlign(Supplier<Pose2d> targetReefFace) {
-    boolean facingDriver = RotationalAllianceFlipUtil.apply(
-      targetReefFace.get()).getRotation()
-      .getRadians() > Math.PI
-      || 
-      RotationalAllianceFlipUtil.apply(
-        targetReefFace.get())
-        .getRotation().getRadians() < -Math.PI;
+    boolean facingDriver =
+        RotationalAllianceFlipUtil.apply(targetReefFace.get()).getRotation().getRadians() > Math.PI
+            || RotationalAllianceFlipUtil.apply(targetReefFace.get()).getRotation().getRadians()
+                < -Math.PI;
 
     return () -> facingDriver ? !leftAlign : leftAlign;
   }

@@ -12,11 +12,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.*;
-
 import java.util.Arrays;
-import java.util.Set;
 import java.util.function.BooleanSupplier;
-
 import org.littletonrobotics.junction.Logger;
 
 public class LEDSubsystem extends SubsystemBase {
@@ -26,10 +23,9 @@ public class LEDSubsystem extends SubsystemBase {
     }
 
     static LEDOutputValue[] all(LEDPattern pattern) {
-      return new LEDOutputValue[]{new LEDOutputValue(pattern)};
+      return new LEDOutputValue[] {new LEDOutputValue(pattern)};
     }
   }
-
 
   private final LEDIO io;
   private final LEDIOInputsAutoLogged inputs = new LEDIOInputsAutoLogged();
@@ -37,9 +33,7 @@ public class LEDSubsystem extends SubsystemBase {
   private double rainbowStart = 0;
   private double dashStart = 0;
 
-  /**
-   * Creates a new LEDSubsystem.
-   */
+  /** Creates a new LEDSubsystem. */
   public LEDSubsystem(LEDIO io) {
     super();
     this.io = io;
@@ -50,7 +44,6 @@ public class LEDSubsystem extends SubsystemBase {
     io.periodic();
     Logger.processInputs("LED", inputs);
   }
-
 
   private void setPattern(LEDOutputValue[] values) {
     if (Arrays.stream(values).anyMatch(value -> value.index == -1)) {
@@ -68,25 +61,39 @@ public class LEDSubsystem extends SubsystemBase {
     }
   }
 
-  public Command ledCommand(BooleanSupplier isEnabled, BooleanSupplier hasFMS, BooleanSupplier isEndgame, BooleanSupplier isCoral, BooleanSupplier isAligned, BooleanSupplier hasAlgae, BooleanSupplier hasCoral) {
-    return this.run(() -> {
-      if (isEnabled.getAsBoolean()) {
-        var patterns = getPattern(isEndgame.getAsBoolean(), isCoral.getAsBoolean(), isAligned.getAsBoolean(), hasAlgae.getAsBoolean(), hasCoral.getAsBoolean());
-        setPattern(patterns);
-      } else if (!hasFMS.getAsBoolean()) {
-        setPattern(LEDOutputValue.all(LEDPattern.solid(Color.kBlue).breathe(Second.of(1))));
-      }
-      else {
-        // get pose, get first pose of auto somehow
-        var patterns = getFieldAlignPattern(new Pose2d(), new Pose2d());
-        setPattern(patterns);
-      }
-
-    });
+  public Command ledCommand(
+      BooleanSupplier isEnabled,
+      BooleanSupplier hasFMS,
+      BooleanSupplier isEndgame,
+      BooleanSupplier isCoral,
+      BooleanSupplier isAligned,
+      BooleanSupplier hasAlgae,
+      BooleanSupplier hasCoral) {
+    return this.run(
+        () -> {
+          if (isEnabled.getAsBoolean()) {
+            var patterns =
+                getPattern(
+                    isEndgame.getAsBoolean(),
+                    isCoral.getAsBoolean(),
+                    isAligned.getAsBoolean(),
+                    hasAlgae.getAsBoolean(),
+                    hasCoral.getAsBoolean());
+            setPattern(patterns);
+          } else if (!hasFMS.getAsBoolean()) {
+            setPattern(LEDOutputValue.all(LEDPattern.solid(Color.kBlue).breathe(Second.of(1))));
+          } else {
+            // get pose, get first pose of auto somehow
+            var patterns = getFieldAlignPattern(new Pose2d(), new Pose2d());
+            setPattern(patterns);
+          }
+        });
   }
 
   private enum ErrDir {
-    POS, NEG, NONE;
+    POS,
+    NEG,
+    NONE;
   }
 
   private ErrDir getError(double error, double tolerance) {
@@ -102,7 +109,10 @@ public class LEDSubsystem extends SubsystemBase {
   private LEDOutputValue[] getFieldAlignPattern(Pose2d realPose, Pose2d targetPose) {
     var errors = targetPose.relativeTo(realPose);
 
-    var dist = Math.min(Math.abs(targetPose.getTranslation().getDistance(realPose.getTranslation())), FLASHING_MAX);
+    var dist =
+        Math.min(
+            Math.abs(targetPose.getTranslation().getDistance(realPose.getTranslation())),
+            FLASHING_MAX);
     var blinkSpeed = Second.of(1 / (5 * dist));
 
     var xError = getError(errors.getTranslation().getX(), TRANSLATION_TOLERANCE);
@@ -122,10 +132,22 @@ public class LEDSubsystem extends SubsystemBase {
       }
     }
 
-    var frontLeft = (xError == ErrDir.POS || yError == ErrDir.POS) ? LEDPattern.solid(MORE_COLOR) : LEDPattern.solid(LESS_COLOR);
-    var frontRight = (xError == ErrDir.POS || yError == ErrDir.NEG) ? LEDPattern.solid(MORE_COLOR) : LEDPattern.solid(LESS_COLOR);
-    var backLeft = (xError == ErrDir.NEG || yError == ErrDir.POS) ? LEDPattern.solid(MORE_COLOR) : LEDPattern.solid(LESS_COLOR);
-    var backRight = (xError == ErrDir.NEG || yError == ErrDir.NEG) ? LEDPattern.solid(MORE_COLOR) : LEDPattern.solid(LESS_COLOR);
+    var frontLeft =
+        (xError == ErrDir.POS || yError == ErrDir.POS)
+            ? LEDPattern.solid(MORE_COLOR)
+            : LEDPattern.solid(LESS_COLOR);
+    var frontRight =
+        (xError == ErrDir.POS || yError == ErrDir.NEG)
+            ? LEDPattern.solid(MORE_COLOR)
+            : LEDPattern.solid(LESS_COLOR);
+    var backLeft =
+        (xError == ErrDir.NEG || yError == ErrDir.POS)
+            ? LEDPattern.solid(MORE_COLOR)
+            : LEDPattern.solid(LESS_COLOR);
+    var backRight =
+        (xError == ErrDir.NEG || yError == ErrDir.NEG)
+            ? LEDPattern.solid(MORE_COLOR)
+            : LEDPattern.solid(LESS_COLOR);
 
     return new LEDOutputValue[] {
       new LEDOutputValue(frontLeft.breathe(blinkSpeed), FRONT_LEFT),
@@ -135,7 +157,8 @@ public class LEDSubsystem extends SubsystemBase {
     };
   }
 
-  private LEDOutputValue[] getPattern(Boolean isEndgame, Boolean isCoral, Boolean isAligned, Boolean hasAlgae, Boolean hasCoral) {
+  private LEDOutputValue[] getPattern(
+      Boolean isEndgame, Boolean isCoral, Boolean isAligned, Boolean hasAlgae, Boolean hasCoral) {
     if (isEndgame) {
       return endgameColor();
     } else {
@@ -144,10 +167,12 @@ public class LEDSubsystem extends SubsystemBase {
   }
 
   private LEDOutputValue[] endgameColor() {
-    return LEDOutputValue.all(LEDPattern.rainbow(255, 255).scrollAtRelativeSpeed(Percent.per(Second).of(25)));
+    return LEDOutputValue.all(
+        LEDPattern.rainbow(255, 255).scrollAtRelativeSpeed(Percent.per(Second).of(25)));
   }
 
-  private LEDOutputValue[] teleopColor(Boolean isCoral, Boolean isAligned, Boolean hasAlgae, Boolean hasCoral) {
+  private LEDOutputValue[] teleopColor(
+      Boolean isCoral, Boolean isAligned, Boolean hasAlgae, Boolean hasCoral) {
     if (isCoral) {
       return gamePieceColor(CORAL_COLOR, isAligned, hasCoral);
     } else {
@@ -157,15 +182,13 @@ public class LEDSubsystem extends SubsystemBase {
 
   private LEDOutputValue[] gamePieceColor(Color color, Boolean isAligned, Boolean hasPiece) {
     if (isAligned) {
-      return LEDOutputValue.all(LEDPattern.gradient(LEDPattern.GradientType.kContinuous, color, Color.kBlack).scrollAtRelativeSpeed(Percent.per(Second).of(25)));
+      return LEDOutputValue.all(
+          LEDPattern.gradient(LEDPattern.GradientType.kContinuous, color, Color.kBlack)
+              .scrollAtRelativeSpeed(Percent.per(Second).of(25)));
     } else if (hasPiece) {
       return LEDOutputValue.all(LEDPattern.solid(color));
     } else {
       return LEDOutputValue.all(LEDPattern.solid(color).breathe(Second.of(1)));
     }
   }
-
-
 }
-
-

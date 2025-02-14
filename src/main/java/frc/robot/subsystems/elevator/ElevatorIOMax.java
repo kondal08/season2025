@@ -1,18 +1,19 @@
 package frc.robot.subsystems.elevator;
 
 import frc.robot.generic.elevators.GenericElevatorSystemIOSparkMax;
+import frc.robot.subsystems.climber.ClimberConstants;
 
 public class ElevatorIOMax extends GenericElevatorSystemIOSparkMax implements ElevatorIO {
   public ElevatorIOMax() {
     super(
-        new int[] {ElevatorConstants.LEFT_ELEVATOR},
+        new int[] {ElevatorConstants.RIGHT_ELEVATOR, ElevatorConstants.LEFT_ELEVATOR},
+        new boolean[] {ElevatorConstants.RIGHT_INVERTED, ElevatorConstants.LEFT_INVERTED},
         40,
         0.0,
-        false,
         true,
         1.0,
-        ElevatorConstants.kP,
-        ElevatorConstants.kI,
-        ElevatorConstants.kD);
+        ClimberConstants.kP,
+        ClimberConstants.kI,
+        ClimberConstants.kD);
   }
 }

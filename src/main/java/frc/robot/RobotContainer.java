@@ -18,13 +18,28 @@ import static frc.robot.Config.Controllers.getOperatorController;
 import static frc.robot.Config.Subsystems.DRIVETRAIN_ENABLED;
 import static frc.robot.Config.Subsystems.VISION_ENABLED;
 import static frc.robot.GlobalConstants.MODE;
-import static frc.robot.subsystems.swerve.SwerveConstants.*;
-import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.*;
+import static frc.robot.subsystems.Superstructure.SuperStates.IDLING;
+import static frc.robot.subsystems.Superstructure.SuperStates.INTAKE;
+import static frc.robot.subsystems.Superstructure.SuperStates.LEVEL_FOUR;
+import static frc.robot.subsystems.Superstructure.SuperStates.LEVEL_ONE;
+import static frc.robot.subsystems.Superstructure.SuperStates.LEVEL_THREE;
+import static frc.robot.subsystems.Superstructure.SuperStates.LEVEL_TWO;
+import static frc.robot.subsystems.Superstructure.SuperStates.OUTAKE;
+import static frc.robot.subsystems.swerve.SwerveConstants.BACK_LEFT;
+import static frc.robot.subsystems.swerve.SwerveConstants.BACK_RIGHT;
+import static frc.robot.subsystems.swerve.SwerveConstants.FRONT_LEFT;
+import static frc.robot.subsystems.swerve.SwerveConstants.FRONT_RIGHT;
+import static frc.robot.subsystems.swerve.SwerveConstants.GYRO_TYPE;
+import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.BACK_CAM_CONSTANTS;
+import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.BACK_CAM_ENABLED;
+import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.LEFT_CAM_CONSTANTS;
+import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.LEFT_CAM_ENABLED;
+import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.RIGHT_CAM_CONSTANTS;
+import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.RIGHT_CAM_ENABLED;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.PathConstraints;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -38,7 +53,16 @@ import frc.robot.OI.DriverMap;
 import frc.robot.OI.OperatorMap;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.swerve.*;
+import frc.robot.subsystems.Superstructure.SuperStates;
+import frc.robot.subsystems.swerve.GyroIO;
+import frc.robot.subsystems.swerve.GyroIONavX;
+import frc.robot.subsystems.swerve.GyroIOPigeon2;
+import frc.robot.subsystems.swerve.GyroIOSim;
+import frc.robot.subsystems.swerve.ModuleIO;
+import frc.robot.subsystems.swerve.ModuleIOSim;
+import frc.robot.subsystems.swerve.ModuleIOSpark;
+import frc.robot.subsystems.swerve.SwerveConstants;
+import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
@@ -148,8 +172,7 @@ public class RobotContainer {
                     ? new VisionIOPhotonVisionSim(RIGHT_CAM_CONSTANTS, drive::getPose)
                     : new VisionIO() {},
                 BACK_CAM_ENABLED
-                    ? new VisionIOPhotonVisionSim(
-                        BACK_CAM_CONSTANTS, driveSimulation::getSimulatedDriveTrainPose)
+                    ? new VisionIOPhotonVisionSim(BACK_CAM_CONSTANTS, drive::getPose)
                     : new VisionIO() {});
             case SIM -> new Vision(
                 drive,
@@ -206,33 +229,34 @@ public class RobotContainer {
 
       // set target to right align
       driver
-        .rightAlign().and(superstructure.coralMode())
-        .onTrue(Commands.run(() -> DriveCommands.setLeftAlign(false)));
+          .rightAlign()
+          .and(superstructure.coralMode())
+          .onTrue(Commands.run(() -> DriveCommands.setLeftAlign(false)));
 
-    // set target to left align
-    driver
-        .leftAlign().and(superstructure.coralMode())
-        .onTrue(Commands.run(() -> DriveCommands.setLeftAlign(true)));
-    
+      // set target to left align
+      driver
+          .leftAlign()
+          .and(superstructure.coralMode())
+          .onTrue(Commands.run(() -> DriveCommands.setLeftAlign(true)));
+
       // align to right side of reef face
-      new Trigger(driver
-        .rightAlign().or(driver.leftAlign())).and(superstructure.coralMode())
-        .whileTrue(DriveCommands.alignToReefCommand(drive));
+      new Trigger(driver.rightAlign().or(driver.leftAlign()))
+          .and(superstructure.coralMode())
+          .whileTrue(DriveCommands.alignToReefCommand(drive));
 
       // align to coral station with position customization when right trigger is pressed
       driver
           .coralStation()
           .whileTrue(DriveCommands.alignToNearestCoralStationCommand(drive, driver.getYAxis()));
 
+      PathConstraints constraints = new PathConstraints(0.5, 1, 0.5, 0.5);
 
-    
-
-    PathConstraints constraints = new PathConstraints(0.5, 1, 0.5, 0.5);
-
-    driver
-        .leftAlign().and(superstructure.coralMode().negate())
-        .whileTrue(AutoBuilder.pathfindToPose(GlobalConstants.FieldMap.Coordinates.PROCESSOR.getPose(), constraints));
-
+      driver
+          .leftAlign()
+          .and(superstructure.coralMode().negate())
+          .whileTrue(
+              AutoBuilder.pathfindToPose(
+                  GlobalConstants.FieldMap.Coordinates.PROCESSOR.getPose(), constraints));
 
       // Reset gyro to 0° when B button is pressed
       driver
@@ -248,7 +272,14 @@ public class RobotContainer {
   }
 
   private void configureOperatorButtonBindings() {
-
+    operator.LevelOne().onTrue(superstructure.setSuperStateCmd(LEVEL_ONE));
+    operator.LevelTwo().onTrue(superstructure.setSuperStateCmd(LEVEL_TWO));
+    operator.LevelThree().onTrue(superstructure.setSuperStateCmd(LEVEL_THREE));
+    operator.LevelFour().onTrue(superstructure.setSuperStateCmd(LEVEL_FOUR));
+    operator.Intake().onTrue(superstructure.setSuperStateCmd(INTAKE));
+    operator.Outake().onTrue(superstructure.setSuperStateCmd(OUTAKE));
+    operator.Idle().onTrue(superstructure.setSuperStateCmd(IDLING));
+    operator.Testing().onTrue(superstructure.setSuperStateCmd(SuperStates.TESTING));
   }
 
   /** Write all the auto named commands here */

@@ -1,12 +1,14 @@
 package frc.robot.subsystems.pivot;
 
-import static frc.robot.GlobalConstants.*;
 import static frc.robot.GlobalConstants.ROBOT;
 
+import frc.robot.GlobalConstants.Gains;
+
 public final class PivotConstants {
-  public static final int PIVOT_ID = 24;
+  public static final int PIVOT_ID = 21;
+  public static final boolean INVERTED = false;
   // Whether the motors on the Pivot are flex motors
-  public static final boolean IS_FLEX = true;
+  public static final boolean IS_FLEX = false;
 
   // Tuned in REV Hardware Client for real bots, but should we use LTNs?
   public static final Gains GAINS =

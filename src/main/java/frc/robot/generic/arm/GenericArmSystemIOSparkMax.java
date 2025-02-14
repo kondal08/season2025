@@ -1,63 +1,79 @@
 package frc.robot.generic.arm;
 
-import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.*;
+import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkLowLevel;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.util.Units;
-import java.util.*;
 
 public class GenericArmSystemIOSparkMax implements GenericArmSystemIO {
-  private final List<SparkMax> motors = new ArrayList<>();
-  private SparkMax leader;
-  private RelativeEncoder encoder;
-  private SparkClosedLoopController controller;
+  private final SparkMax[] motors;
+  private final RelativeEncoder encoder;
   private double restingAngle;
+  private final double reduction;
+  private SparkBaseConfig config;
+  private SparkClosedLoopController controller;
 
   public GenericArmSystemIOSparkMax(
-      double restingAngle, SparkMaxConfig config, Map<Integer, Boolean> idToInverted) {
+      int[] id,
+      boolean[] inverted,
+      int currentLimitAmps,
+      double restingAngle,
+      boolean brake,
+      double reduction,
+      double kP,
+      double kI,
+      double kD) {
+    this.reduction = reduction;
     this.restingAngle = restingAngle;
+    motors = new SparkMax[id.length];
+    config =
+        new SparkMaxConfig()
+            .smartCurrentLimit(currentLimitAmps)
+            .idleMode(brake ? SparkBaseConfig.IdleMode.kBrake : SparkBaseConfig.IdleMode.kCoast);
+    config
+        .closedLoop
+        .pid(kP, kI, kD)
+        .maxMotion
+        .maxAcceleration(6000)
+        .maxVelocity(6000)
+        .allowedClosedLoopError(0.2);
 
-    for (Integer id : idToInverted.keySet()) {
-      motors.add(new SparkMax(id, MotorType.kBrushless));
+    for (int i = 0; i < id.length; i++) {
+      motors[i] = new SparkMax(id[i], SparkLowLevel.MotorType.kBrushless);
+
+      if (i == 0)
+        motors[i].configure(
+            config.inverted(inverted[i]),
+            ResetMode.kResetSafeParameters,
+            PersistMode.kPersistParameters);
+      else
+        motors[i].configure(
+            new SparkMaxConfig().apply(config.inverted(inverted[i])).follow(motors[0]),
+            ResetMode.kResetSafeParameters,
+            PersistMode.kPersistParameters);
     }
-
-    if (motors.size() > 0) {
-      leader = motors.get(0);
-      leader.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-      encoder = leader.getEncoder();
-      controller = leader.getClosedLoopController();
-    }
-
-    if (motors.size() > 1)
-      motors.stream()
-          .skip(1)
-          .forEach(
-              follower ->
-                  follower.configure(
-                      new SparkMaxConfig().apply(config).follow(leader, true),
-                      ResetMode.kResetSafeParameters,
-                      PersistMode.kPersistParameters));
+    encoder = motors[0].getEncoder();
+    controller = motors[0].getClosedLoopController();
   }
 
   public void updateInputs(GenericArmSystemIOInputs inputs) {
-    for (int i = 0; i < motors.size(); i++)
-      inputs.connected[i] = motors.get(i).clearFaults() == REVLibError.kOk;
-    if (leader != null) {
+    if (motors != null) {
       inputs.degrees = Units.rotationsToDegrees(encoder.getPosition());
       inputs.velocityRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity());
-      inputs.appliedVoltage = leader.getAppliedOutput() * leader.getBusVoltage();
-      inputs.supplyCurrentAmps = leader.getOutputCurrent();
-      inputs.tempCelsius = leader.getMotorTemperature();
+      inputs.appliedVoltage = motors[0].getAppliedOutput() * motors[0].getBusVoltage();
+      inputs.supplyCurrentAmps = motors[0].getOutputCurrent();
+      inputs.tempCelsius = motors[0].getMotorTemperature();
     }
   }
 
   @Override
   public void runToDegree(double degrees) {
-    if (leader != null)
-      controller.setReference(degrees, SparkBase.ControlType.kMAXMotionPositionControl);
+    controller.setReference(degrees, SparkBase.ControlType.kMAXMotionPositionControl);
   }
 }

@@ -22,7 +22,6 @@ public class PivotSubsystem extends GenericPositionArmSystem<PivotSubsystem.Pivo
     LEVEL_FOUR(new LoggedTunableNumber("Pivot/Level4Angle", RESTING_ANGLE + 50)),
     TESTING(new LoggedTunableNumber("Pivot/Level4Angle", 0.0));
 
-
     private final DoubleSupplier angleSupplier;
   }
 

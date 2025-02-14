@@ -23,8 +23,6 @@ import frc.robot.subsystems.leds.LEDIOPWM;
 import frc.robot.subsystems.leds.LEDIOSim;
 import frc.robot.subsystems.leds.LEDSubsystem;
 import frc.robot.subsystems.pivot.PivotSubsystem;
-
-import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -143,8 +141,7 @@ public class Superstructure extends SubsystemBase {
             rollers.getCoralIntake().setGoal(CoralIntakeSubsystem.CoralIntakeGoal.FORWARD);
           if (ELEVATOR_ENABLED)
             elevators.getElevator().setGoal(ElevatorSubsystem.ElevatorGoal.TESTING);
-        }
-        else {
+        } else {
           if (ALGAE_INTAKE_ENABLED)
             rollers.getAlgaeIntake().setGoal(AlgaeIntakeSubsystem.AlgaeIntakeGoal.FORWARD);
         }
@@ -153,8 +150,7 @@ public class Superstructure extends SubsystemBase {
         if (wantsCoral) {
           if (CORAL_INTAKE_ENABLED)
             rollers.getCoralIntake().setGoal(CoralIntakeSubsystem.CoralIntakeGoal.REVERSE);
-        }
-        else {
+        } else {
           if (ALGAE_INTAKE_ENABLED)
             rollers.getAlgaeIntake().setGoal(AlgaeIntakeSubsystem.AlgaeIntakeGoal.REVERSE);
         }

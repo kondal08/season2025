@@ -44,28 +44,13 @@ public class SimXboxUniversalMap extends CommandXboxController implements Driver
   }
 
   @Override
-  public Trigger intake() {
-    return button(10);
-  }
-
-  @Override
   public Trigger pathToAmp() {
     return button(14);
   }
 
   @Override
-  public Trigger prepShot() {
-    return button(9);
-  }
-
-  @Override
   public Trigger resetOdometry() {
     return button(11);
-  }
-
-  @Override
-  public Trigger shoot() {
-    return button(1);
   }
 
   @Override
@@ -93,5 +78,53 @@ public class SimXboxUniversalMap extends CommandXboxController implements Driver
   @Override
   public Trigger slowMode() {
     return button(3);
+  }
+
+  @Override
+  public Trigger Idle() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'Idle'");
+  }
+
+  @Override
+  public Trigger LevelOne() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'LevelOne'");
+  }
+
+  @Override
+  public Trigger LevelTwo() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'LevelTwo'");
+  }
+
+  @Override
+  public Trigger LevelThree() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'LevelThree'");
+  }
+
+  @Override
+  public Trigger LevelFour() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'LevelFour'");
+  }
+
+  @Override
+  public Trigger Intake() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'Intake'");
+  }
+
+  @Override
+  public Trigger Outake() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'Outake'");
+  }
+
+  @Override
+  public Trigger Testing() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'Testing'");
   }
 }

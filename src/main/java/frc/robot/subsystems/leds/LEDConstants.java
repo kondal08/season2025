@@ -1,10 +1,9 @@
 package frc.robot.subsystems.leds;
 
+import static edu.wpi.first.units.Units.Meters;
+
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.util.Color;
-
-
-import static edu.wpi.first.units.Units.Meters;
 
 public final class LEDConstants {
   public static final int LED_PORT = 3;
@@ -26,8 +25,6 @@ public final class LEDConstants {
   public static int FRONT_RIGHT = 1;
   public static int BACK_LEFT = 2;
   public static int BACK_RIGHT = 3;
-
-
 
   public static final Segment[] SEGMENTS = new Segment[] {new Segment(2, 3, false)};
 

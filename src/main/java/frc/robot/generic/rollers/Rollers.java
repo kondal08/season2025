@@ -20,16 +20,16 @@ public class Rollers extends SubsystemBase {
   private final AlgaeIntakeSubsystem algaeIntake =
       ALGAE_INTAKE_ENABLED
           ? (MODE == GlobalConstants.RobotMode.REAL
-              ? new AlgaeIntakeSubsystem("Feeder", new AlgaeIntakeIOMax())
+              ? new AlgaeIntakeSubsystem("Algae_intake", new AlgaeIntakeIOMax())
               : new AlgaeIntakeSubsystem(
                   "Feeder Sim", new AlgaeIntakeIOSim(new DCMotor(1, 1, 1, 1, 1, 1), 0, 0)))
           : null;
 
   @Getter
   private final CoralIntakeSubsystem coralIntake =
-      ALGAE_INTAKE_ENABLED
+      CORAL_INTAKE_ENABLED
           ? (MODE == GlobalConstants.RobotMode.REAL
-              ? new CoralIntakeSubsystem("Feeder", new CoralIntakeIOMax())
+              ? new CoralIntakeSubsystem("Coral_intake", new CoralIntakeIOMax())
               : new CoralIntakeSubsystem(
                   "Feeder Sim", new CoralIntakeIOSim(new DCMotor(1, 1, 1, 1, 1, 1), 0, 0)))
           : null;

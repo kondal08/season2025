@@ -1,7 +1,6 @@
 package frc.robot.subsystems.leds;
 
 import edu.wpi.first.wpilibj.LEDPattern;
-import edu.wpi.first.wpilibj.util.Color;
 import org.littletonrobotics.junction.AutoLog;
 
 /**
@@ -15,15 +14,11 @@ public interface LEDIO {
     // No sensors so no inputs
   }
 
-  default void setPattern(int idx, LEDPattern pattern) {
-  }
+  default void setPattern(int idx, LEDPattern pattern) {}
 
-  default void setPatterns(LEDPattern[] patterns) {
-  }
+  default void setPatterns(LEDPattern[] patterns) {}
 
-  default void setAllPattern(LEDPattern pattern) {
-  }
+  default void setAllPattern(LEDPattern pattern) {}
 
-  default public void periodic() {
-  }
+  public default void periodic() {}
 }

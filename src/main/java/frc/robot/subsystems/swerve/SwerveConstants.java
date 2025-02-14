@@ -1,7 +1,8 @@
 package frc.robot.subsystems.swerve;
 
-import static edu.wpi.first.units.Units.*;
-import static frc.robot.GlobalConstants.*;
+import static edu.wpi.first.units.Units.Kilograms;
+import static edu.wpi.first.units.Units.Meters;
+import static frc.robot.GlobalConstants.ROBOT;
 import static java.lang.Math.PI;
 
 import com.pathplanner.lib.config.ModuleConfig;
@@ -11,6 +12,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import frc.robot.GlobalConstants.Gains;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 
@@ -60,14 +62,14 @@ public final class SwerveConstants {
 
   // Device CAN IDs
   static final int PIGEON_ID = 30;
-  private static final int FRD_ID = 42;
-  private static final int FRR_ID = 5;
-  private static final int FLD_ID = 41;
-  private static final int FLR_ID = 1;
-  private static final int BRD_ID = 43;
-  private static final int BRR_ID = 7;
-  private static final int BLD_ID = 40;
-  private static final int BLR_ID = 3;
+  private static final int FRD_ID = 31;
+  private static final int FRR_ID = 13;
+  private static final int FLD_ID = 32;
+  private static final int FLR_ID = 11;
+  private static final int BRD_ID = 33;
+  private static final int BRR_ID = 14;
+  private static final int BLD_ID = 34;
+  private static final int BLR_ID = 12;
 
   // Zeroed rotation values for each module, see setup instructions
   private static final Rotation2d FLR_ZERO = Rotation2d.fromRadians(-PI / 2);

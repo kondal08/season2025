@@ -20,9 +20,9 @@ public class GenericElevatorSystemIOSparkMax implements GenericElevatorSystemIO 
 
   public GenericElevatorSystemIOSparkMax(
       int[] id,
+      boolean[] inverted,
       int currentLimitAmps,
       double restingAngle,
-      boolean invert,
       boolean brake,
       double reduction,
       double kP,
@@ -34,7 +34,6 @@ public class GenericElevatorSystemIOSparkMax implements GenericElevatorSystemIO 
     config =
         new SparkMaxConfig()
             .smartCurrentLimit(currentLimitAmps)
-            .inverted(invert)
             .idleMode(brake ? SparkBaseConfig.IdleMode.kBrake : SparkBaseConfig.IdleMode.kCoast);
     config
         .closedLoop
@@ -48,10 +47,13 @@ public class GenericElevatorSystemIOSparkMax implements GenericElevatorSystemIO 
       motors[i] = new SparkMax(id[i], SparkLowLevel.MotorType.kBrushless);
 
       if (i == 0)
-        motors[i].configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        motors[i].configure(
+            config.inverted(inverted[i]),
+            ResetMode.kResetSafeParameters,
+            PersistMode.kPersistParameters);
       else
         motors[i].configure(
-            new SparkMaxConfig().apply(config).follow(motors[0]),
+            new SparkMaxConfig().apply(config.inverted(inverted[i])).follow(motors[0]),
             ResetMode.kResetSafeParameters,
             PersistMode.kPersistParameters);
     }

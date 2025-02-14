@@ -19,24 +19,56 @@ public class XboxOperatorMap extends CommandXboxController implements OperatorMa
   }
 
   @Override
-  public Trigger shoot() {
-    return b();
-  }
-
-  // TODO: add intake button
-  @Override
-  public Trigger intake() {
-    return leftBumper();
-  }
-
-  @Override
   public Command rumble() {
     return startEnd(
         () -> getHID().setRumble(kBothRumble, 1), () -> getHID().setRumble(kBothRumble, 0));
   }
 
   @Override
-  public Trigger prepShot() {
-    return a();
+  public Trigger Idle() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'Idle'");
+  }
+
+  @Override
+  public Trigger LevelOne() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'LevelOne'");
+  }
+
+  @Override
+  public Trigger LevelTwo() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'LevelTwo'");
+  }
+
+  @Override
+  public Trigger LevelThree() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'LevelThree'");
+  }
+
+  @Override
+  public Trigger LevelFour() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'LevelFour'");
+  }
+
+  @Override
+  public Trigger Intake() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'Intake'");
+  }
+
+  @Override
+  public Trigger Outake() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'Outake'");
+  }
+
+  @Override
+  public Trigger Testing() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'Testing'");
   }
 }
