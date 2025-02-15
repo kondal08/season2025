@@ -25,6 +25,7 @@ import static frc.robot.subsystems.Superstructure.SuperStates.LEVEL_ONE;
 import static frc.robot.subsystems.Superstructure.SuperStates.LEVEL_THREE;
 import static frc.robot.subsystems.Superstructure.SuperStates.LEVEL_TWO;
 import static frc.robot.subsystems.Superstructure.SuperStates.OUTAKE;
+import static frc.robot.subsystems.Superstructure.SuperStates.TESTING;
 import static frc.robot.subsystems.swerve.SwerveConstants.BACK_LEFT;
 import static frc.robot.subsystems.swerve.SwerveConstants.BACK_RIGHT;
 import static frc.robot.subsystems.swerve.SwerveConstants.FRONT_LEFT;
@@ -53,7 +54,6 @@ import frc.robot.OI.DriverMap;
 import frc.robot.OI.OperatorMap;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.Superstructure.SuperStates;
 import frc.robot.subsystems.swerve.GyroIO;
 import frc.robot.subsystems.swerve.GyroIONavX;
 import frc.robot.subsystems.swerve.GyroIOPigeon2;
@@ -279,14 +279,23 @@ public class RobotContainer {
   }
 
   private void configureOperatorButtonBindings() {
-    operator.LevelOne().onTrue(superstructure.setSuperStateCmd(LEVEL_ONE));
-    operator.LevelTwo().onTrue(superstructure.setSuperStateCmd(LEVEL_TWO));
-    operator.LevelThree().onTrue(superstructure.setSuperStateCmd(LEVEL_THREE));
-    operator.LevelFour().onTrue(superstructure.setSuperStateCmd(LEVEL_FOUR));
-    operator.Intake().onTrue(superstructure.setSuperStateCmd(INTAKE));
-    operator.Outake().onTrue(superstructure.setSuperStateCmd(OUTAKE));
-    operator.Idle().onTrue(superstructure.setSuperStateCmd(IDLING));
-    operator.Testing().onTrue(superstructure.setSuperStateCmd(SuperStates.TESTING));
+    operator.Idle().whileTrue(superstructure.setSuperStateCmd(IDLING));
+
+    operator.LevelOne().whileTrue(superstructure.setSuperStateCmd(LEVEL_ONE));
+
+    operator.LevelTwo().whileTrue(superstructure.setSuperStateCmd(LEVEL_TWO));
+
+    operator.LevelThree().whileTrue(superstructure.setSuperStateCmd(LEVEL_THREE));
+
+    operator.LevelFour().whileTrue(superstructure.setSuperStateCmd(LEVEL_FOUR));
+
+    operator.Intake().whileTrue(superstructure.setSuperStateCmd(INTAKE));
+
+    operator.Outake().whileTrue(superstructure.setSuperStateCmd(OUTAKE));
+
+    operator.Testing()
+        .whileTrue(superstructure.setSuperStateCmd(TESTING))
+        .whileFalse(superstructure.setSuperStateCmd(IDLING));
   }
 
   /** Write all the auto named commands here */

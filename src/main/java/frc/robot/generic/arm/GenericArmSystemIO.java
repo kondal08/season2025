@@ -13,6 +13,8 @@ public interface GenericArmSystemIO {
     public double torqueCurrentAmps = 0.0;
     public double tempCelsius = 0.0;
     public double degrees = 0.0;
+    public double goal = 0.0;
+    public double rotations = 0.0;
   }
 
   default void updateInputs(GenericArmSystemIOInputs inputs) {}

@@ -1,5 +1,8 @@
 package frc.robot.subsystems.climber;
 
+import frc.robot.util.LoggedTunableNumber;
+import java.util.function.DoubleSupplier;
+
 public final class ClimberConstants {
   public static final int LEFT_CLIMBER = 23; // TODO: Change to correct Motor ID's
   public static final boolean LEFT_INVERTED = true;
@@ -9,7 +12,8 @@ public final class ClimberConstants {
 
   public static final boolean isFlex = false; // if the motors on the climber are flex motors
 
-  public static final double kP = 0.02; // 0.4 pid for neo
-  public static final double kI = 0.0;
-  public static final double kD = 0.0;
+  public static final DoubleSupplier kP =
+      new LoggedTunableNumber("Climber/kP", 0.4); // 0.4 pid for neo
+  public static final DoubleSupplier kI = new LoggedTunableNumber("Climber/kI", 0);
+  public static final DoubleSupplier kD = new LoggedTunableNumber("Climber/kD", 0);
 }

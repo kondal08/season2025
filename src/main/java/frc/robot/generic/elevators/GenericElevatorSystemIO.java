@@ -13,6 +13,7 @@ public interface GenericElevatorSystemIO {
     public double supplyCurrentAmps = 0.0;
     public double torqueCurrentAmps = 0.0;
     public double tempCelsius = 0.0;
+    public double goal = 0.0;
   }
 
   default void updateInputs(GenericElevatorSystemIOInputs inputs) {}

@@ -1,7 +1,6 @@
 package frc.robot.subsystems.pivot;
 
 import frc.robot.generic.arm.GenericArmSystemIOSparkMax;
-import frc.robot.subsystems.climber.ClimberConstants;
 
 public class PivotIOMax extends GenericArmSystemIOSparkMax implements PivotIO {
 
@@ -13,8 +12,8 @@ public class PivotIOMax extends GenericArmSystemIOSparkMax implements PivotIO {
         0.0,
         true,
         1.0,
-        ClimberConstants.kP,
-        ClimberConstants.kI,
-        ClimberConstants.kD);
+        PivotConstants.kP,
+        PivotConstants.kI,
+        PivotConstants.kD);
   }
 }
