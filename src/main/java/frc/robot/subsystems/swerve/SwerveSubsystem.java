@@ -13,7 +13,8 @@
 
 package frc.robot.subsystems.swerve;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.GlobalConstants.RobotMode.SIM;
 import static frc.robot.subsystems.swerve.SwerveConstants.PATHPLANNER_CONFIG;
 

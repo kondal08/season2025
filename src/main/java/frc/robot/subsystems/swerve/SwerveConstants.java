@@ -104,6 +104,9 @@ public final class SwerveConstants {
   public static final DCMotor DRIVE_GEARBOX = DCMotor.getNeoVortex(1);
 
   public static final double DRIVE_GEAR_RATIO = 5.08;
+
+  static final boolean DRIVE_INVERTED = true;
+
   /** Amps */
   static final int DRIVE_MOTOR_CURRENT_LIMIT = 40;
   /** Amps */

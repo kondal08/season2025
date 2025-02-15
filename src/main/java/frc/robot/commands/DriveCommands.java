@@ -217,8 +217,8 @@ public class DriveCommands {
    */
   public static Command chasePoseRobotRelativeCommandYOverride(
       SwerveSubsystem drive, Supplier<Transform2d> targetOffset, DoubleSupplier yDriver) {
-    TrapezoidProfile.Constraints X_CONSTRAINTS = new TrapezoidProfile.Constraints(3, 2);
-    TrapezoidProfile.Constraints Y_CONSTRAINTS = new TrapezoidProfile.Constraints(3, 2);
+    TrapezoidProfile.Constraints X_CONSTRAINTS = new TrapezoidProfile.Constraints(1, 1);
+    TrapezoidProfile.Constraints Y_CONSTRAINTS = new TrapezoidProfile.Constraints(1, 1);
     // TrapezoidProfile.Constraints OMEGA_CONSTRAINTS =   new TrapezoidProfile.Constraints(1, 1.5);
 
     ProfiledPIDController xController = new ProfiledPIDController(0.5, 0, 0, X_CONSTRAINTS);
@@ -239,8 +239,7 @@ public class DriveCommands {
                 () -> {
                   double driverInputFactor = 0.5;
                   double ySpeed = yDriver.getAsDouble() * driverInputFactor;
-                  double xSpeed =
-                      Math.min(0.5, xController.calculate(0, targetOffset.get().getX()));
+                  double xSpeed = xController.calculate(0, targetOffset.get().getX());
                   double omegaSpeed =
                       omegaPID.calculate(0, targetOffset.get().getRotation().getDegrees());
                   DriveCommands.robotRelativeChassisSpeedDrive(
@@ -252,7 +251,7 @@ public class DriveCommands {
                   System.out.println("aligned now");
                 },
                 () -> {
-                  return omegaPID.atSetpoint() && xController.atGoal();
+                  return false;
                 },
                 drive),
         Set.of(drive));
@@ -282,19 +281,16 @@ public class DriveCommands {
         () -> {
           // find the coordinates of the selected face
           Supplier<Pose2d> targetFace;
-          if (targetReefFace == 1)
-            targetFace = () -> GlobalConstants.FieldMap.Coordinates.REEF_1.getPose();
-          else if (targetReefFace == 2)
-            targetFace = () -> GlobalConstants.FieldMap.Coordinates.REEF_2.getPose();
-          else if (targetReefFace == 3)
-            targetFace = () -> GlobalConstants.FieldMap.Coordinates.REEF_3.getPose();
-          else if (targetReefFace == 4)
-            targetFace = () -> GlobalConstants.FieldMap.Coordinates.REEF_4.getPose();
-          else if (targetReefFace == 5)
-            targetFace = () -> GlobalConstants.FieldMap.Coordinates.REEF_5.getPose();
-          else if (targetReefFace == 6)
-            targetFace = () -> GlobalConstants.FieldMap.Coordinates.REEF_6.getPose();
-          else targetFace = findClosestReefFace(drive);
+          targetFace =
+              switch (targetReefFace) {
+                case 1 -> () -> GlobalConstants.FieldMap.Coordinates.REEF_1.getPose();
+                case 2 -> () -> GlobalConstants.FieldMap.Coordinates.REEF_2.getPose();
+                case 3 -> () -> GlobalConstants.FieldMap.Coordinates.REEF_3.getPose();
+                case 4 -> () -> GlobalConstants.FieldMap.Coordinates.REEF_4.getPose();
+                case 5 -> () -> GlobalConstants.FieldMap.Coordinates.REEF_5.getPose();
+                case 6 -> () -> GlobalConstants.FieldMap.Coordinates.REEF_6.getPose();
+                default -> findClosestReefFace(drive);
+              };
 
           double xOffset =
               Units.feetToMeters(-GlobalConstants.AlignOffsets.BUMPER_TO_CENTER_OFFSET / 12);

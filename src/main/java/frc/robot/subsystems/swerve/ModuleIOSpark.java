@@ -13,17 +13,35 @@
 
 package frc.robot.subsystems.swerve;
 
-import static frc.robot.subsystems.swerve.SwerveConstants.*;
-import static frc.robot.util.SparkUtil.*;
+import static frc.robot.subsystems.swerve.SwerveConstants.DRIVE_ENCODER_POSITION_FACTOR;
+import static frc.robot.subsystems.swerve.SwerveConstants.DRIVE_ENCODER_VELOCITY_FACTOR;
+import static frc.robot.subsystems.swerve.SwerveConstants.DRIVE_INVERTED;
+import static frc.robot.subsystems.swerve.SwerveConstants.DRIVE_MOTOR_CURRENT_LIMIT;
+import static frc.robot.subsystems.swerve.SwerveConstants.DRIVE_MOTOR_GAINS;
+import static frc.robot.subsystems.swerve.SwerveConstants.ROTATOR_ENCODER_INVERTED;
+import static frc.robot.subsystems.swerve.SwerveConstants.ROTATOR_ENCODER_POSITION_FACTOR;
+import static frc.robot.subsystems.swerve.SwerveConstants.ROTATOR_ENCODER_VELOCITY_FACTOR;
+import static frc.robot.subsystems.swerve.SwerveConstants.ROTATOR_GAINS;
+import static frc.robot.subsystems.swerve.SwerveConstants.ROTATOR_INVERTED;
+import static frc.robot.subsystems.swerve.SwerveConstants.ROTATOR_MOTOR_CURRENT_LIMIT_AMPS;
+import static frc.robot.subsystems.swerve.SwerveConstants.ROTATOR_PID_MAX_INPUT;
+import static frc.robot.subsystems.swerve.SwerveConstants.ROTATOR_PID_MIN_INPUT;
+import static frc.robot.util.SparkUtil.ifOk;
+import static frc.robot.util.SparkUtil.sparkStickyFault;
+import static frc.robot.util.SparkUtil.tryUntilOk;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.*;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
@@ -32,6 +50,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.GlobalConstants;
+import frc.robot.subsystems.swerve.SwerveConstants.ModuleConstants;
 import java.util.Queue;
 import java.util.function.DoubleSupplier;
 
@@ -73,6 +92,7 @@ public class ModuleIOSpark implements ModuleIO {
     // Configure drive motor
     var driveConfig = new SparkFlexConfig();
     driveConfig
+        .inverted(DRIVE_INVERTED)
         .idleMode(IdleMode.kBrake)
         .smartCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT)
         .voltageCompensation(12.0);

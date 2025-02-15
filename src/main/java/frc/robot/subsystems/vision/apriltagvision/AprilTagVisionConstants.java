@@ -8,14 +8,15 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.function.DoubleSupplier;
 
-// TODO tune all of these!!
+// TODO tune all of these!! Make sure that the robot-relative coords are correct - this will cause
+// rapid pose oscillation
 public final class AprilTagVisionConstants {
-  public static final boolean LEFT_CAM_ENABLED = true;
+  public static final boolean LEFT_CAM_ENABLED = false;
   public static final VisionIO.CameraConstants LEFT_CAM_CONSTANTS =
       new VisionIO.CameraConstants(
           "lefttagcam",
           new Transform3d(
-              0.3, -0.3, 0.2, new Rotation3d(0, degreesToRadians(-20), degreesToRadians(0))),
+              0.3102, 0.3102, 0.26, new Rotation3d(0, degreesToRadians(-20), degreesToRadians(0))),
           VisionIO.CameraType.OV9281);
 
   public static final boolean RIGHT_CAM_ENABLED = true;
@@ -23,7 +24,7 @@ public final class AprilTagVisionConstants {
       new VisionIO.CameraConstants(
           "righttagcam",
           new Transform3d(
-              0.3, 0.3, 0.2, new Rotation3d(0, degreesToRadians(-20), degreesToRadians(0))),
+              0.3102, -0.3102, 0.26, new Rotation3d(0, degreesToRadians(-20), degreesToRadians(0))),
           VisionIO.CameraType.OV9281);
 
   public static final boolean BACK_CAM_ENABLED = true;
@@ -31,7 +32,10 @@ public final class AprilTagVisionConstants {
       new VisionIO.CameraConstants(
           "backtagcam",
           new Transform3d(
-              -0.3, 0.0, 0.2, new Rotation3d(0, degreesToRadians(-20), degreesToRadians(180))),
+              -0.2927,
+              0.3127,
+              0.275,
+              new Rotation3d(0, degreesToRadians(-14), degreesToRadians(180 + 25))),
           VisionIO.CameraType.OV9281);
 
   public static final DoubleSupplier TRANSLATION_EULER_MULTIPLIER =
