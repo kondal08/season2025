@@ -45,15 +45,16 @@ public class GenericArmSystemIOSparkMax implements GenericArmSystemIO {
         new SparkFlexConfig()
             .smartCurrentLimit(currentLimitAmps)
             .idleMode(brake ? SparkBaseConfig.IdleMode.kBrake : SparkBaseConfig.IdleMode.kCoast);
+    config.absoluteEncoder.inverted(true);
     config
         .closedLoop
         .pid(kP.getAsDouble(), kI.getAsDouble(), kD.getAsDouble())
+        .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
         .maxMotion
         .maxAcceleration(6000)
         .maxVelocity(6000)
-        .allowedClosedLoopError(0.2);
-
-    config.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
+        .allowedClosedLoopError(0.002);
+    config.softLimit.forwardSoftLimit(0.48).reverseSoftLimit(0.1);
 
     for (int i = 0; i < id.length; i++) {
       motors[i] = new SparkMax(id[i], SparkLowLevel.MotorType.kBrushless);
@@ -86,13 +87,16 @@ public class GenericArmSystemIOSparkMax implements GenericArmSystemIO {
   }
 
   @Override
-  public void runToDegree(double position) {
+  public void runToDegree(double angle) {
     config.closedLoop.pid(kp.getAsDouble(), ki.getAsDouble(), kd.getAsDouble());
     motors[0].configure(
         config.inverted(inverted[0]),
         ResetMode.kNoResetSafeParameters,
         PersistMode.kNoPersistParameters);
-    controller.setReference(position, ControlType.kMAXMotionPositionControl);
-    goal = position;
+    if (angle >= 0.1 && angle <= 0.480) {
+      controller.setReference(angle, ControlType.kMAXMotionPositionControl);
+      System.out.print("hello");
+    }
+    goal = angle;
   }
 }

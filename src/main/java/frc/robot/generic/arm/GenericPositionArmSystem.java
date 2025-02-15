@@ -8,7 +8,7 @@ import org.littletonrobotics.junction.Logger;
 
 public abstract class GenericPositionArmSystem<G extends GenericPositionArmSystem.PivotGoal> {
   public interface PivotGoal {
-    DoubleSupplier getAngleSupplier();
+    DoubleSupplier getAngle();
   }
 
   public abstract G getGoal();
@@ -52,7 +52,7 @@ public abstract class GenericPositionArmSystem<G extends GenericPositionArmSyste
       lastGoal = getGoal();
     }
 
-    io.runToDegree(getGoal().getAngleSupplier().getAsDouble());
+    io.runToDegree(getGoal().getAngle().getAsDouble());
 
     Logger.recordOutput(name + "/Goal", getGoal().toString());
   }

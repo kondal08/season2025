@@ -44,12 +44,9 @@ public class GenericElevatorSystemIOSparkMax implements GenericElevatorSystemIO 
             .smartCurrentLimit(currentLimitAmps)
             .idleMode(brake ? SparkBaseConfig.IdleMode.kBrake : SparkBaseConfig.IdleMode.kCoast);
     config
-        .closedLoop
-        .pid(kP.getAsDouble(), kI.getAsDouble(), kD.getAsDouble())
-        .maxMotion
-        .maxAcceleration(6000)
-        .maxVelocity(6000)
-        .allowedClosedLoopError(0.2);
+      .closedLoop
+        .pid(kP.getAsDouble(), kI.getAsDouble(), kD.getAsDouble());
+    
 
     for (int i = 0; i < id.length; i++) {
       motors[i] = new SparkMax(id[i], SparkLowLevel.MotorType.kBrushless);
@@ -81,12 +78,7 @@ public class GenericElevatorSystemIOSparkMax implements GenericElevatorSystemIO 
 
   @Override
   public void runPosition(double position) {
-    config.closedLoop.pid(kp.getAsDouble(), ki.getAsDouble(), kd.getAsDouble());
-    motors[0].configure(
-        config.inverted(inverted[0]),
-        ResetMode.kNoResetSafeParameters,
-        PersistMode.kNoPersistParameters);
-    controller.setReference(position, ControlType.kMAXMotionPositionControl);
+    controller.setReference(position, ControlType.kPosition);
     goal = position;
   }
 }

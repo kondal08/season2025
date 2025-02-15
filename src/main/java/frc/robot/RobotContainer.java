@@ -297,9 +297,7 @@ public class RobotContainer {
 
     operator.Outake().whileTrue(superstructure.setSuperStateCmd(OUTAKE));
 
-    operator.Testing()
-        .whileTrue(superstructure.setSuperStateCmd(TESTING))
-        .whileFalse(superstructure.setSuperStateCmd(IDLING));
+    operator.Testing().whileTrue(superstructure.setSuperStateCmd(TESTING));
   }
 
   /** Write all the auto named commands here */
