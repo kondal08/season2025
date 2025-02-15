@@ -17,7 +17,7 @@ public final class Config {
     public static final boolean GAME_PIECE_VISION_ENABLED = false;
     public static final boolean ALGAE_INTAKE_ENABLED = false;
     public static final boolean CORAL_INTAKE_ENABLED = false;
-    public static final boolean PIVOT_ENABLED = false;
+    public static final boolean PIVOT_ENABLED = true;
     public static final boolean CLIMBER_ENABLED = false;
     public static final boolean LEDS_ENABLED = false;
     public static final boolean ELEVATOR_ENABLED = true;

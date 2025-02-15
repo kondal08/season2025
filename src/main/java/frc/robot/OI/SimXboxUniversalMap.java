@@ -139,4 +139,10 @@ public class SimXboxUniversalMap extends CommandXboxController implements Driver
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'WantsAlgae'");
   }
+
+  @Override
+  public Trigger Source() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'Source'");
+  }
 }

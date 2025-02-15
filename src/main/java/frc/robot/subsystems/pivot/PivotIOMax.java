@@ -10,7 +10,7 @@ public class PivotIOMax extends GenericArmSystemIOSparkMax implements PivotIO {
         new boolean[] {PivotConstants.INVERTED},
         40,
         0.0,
-        true,
+        false,
         1.0,
         PivotConstants.kP,
         PivotConstants.kI,

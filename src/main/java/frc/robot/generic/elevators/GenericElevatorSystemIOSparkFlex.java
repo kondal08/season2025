@@ -43,9 +43,7 @@ public class GenericElevatorSystemIOSparkFlex implements GenericElevatorSystemIO
         new SparkFlexConfig()
             .smartCurrentLimit(currentLimitAmps)
             .idleMode(brake ? SparkBaseConfig.IdleMode.kBrake : SparkBaseConfig.IdleMode.kCoast);
-    config
-        .closedLoop
-        .pid(kP.getAsDouble(), kI.getAsDouble(), kD.getAsDouble());
+    config.closedLoop.pid(kP.getAsDouble(), kI.getAsDouble(), kD.getAsDouble());
 
     for (int i = 0; i < id.length; i++) {
       motors[i] = new SparkFlex(id[i], SparkLowLevel.MotorType.kBrushless);

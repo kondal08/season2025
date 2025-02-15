@@ -83,4 +83,10 @@ public class XboxOperatorMap extends CommandXboxController implements OperatorMa
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'WantsAlgae'");
   }
+
+  @Override
+  public Trigger Source() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'Source'");
+  }
 }

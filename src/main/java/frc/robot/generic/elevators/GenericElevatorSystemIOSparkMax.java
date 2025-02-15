@@ -43,10 +43,7 @@ public class GenericElevatorSystemIOSparkMax implements GenericElevatorSystemIO 
         new SparkFlexConfig()
             .smartCurrentLimit(currentLimitAmps)
             .idleMode(brake ? SparkBaseConfig.IdleMode.kBrake : SparkBaseConfig.IdleMode.kCoast);
-    config
-      .closedLoop
-        .pid(kP.getAsDouble(), kI.getAsDouble(), kD.getAsDouble());
-    
+    config.closedLoop.pid(kP.getAsDouble(), kI.getAsDouble(), kD.getAsDouble());
 
     for (int i = 0; i < id.length; i++) {
       motors[i] = new SparkMax(id[i], SparkLowLevel.MotorType.kBrushless);

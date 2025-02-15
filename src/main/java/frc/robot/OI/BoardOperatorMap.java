@@ -57,4 +57,9 @@ public class BoardOperatorMap extends CommandGenericHID implements OperatorMap {
   public Trigger WantsAlgae() {
     return button(10);
   }
+
+  @Override
+  public Trigger Source() {
+    return button(11);
+  }
 }

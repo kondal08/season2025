@@ -292,19 +292,20 @@ public class DriveCommands {
                 default -> findClosestReefFace(drive);
               };
 
-          double xOffset =
-              Units.feetToMeters(-GlobalConstants.AlignOffsets.BUMPER_TO_CENTER_OFFSET / 12);
+          double xOffset = GlobalConstants.AlignOffsets.BUMPER_TO_CENTER_OFFSET;
           double yOffset =
-              Units.feetToMeters(GlobalConstants.AlignOffsets.REEF_TO_BRANCH_OFFSET / 12)
+              GlobalConstants.AlignOffsets.REEF_TO_BRANCH_OFFSET
                   * (isFieldRelativeLeftAlign(targetFace).getAsBoolean() ? 1 : -1);
           Rotation2d rotation = targetFace.get().getRotation();
           Transform2d branchTransform =
               new Transform2d(
                   new Translation2d(xOffset, yOffset).rotateBy(rotation), new Rotation2d());
-          Supplier<Pose2d> target = () -> targetFace.get().transformBy(branchTransform);
-
-          Logger.recordOutput("Targets/Target Reef", target.get());
-          Logger.recordOutput("Targets/Target Reef Number", targetReefFace);
+          Supplier<Pose2d> target =
+              () ->
+                  new Pose2d(
+                      targetFace.get().getTranslation().plus(branchTransform.getTranslation()),
+                      targetFace.get().getRotation());
+          Logger.recordOutput("Targets/Left align", leftAlign);
 
           // PathConstraints constraints =
           //     new PathConstraints(
@@ -319,7 +320,6 @@ public class DriveCommands {
 
           // reset reef face
           System.out.println("aligning to " + targetReefFace);
-          targetReefFace = 0;
           return AutoBuilder.pathfindToPose(target.get(), constraints, endVelocity);
 
           // Supplier<Transform2d> targetOffset = () -> target.get().minus(drive.getPose());
@@ -334,23 +334,23 @@ public class DriveCommands {
   // store the reef face target
   private static int targetReefFace = 0;
 
-  private static boolean leftAlign = false;
+  private static BooleanSupplier leftAlign = () -> false;
 
   public static void setTargetReefFace(int targetReefFace) {
     DriveCommands.targetReefFace = targetReefFace;
   }
 
   public static void setLeftAlign(boolean leftAlign) {
-    DriveCommands.leftAlign = leftAlign;
+    DriveCommands.leftAlign = () -> leftAlign;
   }
 
   private static BooleanSupplier isFieldRelativeLeftAlign(Supplier<Pose2d> targetReefFace) {
     boolean facingDriver =
-        RotationalAllianceFlipUtil.apply(targetReefFace.get()).getRotation().getRadians() > Math.PI
+        RotationalAllianceFlipUtil.apply(targetReefFace.get()).getRotation().getRadians() >= Math.PI
             || RotationalAllianceFlipUtil.apply(targetReefFace.get()).getRotation().getRadians()
-                < -Math.PI;
+                <= -Math.PI;
 
-    return () -> facingDriver ? !leftAlign : leftAlign;
+    return () -> facingDriver ? !leftAlign.getAsBoolean() : leftAlign.getAsBoolean();
   }
 
   // returns the nearest face of the reef
@@ -407,17 +407,16 @@ public class DriveCommands {
         () -> {
           DoubleSupplier driver =
               () -> yDriver.getAsDouble() * (shouldFlipDriverOverride(drive) ? -1 : 1);
-          Transform2d bumperOffset =
-              new Transform2d(
-                  new Translation2d(0, GlobalConstants.AlignOffsets.BUMPER_TO_CENTER_OFFSET)
-                      .rotateBy(drive.getRotation()),
-                  new Rotation2d());
-          Supplier<Transform2d> fieldRelativeOffset =
-              () -> findClosestCoralStation(drive).minus(drive.getPose());
-
-          Logger.recordOutput("Targets/Coral Station", findClosestCoralStation(drive));
-
-          return chasePoseRobotRelativeCommandYOverride(drive, fieldRelativeOffset, driver);
+          Supplier<Pose2d> target = () -> findClosestCoralStation(drive);
+          Supplier<Transform2d> bumperOffset =
+              () ->
+                  new Transform2d(
+                      new Translation2d(0, GlobalConstants.AlignOffsets.BUMPER_TO_CENTER_OFFSET)
+                          .rotateBy(target.get().getRotation()),
+                      new Rotation2d());
+          Supplier<Transform2d> robotRelativeOffset =
+              () -> target.get().minus(drive.getPose()).plus(bumperOffset.get());
+          return chasePoseRobotRelativeCommandYOverride(drive, robotRelativeOffset, driver);
         },
         Set.of(drive));
   }

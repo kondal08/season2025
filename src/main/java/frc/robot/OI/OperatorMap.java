@@ -29,4 +29,6 @@ public interface OperatorMap {
   Trigger WantsAlgae();
 
   Trigger Testing();
+
+  Trigger Source();
 }
