@@ -6,7 +6,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.util.Color;
 
 public final class LEDConstants {
-  public static final int LED_PORT = 3;
+  public static final int LED_PORT = 0;
   private static final Distance LED_SPACING = Meters.of(1 / 60.0); // 60 LEDs per meter
   public static int LED_LENGTH;
 
@@ -26,7 +26,7 @@ public final class LEDConstants {
   public static int BACK_LEFT = 2;
   public static int BACK_RIGHT = 3;
 
-  public static final Segment[] SEGMENTS = new Segment[] {new Segment(2, 3, false)};
+  public static final Segment[] SEGMENTS = new Segment[] {new Segment(0, 3, false)};
 
   public record Segment(int start, int length, boolean reversed) {}
 

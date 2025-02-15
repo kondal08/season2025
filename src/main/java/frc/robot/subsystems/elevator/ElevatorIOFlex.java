@@ -1,7 +1,6 @@
 package frc.robot.subsystems.elevator;
 
 import frc.robot.generic.elevators.GenericElevatorSystemIOSparkFlex;
-import frc.robot.subsystems.climber.ClimberConstants;
 
 public class ElevatorIOFlex extends GenericElevatorSystemIOSparkFlex implements ElevatorIO {
   public ElevatorIOFlex() {
@@ -12,8 +11,8 @@ public class ElevatorIOFlex extends GenericElevatorSystemIOSparkFlex implements 
         0.0,
         true,
         1.0,
-        ClimberConstants.kP,
-        ClimberConstants.kI,
-        ClimberConstants.kD);
+        ElevatorConstants.kP,
+        ElevatorConstants.kI,
+        ElevatorConstants.kD);
   }
 }

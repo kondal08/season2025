@@ -1,7 +1,5 @@
 package frc.robot.subsystems.elevator;
 
-import static java.lang.Math.PI;
-
 import frc.robot.generic.elevators.GenericPositionElevatorSystem;
 import frc.robot.generic.elevators.GenericPositionElevatorSystem.ExtensionGoal;
 import frc.robot.util.LoggedTunableNumber;
@@ -28,7 +26,7 @@ public class ElevatorSubsystem
 
     @Override
     public DoubleSupplier getHeight() {
-      return () -> heightSupplier.getAsDouble() / (2 * PI * ElevatorConstants.PULLEY_RADIUS);
+      return () -> (heightSupplier.getAsDouble() + ElevatorConstants.restingRot);
     }
   }
 
