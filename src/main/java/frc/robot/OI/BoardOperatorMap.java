@@ -47,4 +47,14 @@ public class BoardOperatorMap extends CommandGenericHID implements OperatorMap {
   public Trigger Testing() {
     return button(8);
   }
+
+  @Override
+  public Trigger WantsCoral() {
+    return button(9);
+  }
+
+  @Override
+  public Trigger WantsAlgae() {
+    return button(10);
+  }
 }

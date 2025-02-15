@@ -9,6 +9,7 @@ import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
+import java.util.function.DoubleSupplier;
 
 public class GenericElevatorSystemIOSparkFlex implements GenericElevatorSystemIO {
   private final SparkFlex[] motors;
@@ -17,6 +18,9 @@ public class GenericElevatorSystemIOSparkFlex implements GenericElevatorSystemIO
   private final double reduction;
   private SparkBaseConfig config;
   private SparkClosedLoopController controller;
+  private double goal;
+  private DoubleSupplier kp, ki, kd;
+  private boolean[] inverted;
 
   public GenericElevatorSystemIOSparkFlex(
       int[] id,
@@ -25,9 +29,13 @@ public class GenericElevatorSystemIOSparkFlex implements GenericElevatorSystemIO
       double restingAngle,
       boolean brake,
       double reduction,
-      double kP,
-      double kI,
-      double kD) {
+      DoubleSupplier kP,
+      DoubleSupplier kI,
+      DoubleSupplier kD) {
+    this.kp = kP;
+    this.ki = kI;
+    this.kd = kD;
+    this.inverted = inverted;
     this.reduction = reduction;
     this.restingAngle = restingAngle;
     motors = new SparkFlex[id.length];
@@ -37,11 +45,7 @@ public class GenericElevatorSystemIOSparkFlex implements GenericElevatorSystemIO
             .idleMode(brake ? SparkBaseConfig.IdleMode.kBrake : SparkBaseConfig.IdleMode.kCoast);
     config
         .closedLoop
-        .pid(kP, kI, kD)
-        .maxMotion
-        .maxAcceleration(6000)
-        .maxVelocity(6000)
-        .allowedClosedLoopError(0.2);
+        .pid(kP.getAsDouble(), kI.getAsDouble(), kD.getAsDouble());
 
     for (int i = 0; i < id.length; i++) {
       motors[i] = new SparkFlex(id[i], SparkLowLevel.MotorType.kBrushless);
@@ -53,7 +57,7 @@ public class GenericElevatorSystemIOSparkFlex implements GenericElevatorSystemIO
             PersistMode.kPersistParameters);
       else
         motors[i].configure(
-            new SparkFlexConfig().apply(config.inverted(inverted[i])).follow(motors[0]),
+            new SparkFlexConfig().apply(config).follow(motors[0], inverted[i]),
             ResetMode.kResetSafeParameters,
             PersistMode.kPersistParameters);
     }
@@ -68,10 +72,12 @@ public class GenericElevatorSystemIOSparkFlex implements GenericElevatorSystemIO
     inputs.appliedVoltage = motors[0].getAppliedOutput() * motors[0].getBusVoltage();
     inputs.supplyCurrentAmps = motors[0].getOutputCurrent();
     inputs.tempCelsius = motors[0].getMotorTemperature();
+    inputs.goal = goal;
   }
 
   @Override
   public void runPosition(double position) {
-    controller.setReference(position, ControlType.kMAXMotionPositionControl);
+    controller.setReference(position, ControlType.kPosition);
+    goal = position;
   }
 }

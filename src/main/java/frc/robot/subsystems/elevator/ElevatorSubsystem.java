@@ -1,7 +1,5 @@
 package frc.robot.subsystems.elevator;
 
-import static java.lang.Math.PI;
-
 import frc.robot.generic.elevators.GenericPositionElevatorSystem;
 import frc.robot.generic.elevators.GenericPositionElevatorSystem.ExtensionGoal;
 import frc.robot.util.LoggedTunableNumber;
@@ -17,18 +15,19 @@ public class ElevatorSubsystem
   @RequiredArgsConstructor
   @Getter
   public enum ElevatorGoal implements ExtensionGoal {
-    IDLING(new LoggedTunableNumber("Elevator/Idling", 0.0)),
-    LEVEL_ONE(new LoggedTunableNumber("Elevator/Level_One", 0.46)),
-    LEVEL_TWO(new LoggedTunableNumber("Elevator/Level_Two", 0.81)),
-    LEVEL_THREE(new LoggedTunableNumber("Elevator/Level_Three", 1.21)),
-    LEVEL_FOUR(new LoggedTunableNumber("Elevator/Level_Four", 1.83)),
-    TESTING(new LoggedTunableNumber("Elevator/Test", 0.0));
+    IDLING(() -> 3),
+    SOURCE(() -> 5),
+    LEVEL_ONE(() -> 8),
+    LEVEL_TWO(() -> 14),
+    LEVEL_THREE(() -> 24),
+    LEVEL_FOUR(() -> 41),
+    TESTING(new LoggedTunableNumber("Elevator/Test", 10.0));
 
     private final DoubleSupplier heightSupplier;
 
     @Override
     public DoubleSupplier getHeight() {
-      return () -> heightSupplier.getAsDouble() / (2 * PI * ElevatorConstants.PULLEY_RADIUS);
+      return () -> heightSupplier.getAsDouble();
     }
   }
 

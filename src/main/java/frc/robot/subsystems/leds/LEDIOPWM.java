@@ -66,7 +66,6 @@ public class LEDIOPWM implements LEDIO {
     for (int i = 0; i < LEDConstants.SEGMENTS.length; i++) {
       patterns[i].applyTo(views[i]);
     }
-
     led.setData(buffer);
   }
 }

@@ -1,7 +1,6 @@
 package frc.robot.subsystems.pivot;
 
 import frc.robot.generic.arm.GenericArmSystemIOSparkFlex;
-import frc.robot.subsystems.climber.ClimberConstants;
 
 public class PivotIOFlex extends GenericArmSystemIOSparkFlex implements PivotIO {
 
@@ -13,8 +12,8 @@ public class PivotIOFlex extends GenericArmSystemIOSparkFlex implements PivotIO 
         0.0,
         true,
         1.0,
-        ClimberConstants.kP,
-        ClimberConstants.kI,
-        ClimberConstants.kD);
+        PivotConstants.kP,
+        PivotConstants.kI,
+        PivotConstants.kD);
   }
 }

@@ -24,5 +24,9 @@ public interface OperatorMap {
 
   Trigger Outake();
 
+  Trigger WantsCoral();
+
+  Trigger WantsAlgae();
+
   Trigger Testing();
 }

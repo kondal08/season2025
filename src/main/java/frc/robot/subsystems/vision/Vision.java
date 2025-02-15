@@ -1,11 +1,14 @@
 package frc.robot.subsystems.vision;
 
 import static frc.robot.GlobalConstants.FieldMap.APRIL_TAG_FIELD_LAYOUT;
-import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.*;
+import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.MAX_AMBIGUITY_CUTOFF;
+import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants.MAX_Z_ERROR;
 import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionHelpers.generateDynamicStdDevs;
 
 import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
@@ -148,7 +151,7 @@ public class Vision extends SubsystemBase {
         consumer.accept(
             observation.pose().toPose2d(),
             observation.timestamp(),
-            generateDynamicStdDevs(observation, cameraIndex));
+            generateDynamicStdDevs(observation, io[cameraIndex].getCameraConstants().cameraType()));
       }
 
       // Log camera datadata
