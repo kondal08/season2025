@@ -226,18 +226,11 @@ public class RobotContainer {
       // Switch to X pattern when X button is pressed
       driver.stopWithX().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
-      // set target to right align
-      driver.rightAlign().onTrue(Commands.run(() -> DriveCommands.setLeftAlign(false)));
+      // right align to reef face when right bumper is pressed and the robot is in coral mode
+      driver.rightAlign().whileTrue(DriveCommands.rightAlignToReefCommand(drive));
 
-      // set target to left align
-      driver.leftAlign().onTrue(Commands.run(() -> DriveCommands.setLeftAlign(true)));
-
-      // align to reef face
-      driver
-          .rightAlign()
-          .or(driver.leftAlign())
-          .and(superstructure.coralMode())
-          .whileTrue(DriveCommands.alignToReefCommand(drive));
+      // left align to reef face when right numper is pressed and the robot is in coral mode
+      driver.leftAlign().whileTrue(DriveCommands.leftAlignToReefCommand(drive));
 
       // align to coral station with position customization when right trigger is pressed
       driver
@@ -246,12 +239,12 @@ public class RobotContainer {
 
       PathConstraints constraints = new PathConstraints(0.5, 1, 0.5, 0.5);
 
-      driver
-          .leftAlign()
-          .and(superstructure.coralMode().negate())
-          .whileTrue(
-              AutoBuilder.pathfindToPose(
-                  GlobalConstants.FieldMap.Coordinates.PROCESSOR.getPose(), constraints));
+    //   driver
+    //       .leftAlign()
+    //       .and(superstructure.coralMode().negate())
+    //       .whileTrue(
+    //           AutoBuilder.pathfindToPose(
+    //               GlobalConstants.FieldMap.Coordinates.PROCESSOR.getPose(), constraints));
 
       driver
           .slowMode()

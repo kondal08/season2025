@@ -257,6 +257,20 @@ public class DriveCommands {
         Set.of(drive));
   }
 
+  // run the pathfind then follow command and then use PID to align on termination
+  public static Command pathfindThenPIDCommand(SwerveSubsystem drive, Supplier<Pose2d> target) {
+    Supplier<Transform2d> targetOffset = () -> target.get().minus(drive.getPose());
+
+
+    PathConstraints constraints = new PathConstraints(0.5, 1, 0.5, 0.5);
+
+    double endVelocity = 0.0;
+
+    return Commands.sequence(
+      AutoBuilder.pathfindToPose(target.get(), constraints, endVelocity), 
+      chasePoseRobotRelativeCommand(drive, targetOffset));
+  }
+
   /** Updates the path to override for the coral offset */
   public static Command overridePathplannerCoralOffset(DoubleSupplier offset) {
     return Commands.run(
@@ -275,8 +289,18 @@ public class DriveCommands {
 
   /** code for reef alignment */
 
+  public static Command leftAlignToReefCommand(SwerveSubsystem drive) {
+    return alignToReefCommand(drive, () -> true, () -> false);
+  }
+
+  public static Command rightAlignToReefCommand(SwerveSubsystem drive) {
+    return alignToReefCommand(drive, () -> false, () -> false);
+  }
+
+  /** helper methods for alignment */
+
   // align to target face
-  public static Command alignToReefCommand(SwerveSubsystem drive) {
+  public static Command alignToReefCommand(SwerveSubsystem drive, BooleanSupplier leftInput, BooleanSupplier coralMode) {
     return Commands.defer(
         () -> {
           // find the coordinates of the selected face
@@ -294,18 +318,17 @@ public class DriveCommands {
 
           double xOffset = GlobalConstants.AlignOffsets.BUMPER_TO_CENTER_OFFSET;
           double yOffset =
+              coralMode.getAsBoolean()? 0 : 
               GlobalConstants.AlignOffsets.REEF_TO_BRANCH_OFFSET
-                  * (isFieldRelativeLeftAlign(targetFace).getAsBoolean() ? 1 : -1);
+                  * (isFieldRelativeLeftAlign(targetFace, leftInput).getAsBoolean() ? 1 : -1);
           Rotation2d rotation = targetFace.get().getRotation();
-          Transform2d branchTransform =
-              new Transform2d(
-                  new Translation2d(xOffset, yOffset).rotateBy(rotation), new Rotation2d());
+          Translation2d branchTransform = new Translation2d(xOffset, yOffset).rotateBy(rotation);
           Supplier<Pose2d> target =
               () ->
                   new Pose2d(
-                      targetFace.get().getTranslation().plus(branchTransform.getTranslation()),
+                      targetFace.get().getTranslation().plus(branchTransform),
                       targetFace.get().getRotation());
-          Logger.recordOutput("Targets/Left align", leftAlign);
+          Logger.recordOutput("Targets/Left align", leftInput);
 
           // PathConstraints constraints =
           //     new PathConstraints(
@@ -322,6 +345,8 @@ public class DriveCommands {
           System.out.println("aligning to " + targetReefFace);
           return AutoBuilder.pathfindToPose(target.get(), constraints, endVelocity);
 
+          // return pathfindThenPIDCommand(drive, target);
+
           // Supplier<Transform2d> targetOffset = () -> target.get().minus(drive.getPose());
 
           // return chasePoseRobotRelativeCommand(drive, targetOffset);
@@ -329,28 +354,22 @@ public class DriveCommands {
         Set.of(drive));
   }
 
-  /** helper methods for alignment */
-
   // store the reef face target
   private static int targetReefFace = 0;
-
-  private static BooleanSupplier leftAlign = () -> false;
 
   public static void setTargetReefFace(int targetReefFace) {
     DriveCommands.targetReefFace = targetReefFace;
   }
 
-  public static void setLeftAlign(boolean leftAlign) {
-    DriveCommands.leftAlign = () -> leftAlign;
-  }
-
-  private static BooleanSupplier isFieldRelativeLeftAlign(Supplier<Pose2d> targetReefFace) {
+  private static BooleanSupplier isFieldRelativeLeftAlign(Supplier<Pose2d> targetReefFace, BooleanSupplier leftInput) {
     boolean facingDriver =
         RotationalAllianceFlipUtil.apply(targetReefFace.get()).getRotation().getRadians() >= Math.PI
             || RotationalAllianceFlipUtil.apply(targetReefFace.get()).getRotation().getRadians()
                 <= -Math.PI;
 
-    return () -> facingDriver ? !leftAlign.getAsBoolean() : leftAlign.getAsBoolean();
+    Logger.recordOutput("Targets/Facing Driver", facingDriver);
+
+    return () -> facingDriver ? !leftInput.getAsBoolean() : leftInput.getAsBoolean();
   }
 
   // returns the nearest face of the reef
