@@ -2,8 +2,13 @@ package frc.robot.subsystems.vision.apriltagvision;
 
 import static edu.wpi.first.math.util.Units.degreesToRadians;
 
+import edu.wpi.first.math.MatBuilder;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.function.DoubleSupplier;
@@ -11,7 +16,7 @@ import java.util.function.DoubleSupplier;
 // TODO tune all of these!! Make sure that the robot-relative coords are correct - this will cause
 // rapid pose oscillation
 public final class AprilTagVisionConstants {
-  public static final boolean LEFT_CAM_ENABLED = false;
+  public static final boolean LEFT_CAM_ENABLED = true;
   public static final VisionIO.CameraConstants LEFT_CAM_CONSTANTS =
       new VisionIO.CameraConstants(
           "lefttagcam",
@@ -45,6 +50,11 @@ public final class AprilTagVisionConstants {
 
   public static final double MAX_AMBIGUITY_CUTOFF = 0.3;
   public static final double MAX_Z_ERROR = 0.75;
+
+  public static final double kVisionStdDevX = 2;
+  public static final double kVisionStdDevY = 2;
+  public static final double kVisionStdDevTheta = 1;
+
   /**
    * Rough values for how much we trust this camera to produce reliable data on our target relative
    * to the other cameras. A lower value means we trust this camera more - for instance, if we're
@@ -58,4 +68,11 @@ public final class AprilTagVisionConstants {
         new LoggedTunableNumber(
             "AprilTagVision/" + RIGHT_CAM_CONSTANTS.cameraName() + "CameraAmbiguityFactors", 1)
       };
+
+  public static final double TAG_PRESENCE_WEIGHT = 10;
+  public static final double DISTANCE_WEIGHT = 7;
+  public static final double POSE_AMBIGUITY_SHIFTER = 0.2;
+  public static final double POSE_AMBIGUITY_MULTIPLIER = 4;
+  public static final Matrix<N3, N1> VISION_MEASUREMENT_STANDARD_DEVIATIONS =
+      MatBuilder.fill(Nat.N3(), Nat.N1(), kVisionStdDevX, kVisionStdDevY, kVisionStdDevTheta);
 }

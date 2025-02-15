@@ -251,19 +251,23 @@ public class RobotContainer {
       PathConstraints constraints = new PathConstraints(0.5, 1, 0.5, 0.5);
 
       driver
-              .leftAlign()
+          .leftAlign()
           .and(superstructure.coralMode().negate())
           .whileTrue(
               AutoBuilder.pathfindToPose(
                   GlobalConstants.FieldMap.Coordinates.PROCESSOR.getPose(), constraints));
 
-      driver.slowMode().whileTrue(
-          Commands.run(
+      driver
+          .slowMode()
+          .whileTrue(
+              Commands.run(
                   () ->
-                          DriveCommands.joystickDrive(
-                                  drive, () -> driver.getYAxis().getAsDouble() / 3.0, () -> driver.getXAxis().getAsDouble() / 3.0, () -> driver.getRotAxis().getAsDouble() / 3.0),
-                  drive)
-      );
+                      DriveCommands.joystickDrive(
+                          drive,
+                          () -> driver.getYAxis().getAsDouble() / 3.0,
+                          () -> driver.getXAxis().getAsDouble() / 3.0,
+                          () -> driver.getRotAxis().getAsDouble() / 3.0),
+                  drive));
 
       // Reset gyro to 0° when B button is pressed
       driver
