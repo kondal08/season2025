@@ -5,7 +5,7 @@ import java.util.function.DoubleSupplier;
 
 public final class PivotConstants {
   public static final int PIVOT_ID = 21;
-  public static final boolean INVERTED = false;
+  public static final boolean INVERTED = true;
   // Whether the motors on the Pivot are flex motors
   public static final boolean IS_FLEX = false;
 

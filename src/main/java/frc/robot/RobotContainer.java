@@ -25,6 +25,7 @@ import static frc.robot.subsystems.Superstructure.SuperStates.LEVEL_ONE;
 import static frc.robot.subsystems.Superstructure.SuperStates.LEVEL_THREE;
 import static frc.robot.subsystems.Superstructure.SuperStates.LEVEL_TWO;
 import static frc.robot.subsystems.Superstructure.SuperStates.OUTAKE;
+import static frc.robot.subsystems.Superstructure.SuperStates.SOURCE;
 import static frc.robot.subsystems.Superstructure.SuperStates.TESTING;
 import static frc.robot.subsystems.swerve.SwerveConstants.BACK_LEFT;
 import static frc.robot.subsystems.swerve.SwerveConstants.BACK_RIGHT;
@@ -293,6 +294,8 @@ public class RobotContainer {
     operator.Outake().whileTrue(superstructure.setSuperStateCmd(OUTAKE));
 
     operator.Testing().whileTrue(superstructure.setSuperStateCmd(TESTING));
+
+    operator.Source().whileTrue(superstructure.setSuperStateCmd(SOURCE));
   }
 
   /** Write all the auto named commands here */

@@ -16,10 +16,10 @@ public class ElevatorSubsystem
   @Getter
   public enum ElevatorGoal implements ExtensionGoal {
     IDLING(() -> 3),
-    SOURCE(() -> 5),
-    LEVEL_ONE(() -> 8),
-    LEVEL_TWO(() -> 14),
-    LEVEL_THREE(() -> 24),
+    SOURCE(() -> 6),
+    LEVEL_ONE(() -> 6),
+    LEVEL_TWO(() -> 13),
+    LEVEL_THREE(() -> 26),
     LEVEL_FOUR(() -> 41),
     TESTING(new LoggedTunableNumber("Elevator/Test", 10.0));
 

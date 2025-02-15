@@ -49,11 +49,7 @@ public class GenericArmSystemIOSparkMax implements GenericArmSystemIO {
     config
         .closedLoop
         .pid(kP.getAsDouble(), kI.getAsDouble(), kD.getAsDouble())
-        .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-        .maxMotion
-        .maxAcceleration(6000)
-        .maxVelocity(6000)
-        .allowedClosedLoopError(0.002);
+        .feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
     config.softLimit.forwardSoftLimit(0.48).reverseSoftLimit(0.1);
 
     for (int i = 0; i < id.length; i++) {
@@ -94,8 +90,7 @@ public class GenericArmSystemIOSparkMax implements GenericArmSystemIO {
         ResetMode.kNoResetSafeParameters,
         PersistMode.kNoPersistParameters);
     if (angle >= 0.1 && angle <= 0.480) {
-      controller.setReference(angle, ControlType.kMAXMotionPositionControl);
-      System.out.print("hello");
+      controller.setReference(angle, ControlType.kPosition);
     }
     goal = angle;
   }

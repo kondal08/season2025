@@ -1,6 +1,5 @@
 package frc.robot.subsystems.pivot;
 
-import edu.wpi.first.math.util.Units;
 import frc.robot.generic.arm.GenericPositionArmSystem;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.function.DoubleSupplier;
@@ -14,19 +13,19 @@ public class PivotSubsystem extends GenericPositionArmSystem<PivotSubsystem.Pivo
   @RequiredArgsConstructor
   @Getter
   public enum PivotGoal implements GenericPositionArmSystem.PivotGoal {
-    IDLING(() -> 45),
-    SOURCE(() -> 100),
-    LEVEL_ONE(() -> 60),
-    LEVEL_TWO(() -> 60),
-    LEVEL_THREE(() -> 60),
-    LEVEL_FOUR(() -> 50),
-    TESTING(new LoggedTunableNumber("Pivot/TESTING", 50.0));
+    IDLING(new LoggedTunableNumber("Pivot/idle", 0.0)),
+    SOURCE(() -> 0.38),
+    LEVEL_ONE(() -> 0.255),
+    LEVEL_TWO(() -> 0.17),
+    LEVEL_THREE(() -> 0.17),
+    LEVEL_FOUR(() -> 0.23),
+    TESTING(new LoggedTunableNumber("Pivot/TESTING", 0.0));
 
     private final DoubleSupplier angleSupplier;
 
     @Override
     public DoubleSupplier getAngle() {
-      return () -> Units.degreesToRotations(angleSupplier.getAsDouble());
+      return () -> angleSupplier.getAsDouble();
     }
   }
 
