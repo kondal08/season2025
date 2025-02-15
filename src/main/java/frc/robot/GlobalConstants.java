@@ -34,7 +34,7 @@ import lombok.Getter;
  */
 public final class GlobalConstants {
   public static final RobotMode MODE = RobotMode.REAL;
-  public static final RobotType ROBOT = RobotType.COMPBOT;
+  public static final RobotType ROBOT = RobotType.DEVBOT;
   public static final double ODOMETRY_FREQUENCY = 100.0;
 
   public static boolean TUNING_MODE = true;
@@ -99,8 +99,8 @@ public final class GlobalConstants {
 
   public static final class AlignOffsets {
     public static final double BUMPER_TO_CENTER_OFFSET =
-        ROBOT == RobotType.DEVBOT ? 26 / 2 + 3 : 28 / 2 + 3;
-    public static final double REEF_TO_BRANCH_OFFSET = 13.0 / 2;
+        Units.inchesToMeters(ROBOT == RobotType.DEVBOT ? -(26 / 2) : -(28 / 2 + 3));
+    public static final double REEF_TO_BRANCH_OFFSET = Units.inchesToMeters(13.0 / 2);
   }
 
   /** PID + FF gains, with overloaded constructors for disabling each term. */

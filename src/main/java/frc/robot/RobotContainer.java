@@ -47,7 +47,6 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.GlobalConstants.RobotMode;
 import frc.robot.OI.DriverMap;
@@ -227,19 +226,15 @@ public class RobotContainer {
       driver.stopWithX().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
       // set target to right align
-      driver
-          .rightAlign()
-          .and(superstructure.coralMode())
-          .onTrue(Commands.run(() -> DriveCommands.setLeftAlign(false)));
+      driver.rightAlign().onTrue(Commands.run(() -> DriveCommands.setLeftAlign(false)));
 
       // set target to left align
-      driver
-          .leftAlign()
-          .and(superstructure.coralMode())
-          .onTrue(Commands.run(() -> DriveCommands.setLeftAlign(true)));
+      driver.leftAlign().onTrue(Commands.run(() -> DriveCommands.setLeftAlign(true)));
 
-      // align to right side of reef face
-      new Trigger(driver.rightAlign().or(driver.leftAlign()))
+      // align to reef face
+      driver
+          .rightAlign()
+          .or(driver.leftAlign())
           .and(superstructure.coralMode())
           .whileTrue(DriveCommands.alignToReefCommand(drive));
 
