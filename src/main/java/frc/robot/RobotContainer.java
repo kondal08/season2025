@@ -63,6 +63,7 @@ import frc.robot.subsystems.swerve.ModuleIOSim;
 import frc.robot.subsystems.swerve.ModuleIOSpark;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.subsystems.vision.AprilTagVisionIOPhotonVision;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
@@ -166,13 +167,13 @@ public class RobotContainer {
             case REAL -> new Vision(
                 drive,
                 LEFT_CAM_ENABLED
-                    ? new VisionIOPhotonVisionSim(LEFT_CAM_CONSTANTS, drive::getPose)
+                    ? new AprilTagVisionIOPhotonVision(LEFT_CAM_CONSTANTS)
                     : new VisionIO() {},
                 RIGHT_CAM_ENABLED
-                    ? new VisionIOPhotonVisionSim(RIGHT_CAM_CONSTANTS, drive::getPose)
+                    ? new AprilTagVisionIOPhotonVision(RIGHT_CAM_CONSTANTS)
                     : new VisionIO() {},
                 BACK_CAM_ENABLED
-                    ? new VisionIOPhotonVisionSim(BACK_CAM_CONSTANTS, drive::getPose)
+                    ? new AprilTagVisionIOPhotonVision(BACK_CAM_CONSTANTS)
                     : new VisionIO() {});
             case SIM -> new Vision(
                 drive,
@@ -191,8 +192,6 @@ public class RobotContainer {
             default -> new Vision(drive, new VisionIO() {}, new VisionIO() {});
           };
     } else vision = null;
-
-    configureOperatorButtonBindings();
 
     // Configure the button bindings
     configureDriverButtonBindings();
@@ -252,11 +251,19 @@ public class RobotContainer {
       PathConstraints constraints = new PathConstraints(0.5, 1, 0.5, 0.5);
 
       driver
-          .leftAlign()
+              .leftAlign()
           .and(superstructure.coralMode().negate())
           .whileTrue(
               AutoBuilder.pathfindToPose(
                   GlobalConstants.FieldMap.Coordinates.PROCESSOR.getPose(), constraints));
+
+      driver.slowMode().whileTrue(
+          Commands.run(
+                  () ->
+                          DriveCommands.joystickDrive(
+                                  drive, () -> driver.getYAxis().getAsDouble() / 3.0, () -> driver.getXAxis().getAsDouble() / 3.0, () -> driver.getRotAxis().getAsDouble() / 3.0),
+                  drive)
+      );
 
       // Reset gyro to 0° when B button is pressed
       driver
