@@ -1,9 +1,8 @@
-package frc.robot.subsystems.algaeintake;
+package frc.robot.subsystems.algae;
 
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import frc.robot.generic.rollers.GenericVoltageRollerSystem;
-import frc.robot.generic.rollers.GenericVoltageRollerSystem.VoltageGoal;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;

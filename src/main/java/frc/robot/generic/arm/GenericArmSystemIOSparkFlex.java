@@ -1,5 +1,7 @@
 package frc.robot.generic.arm;
 
+import static frc.robot.GlobalConstants.TUNING_MODE;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -7,6 +9,7 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel;
+import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.math.util.Units;
@@ -15,30 +18,22 @@ import java.util.function.DoubleSupplier;
 public class GenericArmSystemIOSparkFlex implements GenericArmSystemIO {
   private final SparkFlex[] motors;
   private final RelativeEncoder encoder;
-  private double restingAngle;
-  private final double reduction;
   private SparkBaseConfig config;
   private SparkClosedLoopController controller;
   private double goal;
-  private DoubleSupplier kp, ki, kd;
+  private DoubleSupplier kp;
   private boolean[] inverted;
 
   public GenericArmSystemIOSparkFlex(
       int[] id,
       boolean[] inverted,
       int currentLimitAmps,
-      double restingAngle,
       boolean brake,
-      double reduction,
-      DoubleSupplier kP,
-      DoubleSupplier kI,
-      DoubleSupplier kD) {
+      double forwardLimit,
+      double reverseLimit,
+      DoubleSupplier kP) {
     this.kp = kP;
-    this.ki = kI;
-    this.kd = kD;
     this.inverted = inverted;
-    this.reduction = reduction;
-    this.restingAngle = restingAngle;
     motors = new SparkFlex[id.length];
     config =
         new SparkFlexConfig()
@@ -46,11 +41,9 @@ public class GenericArmSystemIOSparkFlex implements GenericArmSystemIO {
             .idleMode(brake ? SparkBaseConfig.IdleMode.kBrake : SparkBaseConfig.IdleMode.kCoast);
     config
         .closedLoop
-        .pid(kP.getAsDouble(), kI.getAsDouble(), kD.getAsDouble())
-        .maxMotion
-        .maxAcceleration(6000)
-        .maxVelocity(6000)
-        .allowedClosedLoopError(0.2);
+        .pid(kP.getAsDouble(), 0, 0)
+        .feedbackSensor(ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder);
+    config.softLimit.forwardSoftLimit(forwardLimit).reverseSoftLimit(reverseLimit);
 
     for (int i = 0; i < id.length; i++) {
       motors[i] = new SparkFlex(id[i], SparkLowLevel.MotorType.kBrushless);
@@ -84,12 +77,14 @@ public class GenericArmSystemIOSparkFlex implements GenericArmSystemIO {
 
   @Override
   public void runToDegree(double position) {
-    config.closedLoop.pid(kp.getAsDouble(), ki.getAsDouble(), kd.getAsDouble());
-    motors[0].configure(
-        config.inverted(inverted[0]),
-        ResetMode.kNoResetSafeParameters,
-        PersistMode.kNoPersistParameters);
-    controller.setReference(position, ControlType.kMAXMotionPositionControl);
+    if (TUNING_MODE) {
+      config.closedLoop.pid(kp.getAsDouble(), 0, 0);
+      motors[0].configure(
+          config.inverted(inverted[0]),
+          ResetMode.kNoResetSafeParameters,
+          PersistMode.kNoPersistParameters);
+    }
+    controller.setReference(position, ControlType.kPosition);
     goal = position;
   }
 }

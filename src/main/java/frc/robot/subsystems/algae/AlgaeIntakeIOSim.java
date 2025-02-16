@@ -1,4 +1,4 @@
-package frc.robot.subsystems.algaeintake;
+package frc.robot.subsystems.algae;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import frc.robot.generic.rollers.GenericRollerSystemIOSim;

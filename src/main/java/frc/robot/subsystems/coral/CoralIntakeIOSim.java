@@ -1,4 +1,4 @@
-package frc.robot.subsystems.coralintake;
+package frc.robot.subsystems.coral;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import frc.robot.generic.rollers.GenericRollerSystemIOSim;

@@ -1,4 +1,4 @@
-package frc.robot.subsystems.algaeintake;
+package frc.robot.subsystems.algae;
 
 import frc.robot.generic.rollers.GenericRollerSystemIO;
 
