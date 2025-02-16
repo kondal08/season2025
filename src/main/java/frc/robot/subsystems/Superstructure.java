@@ -72,6 +72,7 @@ public class Superstructure extends SubsystemBase {
     LEVEL_FOUR,
     OUTAKE,
     INTAKE,
+    STOP_INTAKE,
     SOURCE,
   }
 
@@ -90,6 +91,10 @@ public class Superstructure extends SubsystemBase {
 
   public Command setCoralModeCmd(boolean wantCoralMode) {
     return Commands.run(() -> wantsCoral = wantCoralMode);
+  }
+
+  public Command switchCoralMode() {
+    return Commands.run(() -> wantsCoral = !wantsCoral);
   }
 
   private SuperStates currentState = IDLING;
@@ -159,6 +164,10 @@ public class Superstructure extends SubsystemBase {
             rollers.getAlgaeIntake().setGoal(AlgaeIntakeSubsystem.AlgaeIntakeGoal.REVERSE);
         }
       }
+      case STOP_INTAKE -> {
+        if (CORAL_INTAKE_ENABLED)
+          rollers.getCoralIntake().setGoal(CoralIntakeSubsystem.CoralIntakeGoal.IDLING);
+      }
       case SOURCE -> {
         if (ELEVATOR_ENABLED)
           elevators.getElevator().setGoal(ElevatorSubsystem.ElevatorGoal.SOURCE);
@@ -169,6 +178,16 @@ public class Superstructure extends SubsystemBase {
 
   public Trigger coralMode() {
     return new Trigger(() -> wantsCoral);
+  }
+
+  public Trigger algaeScoringMode() {
+    // return new Trigger(() -> !wantsCoral && rollers.getAlgaeIntake().hasAlgae().getAsBoolean());
+    return new Trigger(() -> true);
+  }
+
+  public Trigger algaeIntakeMode() {
+    // return new Trigger(() -> !wantsCoral && !rollers.getAlgaeIntake().hasAlgae().getAsBoolean());
+    return new Trigger(() -> false);
   }
 
   public void registerSuperstructureCharacterization(

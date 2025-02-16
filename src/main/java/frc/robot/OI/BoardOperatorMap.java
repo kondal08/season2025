@@ -10,56 +10,61 @@ public class BoardOperatorMap extends CommandGenericHID implements OperatorMap {
 
   @Override
   public Trigger Idle() {
-    return button(1);
-  }
-
-  @Override
-  public Trigger LevelOne() {
-    return button(2);
-  }
-
-  @Override
-  public Trigger LevelTwo() {
-    return button(3);
-  }
-
-  @Override
-  public Trigger LevelThree() {
     return button(4);
   }
 
   @Override
-  public Trigger LevelFour() {
-    return button(5);
-  }
-
-  @Override
-  public Trigger Intake() {
-    return button(6);
-  }
-
-  @Override
-  public Trigger Outake() {
+  public Trigger LevelOne() {
     return button(7);
   }
 
   @Override
-  public Trigger Testing() {
-    return button(8);
-  }
-
-  @Override
-  public Trigger WantsCoral() {
+  public Trigger LevelTwo() {
     return button(9);
   }
 
   @Override
-  public Trigger WantsAlgae() {
+  public Trigger LevelThree() {
     return button(10);
   }
 
   @Override
-  public Trigger Source() {
+  public Trigger LevelFour() {
     return button(11);
+  }
+
+  @Override
+  public Trigger Intake() {
+    return button(3);
+  }
+
+  @Override
+  public Trigger Outake() {
+    return button(2);
+  }
+
+  @Override
+  public Trigger Testing() {
+    return button(6);
+  }
+
+  @Override
+  public Trigger WantsCoral() {
+    return button(8);
+  }
+
+  @Override
+  public Trigger WantsAlgae() {
+    return button(12);
+  }
+
+  @Override
+  public Trigger Source() {
+    return button(5);
+  }
+
+  @Override
+  public Trigger ModeSwitch() {
+    return button(1);
   }
 }

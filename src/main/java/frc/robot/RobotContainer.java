@@ -26,6 +26,7 @@ import static frc.robot.subsystems.Superstructure.SuperStates.LEVEL_THREE;
 import static frc.robot.subsystems.Superstructure.SuperStates.LEVEL_TWO;
 import static frc.robot.subsystems.Superstructure.SuperStates.OUTAKE;
 import static frc.robot.subsystems.Superstructure.SuperStates.SOURCE;
+import static frc.robot.subsystems.Superstructure.SuperStates.STOP_INTAKE;
 import static frc.robot.subsystems.Superstructure.SuperStates.TESTING;
 import static frc.robot.subsystems.swerve.SwerveConstants.BACK_LEFT;
 import static frc.robot.subsystems.swerve.SwerveConstants.BACK_RIGHT;
@@ -41,7 +42,6 @@ import static frc.robot.subsystems.vision.apriltagvision.AprilTagVisionConstants
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -237,14 +237,16 @@ public class RobotContainer {
           .coralStation()
           .whileTrue(DriveCommands.alignToNearestCoralStationCommand(drive, driver.getYAxis()));
 
-      PathConstraints constraints = new PathConstraints(0.5, 1, 0.5, 0.5);
+      driver
+          .rightAlign()
+          .and(superstructure.algaeScoringMode())
+          .whileTrue(DriveCommands.alignToProcessorCommand());
 
-    //   driver
-    //       .leftAlign()
-    //       .and(superstructure.coralMode().negate())
-    //       .whileTrue(
-    //           AutoBuilder.pathfindToPose(
-    //               GlobalConstants.FieldMap.Coordinates.PROCESSOR.getPose(), constraints));
+      driver
+          .leftAlign()
+          .or(driver.rightAlign())
+          .and(superstructure.algaeIntakeMode())
+          .whileTrue(DriveCommands.alignToReefCommand(drive, () -> false, () -> true));
 
       driver
           .slowMode()
@@ -282,13 +284,19 @@ public class RobotContainer {
 
     operator.LevelFour().whileTrue(superstructure.setSuperStateCmd(LEVEL_FOUR));
 
-    operator.Intake().whileTrue(superstructure.setSuperStateCmd(INTAKE));
+    operator.Intake()
+        .whileTrue(superstructure.setSuperStateCmd(INTAKE))
+        .whileFalse(superstructure.setSuperStateCmd(STOP_INTAKE));
 
-    operator.Outake().whileTrue(superstructure.setSuperStateCmd(OUTAKE));
+    operator.Outake()
+        .whileTrue(superstructure.setSuperStateCmd(OUTAKE))
+        .whileFalse(superstructure.setSuperStateCmd(STOP_INTAKE));
 
     operator.Testing().whileTrue(superstructure.setSuperStateCmd(TESTING));
 
     operator.Source().whileTrue(superstructure.setSuperStateCmd(SOURCE));
+
+    operator.ModeSwitch().onTrue(superstructure.switchCoralMode());
   }
 
   /** Write all the auto named commands here */

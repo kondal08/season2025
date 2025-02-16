@@ -99,7 +99,7 @@ public final class GlobalConstants {
 
   public static final class AlignOffsets {
     public static final double BUMPER_TO_CENTER_OFFSET =
-        Units.inchesToMeters(ROBOT == RobotType.DEVBOT ? -(26 / 2) : -(28 / 2 + 3));
+        Units.inchesToMeters(ROBOT == RobotType.DEVBOT ? -(26 / 2 + 3) : -(28 / 2 + 3));
     public static final double REEF_TO_BRANCH_OFFSET = Units.inchesToMeters(13.0 / 2);
   }
 

@@ -32,7 +32,7 @@ public class LEDIOPWM implements LEDIO {
     views = new AddressableLEDBufferView[LEDConstants.SEGMENTS.length];
     patterns = new LEDPattern[LEDConstants.SEGMENTS.length];
 
-    for (int i = 0; i < LEDConstants.SEGMENTS.length; i++) {
+    for (int i = 0; i < LEDConstants.SEGMENTS.length - 1; i++) {
       LEDConstants.Segment segment = LEDConstants.SEGMENTS[i];
       views[i] = buffer.createView(segment.start(), segment.start() + segment.length());
 

@@ -31,4 +31,6 @@ public interface OperatorMap {
   Trigger Testing();
 
   Trigger Source();
+
+  Trigger ModeSwitch();
 }

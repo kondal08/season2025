@@ -10,7 +10,7 @@ public final class PivotConstants {
   public static final boolean IS_FLEX = false;
 
   // Tuned in REV Hardware Client for real bots, but should we use LTNs?
-  public static final DoubleSupplier kP = new LoggedTunableNumber("Pivot/kP", 2);
+  public static final DoubleSupplier kP = new LoggedTunableNumber("Pivot/kP", 0.02);
   public static final DoubleSupplier kI = new LoggedTunableNumber("Pivot/kI", 0);
   public static final DoubleSupplier kD = new LoggedTunableNumber("Pivot/kD", 0);
   public static final double ABSOLUTE_ENCODER_OFFSET = 0.38;

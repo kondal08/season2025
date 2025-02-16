@@ -172,17 +172,17 @@ public class DriveCommands {
   // use PID to align to a target
   public static Command chasePoseRobotRelativeCommand(
       SwerveSubsystem drive, Supplier<Transform2d> targetOffset) {
-    TrapezoidProfile.Constraints X_CONSTRAINTS = new TrapezoidProfile.Constraints(0.5, 2);
-    TrapezoidProfile.Constraints Y_CONSTRAINTS = new TrapezoidProfile.Constraints(0.5, 2);
+    TrapezoidProfile.Constraints X_CONSTRAINTS = new TrapezoidProfile.Constraints(3, 3);
+    TrapezoidProfile.Constraints Y_CONSTRAINTS = new TrapezoidProfile.Constraints(3, 3);
     // TrapezoidProfile.Constraints OMEGA_CONSTRAINTS =   new TrapezoidProfile.Constraints(1, 1.5);
 
     ProfiledPIDController xController = new ProfiledPIDController(0.5, 0, 0, X_CONSTRAINTS);
     ProfiledPIDController yController = new ProfiledPIDController(0.5, 0, 0, Y_CONSTRAINTS);
     PIDController omegaPID = new PIDController(0.01, 0, 0);
 
-    xController.setTolerance(0.10);
+    xController.setTolerance(0.03);
     yController.setTolerance(0.03);
-    omegaPID.setTolerance(1.5);
+    omegaPID.setTolerance(0.5);
     omegaPID.enableContinuousInput(-180, 180);
 
     return new DeferredCommand(
@@ -217,17 +217,17 @@ public class DriveCommands {
    */
   public static Command chasePoseRobotRelativeCommandYOverride(
       SwerveSubsystem drive, Supplier<Transform2d> targetOffset, DoubleSupplier yDriver) {
-    TrapezoidProfile.Constraints X_CONSTRAINTS = new TrapezoidProfile.Constraints(1, 1);
-    TrapezoidProfile.Constraints Y_CONSTRAINTS = new TrapezoidProfile.Constraints(1, 1);
+    TrapezoidProfile.Constraints X_CONSTRAINTS = new TrapezoidProfile.Constraints(10, 10);
+    TrapezoidProfile.Constraints Y_CONSTRAINTS = new TrapezoidProfile.Constraints(10, 10);
     // TrapezoidProfile.Constraints OMEGA_CONSTRAINTS =   new TrapezoidProfile.Constraints(1, 1.5);
 
-    ProfiledPIDController xController = new ProfiledPIDController(0.5, 0, 0, X_CONSTRAINTS);
-    ProfiledPIDController yController = new ProfiledPIDController(0.5, 0, 0, Y_CONSTRAINTS);
-    PIDController omegaPID = new PIDController(0.01, 0, 0);
+    ProfiledPIDController xController = new ProfiledPIDController(1, 0, 0, X_CONSTRAINTS);
+    ProfiledPIDController yController = new ProfiledPIDController(1, 0, 0, Y_CONSTRAINTS);
+    PIDController omegaPID = new PIDController(0.03, 0, 0);
 
-    xController.setTolerance(0.10);
+    xController.setTolerance(0.05);
     yController.setTolerance(0.03);
-    omegaPID.setTolerance(1.5);
+    omegaPID.setTolerance(0.5);
     omegaPID.enableContinuousInput(-180, 180);
 
     return new DeferredCommand(
@@ -237,7 +237,7 @@ public class DriveCommands {
                   // Init
                 },
                 () -> {
-                  double driverInputFactor = 0.5;
+                  double driverInputFactor = 1;
                   double ySpeed = yDriver.getAsDouble() * driverInputFactor;
                   double xSpeed = xController.calculate(0, targetOffset.get().getX());
                   double omegaSpeed =
@@ -261,14 +261,13 @@ public class DriveCommands {
   public static Command pathfindThenPIDCommand(SwerveSubsystem drive, Supplier<Pose2d> target) {
     Supplier<Transform2d> targetOffset = () -> target.get().minus(drive.getPose());
 
-
     PathConstraints constraints = new PathConstraints(0.5, 1, 0.5, 0.5);
 
     double endVelocity = 0.0;
 
     return Commands.sequence(
-      AutoBuilder.pathfindToPose(target.get(), constraints, endVelocity), 
-      chasePoseRobotRelativeCommand(drive, targetOffset));
+        AutoBuilder.pathfindToPose(target.get(), constraints, endVelocity),
+        chasePoseRobotRelativeCommand(drive, targetOffset));
   }
 
   /** Updates the path to override for the coral offset */
@@ -287,8 +286,21 @@ public class DriveCommands {
     return Commands.run(() -> PPHolonomicDriveController.clearXYFeedbackOverride());
   }
 
-  /** code for reef alignment */
+  /** align to processor */
+  public static Command alignToProcessorCommand() {
+    PathConstraints constraints = new PathConstraints(10, 5, 5, 5);
+    Pose2d target = GlobalConstants.FieldMap.Coordinates.PROCESSOR.getPose();
+    Transform2d offset =
+        new Transform2d(
+            new Translation2d(0, GlobalConstants.AlignOffsets.BUMPER_TO_CENTER_OFFSET)
+                .rotateBy(target.getRotation()),
+            new Rotation2d());
+    target = target.plus(offset);
+    Logger.recordOutput("Targets/Processor", target);
+    return AutoBuilder.pathfindToPose(target, constraints);
+  }
 
+  /** code for reef alignment */
   public static Command leftAlignToReefCommand(SwerveSubsystem drive) {
     return alignToReefCommand(drive, () -> true, () -> false);
   }
@@ -300,7 +312,8 @@ public class DriveCommands {
   /** helper methods for alignment */
 
   // align to target face
-  public static Command alignToReefCommand(SwerveSubsystem drive, BooleanSupplier leftInput, BooleanSupplier coralMode) {
+  public static Command alignToReefCommand(
+      SwerveSubsystem drive, BooleanSupplier leftInput, BooleanSupplier algaeMode) {
     return Commands.defer(
         () -> {
           // find the coordinates of the selected face
@@ -318,9 +331,10 @@ public class DriveCommands {
 
           double xOffset = GlobalConstants.AlignOffsets.BUMPER_TO_CENTER_OFFSET;
           double yOffset =
-              coralMode.getAsBoolean()? 0 : 
-              GlobalConstants.AlignOffsets.REEF_TO_BRANCH_OFFSET
-                  * (isFieldRelativeLeftAlign(targetFace, leftInput).getAsBoolean() ? 1 : -1);
+              algaeMode.getAsBoolean()
+                  ? 0
+                  : GlobalConstants.AlignOffsets.REEF_TO_BRANCH_OFFSET
+                      * (isFieldRelativeLeftAlign(targetFace, leftInput).getAsBoolean() ? 1 : -1);
           Rotation2d rotation = targetFace.get().getRotation();
           Translation2d branchTransform = new Translation2d(xOffset, yOffset).rotateBy(rotation);
           Supplier<Pose2d> target =
@@ -328,8 +342,8 @@ public class DriveCommands {
                   new Pose2d(
                       targetFace.get().getTranslation().plus(branchTransform),
                       targetFace.get().getRotation());
-          Logger.recordOutput("Targets/Left align", leftInput);
-
+          Logger.recordOutput(
+              "Targets/Left align", isFieldRelativeLeftAlign(targetFace, leftInput).getAsBoolean());
           // PathConstraints constraints =
           //     new PathConstraints(
           //         SwerveConstants.MAX_LINEAR_SPEED,
@@ -337,15 +351,13 @@ public class DriveCommands {
           //         SwerveConstants.MAX_ANGULAR_SPEED,
           //         SwerveConstants.MAX_ANGULAR_ACCELERATION);
 
-          PathConstraints constraints = new PathConstraints(0.5, 1, 0.5, 0.5);
+          PathConstraints constraints = new PathConstraints(3, 2, 3, 3);
 
           double endVelocity = 0.0;
 
           // reset reef face
-          System.out.println("aligning to " + targetReefFace);
-          return AutoBuilder.pathfindToPose(target.get(), constraints, endVelocity);
 
-          // return pathfindThenPIDCommand(drive, target);
+          return AutoBuilder.pathfindToPose(target.get(), constraints, endVelocity);
 
           // Supplier<Transform2d> targetOffset = () -> target.get().minus(drive.getPose());
 
@@ -361,11 +373,13 @@ public class DriveCommands {
     DriveCommands.targetReefFace = targetReefFace;
   }
 
-  private static BooleanSupplier isFieldRelativeLeftAlign(Supplier<Pose2d> targetReefFace, BooleanSupplier leftInput) {
+  private static BooleanSupplier isFieldRelativeLeftAlign(
+      Supplier<Pose2d> targetReefFace, BooleanSupplier leftInput) {
     boolean facingDriver =
-        RotationalAllianceFlipUtil.apply(targetReefFace.get()).getRotation().getRadians() >= Math.PI
-            || RotationalAllianceFlipUtil.apply(targetReefFace.get()).getRotation().getRadians()
-                <= -Math.PI;
+        RotationalAllianceFlipUtil.apply(targetReefFace.get()).getRotation().getRadians()
+                >= Math.PI / 2
+            && RotationalAllianceFlipUtil.apply(targetReefFace.get()).getRotation().getRadians()
+                <= 3 * Math.PI / 2;
 
     Logger.recordOutput("Targets/Facing Driver", facingDriver);
 
