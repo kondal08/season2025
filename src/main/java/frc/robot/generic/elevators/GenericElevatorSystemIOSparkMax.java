@@ -1,5 +1,7 @@
 package frc.robot.generic.elevators;
 
+import static frc.robot.GlobalConstants.TUNING_MODE;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -14,8 +16,6 @@ import java.util.function.DoubleSupplier;
 public class GenericElevatorSystemIOSparkMax implements GenericElevatorSystemIO {
   private final SparkMax[] motors;
   private final RelativeEncoder encoder;
-  private double restingAngle;
-  private final double reduction;
   private SparkBaseConfig config;
   private SparkClosedLoopController controller;
   private double goal;
@@ -36,8 +36,6 @@ public class GenericElevatorSystemIOSparkMax implements GenericElevatorSystemIO 
     this.ki = kI;
     this.kd = kD;
     this.inverted = inverted;
-    this.reduction = reduction;
-    this.restingAngle = restingAngle;
     motors = new SparkMax[id.length];
     config =
         new SparkFlexConfig()
@@ -75,6 +73,13 @@ public class GenericElevatorSystemIOSparkMax implements GenericElevatorSystemIO 
 
   @Override
   public void runPosition(double position) {
+    if (TUNING_MODE) {
+      config.closedLoop.pid(kp.getAsDouble(), ki.getAsDouble(), kd.getAsDouble());
+      motors[0].configure(
+          config.inverted(inverted[0]),
+          ResetMode.kNoResetSafeParameters,
+          PersistMode.kNoPersistParameters);
+    }
     controller.setReference(position, ControlType.kPosition);
     goal = position;
   }

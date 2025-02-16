@@ -1,9 +1,8 @@
-package frc.robot.subsystems.coralintake;
+package frc.robot.subsystems.coral;
 
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import frc.robot.generic.rollers.GenericVoltageRollerSystem;
-import frc.robot.generic.rollers.GenericVoltageRollerSystem.VoltageGoal;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;

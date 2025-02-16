@@ -1,11 +1,6 @@
 package frc.robot.subsystems;
 
-import static frc.robot.Config.Subsystems.ALGAE_INTAKE_ENABLED;
-import static frc.robot.Config.Subsystems.CLIMBER_ENABLED;
-import static frc.robot.Config.Subsystems.CORAL_INTAKE_ENABLED;
-import static frc.robot.Config.Subsystems.ELEVATOR_ENABLED;
-import static frc.robot.Config.Subsystems.LEDS_ENABLED;
-import static frc.robot.Config.Subsystems.PIVOT_ENABLED;
+import static frc.robot.Config.Subsystems.*;
 import static frc.robot.GlobalConstants.MODE;
 import static frc.robot.subsystems.Superstructure.SuperStates.IDLING;
 
@@ -20,14 +15,15 @@ import frc.robot.GlobalConstants;
 import frc.robot.generic.arm.Arms;
 import frc.robot.generic.elevators.Elevators;
 import frc.robot.generic.rollers.Rollers;
-import frc.robot.subsystems.algaeintake.AlgaeIntakeSubsystem;
+import frc.robot.subsystems.algae.AlgaeIntakeSubsystem;
+import frc.robot.subsystems.algae.AlgaePivotSubsystem;
 import frc.robot.subsystems.climber.ClimberSubsystem;
-import frc.robot.subsystems.coralintake.CoralIntakeSubsystem;
+import frc.robot.subsystems.coral.CoralIntakeSubsystem;
+import frc.robot.subsystems.coral.CoralPivotSubsystem;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.leds.LEDIOPWM;
 import frc.robot.subsystems.leds.LEDIOSim;
 import frc.robot.subsystems.leds.LEDSubsystem;
-import frc.robot.subsystems.pivot.PivotSubsystem;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -74,6 +70,7 @@ public class Superstructure extends SubsystemBase {
     INTAKE,
     STOP_INTAKE,
     SOURCE,
+    PROCESSOR
   }
 
   /**
@@ -89,10 +86,6 @@ public class Superstructure extends SubsystemBase {
 
   private boolean wantsCoral = true;
 
-  public Command setCoralModeCmd(boolean wantCoralMode) {
-    return Commands.run(() -> wantsCoral = wantCoralMode);
-  }
-
   public Command switchCoralMode() {
     return Commands.run(() -> wantsCoral = !wantsCoral);
   }
@@ -103,6 +96,12 @@ public class Superstructure extends SubsystemBase {
     return Commands.run(() -> currentState = stateRequest);
   }
 
+  /**
+   * Periodically updates the goals of different subsystems based on the current superstructure
+   * state. The state determines the actions of various subsystems such as coral and algae intake,
+   * elevator, climber, and pivot. Each state sets specific goals for the subsystems, such as
+   * idling, testing, moving to a certain level, or performing intake and outtake operations.
+   */
   @Override
   public void periodic() {
     switch (currentState) {
@@ -114,7 +113,8 @@ public class Superstructure extends SubsystemBase {
         if (ELEVATOR_ENABLED)
           elevators.getElevator().setGoal(ElevatorSubsystem.ElevatorGoal.IDLING);
         if (CLIMBER_ENABLED) elevators.getClimber().setGoal(ClimberSubsystem.ClimberGoal.IDLING);
-        if (PIVOT_ENABLED) arms.getPivot().setGoal(PivotSubsystem.PivotGoal.IDLING);
+        if (CORAL_PIVOT_ENABLED) arms.getCoralPivot().setGoal(CoralPivotSubsystem.PivotGoal.IDLING);
+        if (ALGAE_PIVOT_ENABLED) arms.getAlgaePivot().setGoal(AlgaePivotSubsystem.PivotGoal.IDLING);
       }
       case TESTING -> {
         if (CORAL_INTAKE_ENABLED)
@@ -124,45 +124,44 @@ public class Superstructure extends SubsystemBase {
         if (ELEVATOR_ENABLED)
           elevators.getElevator().setGoal(ElevatorSubsystem.ElevatorGoal.TESTING);
         if (CLIMBER_ENABLED) elevators.getClimber().setGoal(ClimberSubsystem.ClimberGoal.TESTING);
-        if (PIVOT_ENABLED) arms.getPivot().setGoal(PivotSubsystem.PivotGoal.TESTING);
+        if (CORAL_PIVOT_ENABLED)
+          arms.getCoralPivot().setGoal(CoralPivotSubsystem.PivotGoal.TESTING);
       }
       case LEVEL_ONE -> {
         if (ELEVATOR_ENABLED)
           elevators.getElevator().setGoal(ElevatorSubsystem.ElevatorGoal.LEVEL_ONE);
-        if (PIVOT_ENABLED) arms.getPivot().setGoal(PivotSubsystem.PivotGoal.LEVEL_ONE);
+        if (CORAL_PIVOT_ENABLED)
+          arms.getCoralPivot().setGoal(CoralPivotSubsystem.PivotGoal.LEVEL_ONE);
       }
       case LEVEL_TWO -> {
         if (ELEVATOR_ENABLED)
           elevators.getElevator().setGoal(ElevatorSubsystem.ElevatorGoal.LEVEL_TWO);
-        if (PIVOT_ENABLED) arms.getPivot().setGoal(PivotSubsystem.PivotGoal.LEVEL_TWO);
+        if (CORAL_PIVOT_ENABLED)
+          arms.getCoralPivot().setGoal(CoralPivotSubsystem.PivotGoal.LEVEL_TWO);
       }
       case LEVEL_THREE -> {
         if (ELEVATOR_ENABLED)
           elevators.getElevator().setGoal(ElevatorSubsystem.ElevatorGoal.LEVEL_THREE);
-        if (PIVOT_ENABLED) arms.getPivot().setGoal(PivotSubsystem.PivotGoal.LEVEL_THREE);
+        if (CORAL_PIVOT_ENABLED)
+          arms.getCoralPivot().setGoal(CoralPivotSubsystem.PivotGoal.LEVEL_THREE);
       }
       case LEVEL_FOUR -> {
         if (ELEVATOR_ENABLED)
           elevators.getElevator().setGoal(ElevatorSubsystem.ElevatorGoal.LEVEL_FOUR);
-        if (PIVOT_ENABLED) arms.getPivot().setGoal(PivotSubsystem.PivotGoal.LEVEL_FOUR);
+        if (CORAL_PIVOT_ENABLED)
+          arms.getCoralPivot().setGoal(CoralPivotSubsystem.PivotGoal.LEVEL_FOUR);
       }
       case INTAKE -> {
-        if (wantsCoral) {
-          if (CORAL_INTAKE_ENABLED)
-            rollers.getCoralIntake().setGoal(CoralIntakeSubsystem.CoralIntakeGoal.FORWARD);
-        } else {
-          if (ALGAE_INTAKE_ENABLED)
-            rollers.getAlgaeIntake().setGoal(AlgaeIntakeSubsystem.AlgaeIntakeGoal.FORWARD);
-        }
+        if (wantsCoral && CORAL_INTAKE_ENABLED)
+          rollers.getCoralIntake().setGoal(CoralIntakeSubsystem.CoralIntakeGoal.FORWARD);
+        else if (ALGAE_INTAKE_ENABLED)
+          rollers.getAlgaeIntake().setGoal(AlgaeIntakeSubsystem.AlgaeIntakeGoal.FORWARD);
       }
       case OUTAKE -> {
-        if (wantsCoral) {
-          if (CORAL_INTAKE_ENABLED)
-            rollers.getCoralIntake().setGoal(CoralIntakeSubsystem.CoralIntakeGoal.REVERSE);
-        } else {
-          if (ALGAE_INTAKE_ENABLED)
-            rollers.getAlgaeIntake().setGoal(AlgaeIntakeSubsystem.AlgaeIntakeGoal.REVERSE);
-        }
+        if (wantsCoral && CORAL_INTAKE_ENABLED)
+          rollers.getCoralIntake().setGoal(CoralIntakeSubsystem.CoralIntakeGoal.REVERSE);
+        else if (ALGAE_INTAKE_ENABLED)
+          rollers.getAlgaeIntake().setGoal(AlgaeIntakeSubsystem.AlgaeIntakeGoal.REVERSE);
       }
       case STOP_INTAKE -> {
         if (CORAL_INTAKE_ENABLED)
@@ -171,7 +170,15 @@ public class Superstructure extends SubsystemBase {
       case SOURCE -> {
         if (ELEVATOR_ENABLED)
           elevators.getElevator().setGoal(ElevatorSubsystem.ElevatorGoal.SOURCE);
-        if (PIVOT_ENABLED) arms.getPivot().setGoal(PivotSubsystem.PivotGoal.SOURCE);
+        if (CORAL_PIVOT_ENABLED) arms.getCoralPivot().setGoal(CoralPivotSubsystem.PivotGoal.SOURCE);
+        if (CORAL_INTAKE_ENABLED)
+          rollers.getCoralIntake().setGoal(CoralIntakeSubsystem.CoralIntakeGoal.FORWARD);
+      }
+      case PROCESSOR -> {
+        if (ALGAE_PIVOT_ENABLED)
+          arms.getAlgaePivot().setGoal(AlgaePivotSubsystem.PivotGoal.PROCESSOR);
+        if (ALGAE_INTAKE_ENABLED)
+          rollers.getAlgaeIntake().setGoal(AlgaeIntakeSubsystem.AlgaeIntakeGoal.FORWARD);
       }
     }
   }
@@ -181,13 +188,19 @@ public class Superstructure extends SubsystemBase {
   }
 
   public Trigger algaeScoringMode() {
-    // return new Trigger(() -> !wantsCoral && rollers.getAlgaeIntake().hasAlgae().getAsBoolean());
-    return new Trigger(() -> true);
+    return new Trigger(
+        () ->
+            wantsCoral
+                || !ALGAE_INTAKE_ENABLED
+                || rollers.getAlgaeIntake().hasAlgae().getAsBoolean());
   }
 
   public Trigger algaeIntakeMode() {
-    // return new Trigger(() -> !wantsCoral && !rollers.getAlgaeIntake().hasAlgae().getAsBoolean());
-    return new Trigger(() -> false);
+    return new Trigger(
+        () ->
+            wantsCoral
+                || !ALGAE_INTAKE_ENABLED
+                || !rollers.getAlgaeIntake().hasAlgae().getAsBoolean());
   }
 
   public void registerSuperstructureCharacterization(

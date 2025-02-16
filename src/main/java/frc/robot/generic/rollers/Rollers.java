@@ -7,12 +7,8 @@ import static frc.robot.GlobalConstants.MODE;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.GlobalConstants;
-import frc.robot.subsystems.algaeintake.AlgaeIntakeIOMax;
-import frc.robot.subsystems.algaeintake.AlgaeIntakeIOSim;
-import frc.robot.subsystems.algaeintake.AlgaeIntakeSubsystem;
-import frc.robot.subsystems.coralintake.CoralIntakeIOMax;
-import frc.robot.subsystems.coralintake.CoralIntakeIOSim;
-import frc.robot.subsystems.coralintake.CoralIntakeSubsystem;
+import frc.robot.subsystems.algae.*;
+import frc.robot.subsystems.coral.*;
 import lombok.Getter;
 
 public class Rollers extends SubsystemBase {
@@ -20,18 +16,22 @@ public class Rollers extends SubsystemBase {
   private final AlgaeIntakeSubsystem algaeIntake =
       ALGAE_INTAKE_ENABLED
           ? (MODE == GlobalConstants.RobotMode.REAL
-              ? new AlgaeIntakeSubsystem("Algae_intake", new AlgaeIntakeIOMax())
+              ? AlgaeIntakeConstants.isFlex
+                  ? new AlgaeIntakeSubsystem("AlgaeIntake", new AlgaeIntakeIOFlex())
+                  : new AlgaeIntakeSubsystem("AlgaeIntake", new AlgaeIntakeIOMax())
               : new AlgaeIntakeSubsystem(
-                  "Feeder Sim", new AlgaeIntakeIOSim(new DCMotor(1, 1, 1, 1, 1, 1), 0, 0)))
+                  "Algae Sim Intake", new AlgaeIntakeIOSim(new DCMotor(1, 1, 1, 1, 1, 1), 0, 0)))
           : null;
 
   @Getter
   private final CoralIntakeSubsystem coralIntake =
       CORAL_INTAKE_ENABLED
           ? (MODE == GlobalConstants.RobotMode.REAL
-              ? new CoralIntakeSubsystem("Coral_intake", new CoralIntakeIOMax())
+              ? CoralIntakeConstants.IS_FLEX
+                  ? new CoralIntakeSubsystem("CoralIntake", new CoralIntakeIOFlex())
+                  : new CoralIntakeSubsystem("CoralIntake", new CoralIntakeIOMax())
               : new CoralIntakeSubsystem(
-                  "Feeder Sim", new CoralIntakeIOSim(new DCMotor(1, 1, 1, 1, 1, 1), 0, 0)))
+                  "Coral Sim Intake", new CoralIntakeIOSim(new DCMotor(1, 1, 1, 1, 1, 1), 0, 0)))
           : null;
 
   @Override

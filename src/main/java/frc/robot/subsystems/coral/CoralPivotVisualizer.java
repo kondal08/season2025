@@ -1,14 +1,14 @@
-package frc.robot.subsystems.pivot;
+package frc.robot.subsystems.coral;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import org.littletonrobotics.junction.Logger;
 
-public class PivotVisualizer {
+public class CoralPivotVisualizer {
 
   private final String name;
 
-  public PivotVisualizer(String name) {
+  public CoralPivotVisualizer(String name) {
     this.name = name;
   }
 

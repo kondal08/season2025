@@ -1,4 +1,4 @@
-package frc.robot.subsystems.pivot;
+package frc.robot.subsystems.coral;
 
 import frc.robot.generic.arm.GenericPositionArmSystem;
 import frc.robot.util.LoggedTunableNumber;
@@ -9,7 +9,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class PivotSubsystem extends GenericPositionArmSystem<PivotSubsystem.PivotGoal> {
+public class CoralPivotSubsystem extends GenericPositionArmSystem<CoralPivotSubsystem.PivotGoal> {
   @RequiredArgsConstructor
   @Getter
   public enum PivotGoal implements GenericPositionArmSystem.PivotGoal {
@@ -31,7 +31,7 @@ public class PivotSubsystem extends GenericPositionArmSystem<PivotSubsystem.Pivo
 
   private PivotGoal goal = PivotGoal.IDLING;
 
-  public PivotSubsystem(String name, PivotIO io) {
+  public CoralPivotSubsystem(String name, CoralPivotIO io) {
     super(name, io);
   }
 }

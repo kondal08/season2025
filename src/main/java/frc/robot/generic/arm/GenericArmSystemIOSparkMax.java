@@ -1,5 +1,7 @@
 package frc.robot.generic.arm;
 
+import static frc.robot.GlobalConstants.TUNING_MODE;
+
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -16,30 +18,22 @@ import java.util.function.DoubleSupplier;
 public class GenericArmSystemIOSparkMax implements GenericArmSystemIO {
   private final SparkMax[] motors;
   private final AbsoluteEncoder encoder;
-  private double restingAngle;
-  private final double reduction;
   private SparkBaseConfig config;
   private SparkClosedLoopController controller;
   private double goal;
-  private DoubleSupplier kp, ki, kd;
+  private DoubleSupplier kp;
   private boolean[] inverted;
 
   public GenericArmSystemIOSparkMax(
       int[] id,
       boolean[] inverted,
       int currentLimitAmps,
-      double restingAngle,
       boolean brake,
-      double reduction,
-      DoubleSupplier kP,
-      DoubleSupplier kI,
-      DoubleSupplier kD) {
+      double forwardLimit,
+      double reverseLimit,
+      DoubleSupplier kP) {
     this.kp = kP;
-    this.ki = kI;
-    this.kd = kD;
     this.inverted = inverted;
-    this.reduction = reduction;
-    this.restingAngle = restingAngle;
     motors = new SparkMax[id.length];
     config =
         new SparkFlexConfig()
@@ -48,9 +42,9 @@ public class GenericArmSystemIOSparkMax implements GenericArmSystemIO {
     config.absoluteEncoder.inverted(true);
     config
         .closedLoop
-        .pid(kP.getAsDouble(), kI.getAsDouble(), kD.getAsDouble())
+        .pid(kP.getAsDouble(), 0,0)
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
-    config.softLimit.forwardSoftLimit(0.48).reverseSoftLimit(0.1);
+    config.softLimit.forwardSoftLimit(forwardLimit).reverseSoftLimit(reverseLimit);
 
     for (int i = 0; i < id.length; i++) {
       motors[i] = new SparkMax(id[i], SparkLowLevel.MotorType.kBrushless);
@@ -84,14 +78,14 @@ public class GenericArmSystemIOSparkMax implements GenericArmSystemIO {
 
   @Override
   public void runToDegree(double angle) {
-    config.closedLoop.pid(kp.getAsDouble(), ki.getAsDouble(), kd.getAsDouble());
-    motors[0].configure(
-        config.inverted(inverted[0]),
-        ResetMode.kNoResetSafeParameters,
-        PersistMode.kNoPersistParameters);
-    if (angle >= 0.1 && angle <= 0.480) {
-      controller.setReference(angle, ControlType.kPosition);
+    if (TUNING_MODE) {
+      config.closedLoop.pid(kp.getAsDouble(), 0,0);
+      motors[0].configure(
+          config.inverted(inverted[0]),
+          ResetMode.kNoResetSafeParameters,
+          PersistMode.kNoPersistParameters);
     }
+    controller.setReference(angle, ControlType.kPosition);
     goal = angle;
   }
 }
