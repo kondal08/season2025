@@ -14,6 +14,6 @@ public class ElevatorIOMax extends GenericElevatorSystemIOSparkMax implements El
         ElevatorConstants.kP,
         ElevatorConstants.kI,
         ElevatorConstants.kD,
-            ElevatorConstants.DIOPort);
+        ElevatorConstants.DIOPort);
   }
 }

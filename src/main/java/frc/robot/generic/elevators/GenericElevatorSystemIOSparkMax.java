@@ -12,7 +12,6 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.wpilibj.DigitalInput;
-
 import java.util.function.DoubleSupplier;
 
 public class GenericElevatorSystemIOSparkMax implements GenericElevatorSystemIO {

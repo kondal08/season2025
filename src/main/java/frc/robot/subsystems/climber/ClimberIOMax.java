@@ -13,6 +13,7 @@ public class ClimberIOMax extends GenericElevatorSystemIOSparkMax implements Cli
         1.0,
         ClimberConstants.kP,
         ClimberConstants.kI,
-        ClimberConstants.kD);
+        ClimberConstants.kD,
+        ClimberConstants.DIOPort);
   }
 }
