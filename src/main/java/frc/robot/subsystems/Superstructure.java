@@ -21,8 +21,10 @@ import frc.robot.generic.arm.Arms;
 import frc.robot.generic.elevators.Elevators;
 import frc.robot.generic.rollers.Rollers;
 import frc.robot.subsystems.algaeintake.AlgaeIntakeSubsystem;
+import frc.robot.subsystems.algaeintake.AlgaeIntakeSubsystem.AlgaeIntakeGoal;
 import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.coralintake.CoralIntakeSubsystem;
+import frc.robot.subsystems.coralintake.CoralIntakeSubsystem.CoralIntakeGoal;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.leds.LEDIOPWM;
 import frc.robot.subsystems.leds.LEDIOSim;
@@ -153,22 +155,32 @@ public class Superstructure extends SubsystemBase {
       case OUTAKE -> {
         if (wantsCoral) {
           if (CORAL_INTAKE_ENABLED)
-            rollers.getCoralIntake().setGoal(CoralIntakeSubsystem.CoralIntakeGoal.REVERSE);
+            if (!rollers.getCoralIntake().hasCoral().getAsBoolean()) rollers.getCoralIntake().setGoal(CoralIntakeGoal.IDLING);
+            else rollers.getCoralIntake().setGoal(CoralIntakeSubsystem.CoralIntakeGoal.REVERSE);
         } else {
           if (ALGAE_INTAKE_ENABLED)
-            rollers.getAlgaeIntake().setGoal(AlgaeIntakeSubsystem.AlgaeIntakeGoal.REVERSE);
+            if (!rollers.getAlgaeIntake().hasAlgae().getAsBoolean()) rollers.getAlgaeIntake().setGoal(AlgaeIntakeGoal.IDLING);
+            else rollers.getAlgaeIntake().setGoal(AlgaeIntakeGoal.REVERSE);
         }
       }
       case SOURCE -> {
         if (ELEVATOR_ENABLED)
           elevators.getElevator().setGoal(ElevatorSubsystem.ElevatorGoal.SOURCE);
         if (PIVOT_ENABLED) arms.getPivot().setGoal(PivotSubsystem.PivotGoal.SOURCE);
+        if (CORAL_INTAKE_ENABLED)
+            if (rollers.getCoralIntake().hasCoral().getAsBoolean()) rollers.getCoralIntake().setGoal(CoralIntakeGoal.IDLING);
+            else rollers.getCoralIntake().setGoal(CoralIntakeSubsystem.CoralIntakeGoal.FORWARD);
       }
     }
   }
 
   public Trigger coralMode() {
     return new Trigger(() -> wantsCoral);
+  }
+
+  public Trigger hasGamePiece() {
+    if (wantsCoral) return new Trigger(rollers.getCoralIntake().hasCoral());
+    return new Trigger(rollers.getAlgaeIntake().hasAlgae());
   }
 
   public void registerSuperstructureCharacterization(

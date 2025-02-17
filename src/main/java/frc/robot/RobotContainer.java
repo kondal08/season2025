@@ -52,6 +52,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.GlobalConstants.RobotMode;
 import frc.robot.OI.DriverMap;
 import frc.robot.OI.OperatorMap;
+import frc.robot.commands.AutoCommands;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.swerve.GyroIO;
@@ -137,6 +138,8 @@ public class RobotContainer {
                   new ModuleIO() {},
                   new ModuleIO() {});
           };
+
+      AutoCommands.registerAutoCommands(superstructure);
 
       // Set up auto routines
       autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -289,18 +292,6 @@ public class RobotContainer {
     operator.Testing().whileTrue(superstructure.setSuperStateCmd(TESTING));
 
     operator.Source().whileTrue(superstructure.setSuperStateCmd(SOURCE));
-  }
-
-  /** Write all the auto named commands here */
-  private void registerAutoCommands() {
-    /** Overriding commands */
-
-    // overrides the x axis
-    NamedCommands.registerCommand(
-        "OverrideCoralOffset", DriveCommands.overridePathplannerCoralOffset(() -> 2.0));
-
-    // clears all override commands in the x and y direction
-    NamedCommands.registerCommand("Clear XY Override", DriveCommands.clearXYOverrides());
   }
 
   /**
