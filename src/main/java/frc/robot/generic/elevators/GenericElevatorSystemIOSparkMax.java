@@ -11,6 +11,8 @@ import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
+import edu.wpi.first.wpilibj.DigitalInput;
+
 import java.util.function.DoubleSupplier;
 
 public class GenericElevatorSystemIOSparkMax implements GenericElevatorSystemIO {
@@ -21,6 +23,7 @@ public class GenericElevatorSystemIOSparkMax implements GenericElevatorSystemIO 
   private double goal;
   private DoubleSupplier kp, ki, kd;
   private boolean[] inverted;
+  private DigitalInput limitSwitch;
 
   public GenericElevatorSystemIOSparkMax(
       int[] id,
@@ -31,11 +34,13 @@ public class GenericElevatorSystemIOSparkMax implements GenericElevatorSystemIO 
       double reduction,
       DoubleSupplier kP,
       DoubleSupplier kI,
-      DoubleSupplier kD) {
+      DoubleSupplier kD,
+      int DIOPort) {
     this.kp = kP;
     this.ki = kI;
     this.kd = kD;
     this.inverted = inverted;
+    this.limitSwitch = new DigitalInput(DIOPort);
     motors = new SparkMax[id.length];
     config =
         new SparkFlexConfig()
@@ -73,6 +78,7 @@ public class GenericElevatorSystemIOSparkMax implements GenericElevatorSystemIO 
 
   @Override
   public void runPosition(double position) {
+    if (limitSwitch.get()) encoder.setPosition(0);
     if (TUNING_MODE) {
       config.closedLoop.pid(kp.getAsDouble(), ki.getAsDouble(), kd.getAsDouble());
       motors[0].configure(
