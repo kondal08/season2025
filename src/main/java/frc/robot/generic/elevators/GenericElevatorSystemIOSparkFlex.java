@@ -11,7 +11,6 @@ import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
-import edu.wpi.first.wpilibj.DigitalInput;
 import java.util.function.DoubleSupplier;
 
 public class GenericElevatorSystemIOSparkFlex implements GenericElevatorSystemIO {
@@ -22,7 +21,6 @@ public class GenericElevatorSystemIOSparkFlex implements GenericElevatorSystemIO
   private double goal;
   private DoubleSupplier kp, ki, kd;
   private boolean[] inverted;
-  private DigitalInput limitSwitch;
 
   public GenericElevatorSystemIOSparkFlex(
       int[] id,
@@ -33,13 +31,11 @@ public class GenericElevatorSystemIOSparkFlex implements GenericElevatorSystemIO
       double reduction,
       DoubleSupplier kP,
       DoubleSupplier kI,
-      DoubleSupplier kD,
-      int DIOPort) {
+      DoubleSupplier kD) {
     this.kp = kP;
     this.ki = kI;
     this.kd = kD;
     this.inverted = inverted;
-    this.limitSwitch = new DigitalInput(DIOPort);
     motors = new SparkFlex[id.length];
     config =
         new SparkFlexConfig()
@@ -77,7 +73,6 @@ public class GenericElevatorSystemIOSparkFlex implements GenericElevatorSystemIO
 
   @Override
   public void runPosition(double position) {
-    if (limitSwitch.get()) encoder.setPosition(0);
     if (TUNING_MODE) {
       config.closedLoop.pid(kp.getAsDouble(), ki.getAsDouble(), kd.getAsDouble());
       motors[0].configure(
@@ -87,5 +82,10 @@ public class GenericElevatorSystemIOSparkFlex implements GenericElevatorSystemIO
     }
     controller.setReference(position, ControlType.kPosition);
     goal = position;
+  }
+
+  @Override
+  public void resetEncoder() {
+    encoder.setPosition(0.0);
   }
 }

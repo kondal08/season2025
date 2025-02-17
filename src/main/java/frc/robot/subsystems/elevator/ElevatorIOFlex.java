@@ -13,7 +13,6 @@ public class ElevatorIOFlex extends GenericElevatorSystemIOSparkFlex implements 
         1.0,
         ElevatorConstants.kP,
         ElevatorConstants.kI,
-        ElevatorConstants.kD,
-        ElevatorConstants.DIOPort);
+        ElevatorConstants.kD);
   }
 }

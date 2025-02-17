@@ -13,7 +13,6 @@ public class ClimberIOFlex extends GenericElevatorSystemIOSparkFlex implements C
         1.0,
         ClimberConstants.kP,
         ClimberConstants.kI,
-        ClimberConstants.kD,
-        ClimberConstants.DIOPort);
+        ClimberConstants.kD);
   }
 }
